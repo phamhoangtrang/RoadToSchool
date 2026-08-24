@@ -6,8 +6,9 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="author" content="GrayGrids Team">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <script src="{{ asset('build/legacy.js') }}"></script>
     <link rel="shortcut icon" href="/assets/img/favicon.png">
-    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/jasny-bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/material-kit.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/font-awesome.min.css') }}">

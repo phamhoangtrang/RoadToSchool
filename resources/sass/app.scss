@@ -5,10 +5,33 @@
 // Variables
 @import 'variables';
 
-// Bootstrap
-@import '~bootstrap/scss/bootstrap';
+// Bootstrap 5
+@import 'bootstrap/scss/bootstrap';
 
 .navbar-laravel {
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+// Compatibility utilities used by the original Bootstrap 3/4 templates.
+.pull-left { float: left !important; }
+.pull-right { float: right !important; }
+.img-responsive { display: block; max-width: 100%; height: auto; }
+.btn-default { @extend .btn-light; }
+.text-right { text-align: right !important; }
+.text-left { text-align: left !important; }
+.form-group { margin-bottom: 1rem; }
+.input-group-btn { display: flex; }
+.collapse.in { display: block; }
+.navbar-toggle { @extend .navbar-toggler; }
+.navbar-toggle .icon-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  margin: 4px 0;
+  background: currentColor;
+}
+
+@media (max-width: 767.98px) {
+  .hidden-xs { display: none !important; }
 }

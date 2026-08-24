@@ -10,8 +10,20 @@ services:
     volumes:
       - .:/var/www/html
     depends_on:
+      assets:
+        condition: service_completed_successfully
       database:
         condition: service_healthy
+
+  assets:
+    image: node:24-alpine
+    user: "1000:1000"
+    working_dir: /var/www/html
+    command: sh -lc "npm install --ignore-scripts && npm run build"
+    environment:
+      NPM_CONFIG_CACHE: /tmp/npm-cache
+    volumes:
+      - .:/var/www/html
 
   database:
     image: mysql:8.4

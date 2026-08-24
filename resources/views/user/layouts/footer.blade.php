@@ -118,9 +118,6 @@
     <i class="fa fa-angle-up"></i>
 </a>
 
-<script src="//js.pusher.com/3.1/pusher.min.js"></script>
-<script type="text/javascript" src="{{ asset('assets/js/jquery-min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/material.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/material-kit.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/jquery.parallax.js') }}"></script>

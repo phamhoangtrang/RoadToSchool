@@ -1,22 +1,25 @@
+import axios from 'axios';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
+window.axios = axios;
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.Pusher = Pusher;
 
-require('./bootstrap');
+const token = document.head.querySelector('meta[name="csrf-token"]');
 
-window.Vue = require('vue');
+if (token) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+}
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
-
-const app = new Vue({
-    el: '#app'
-});
+if (import.meta.env.VITE_REVERB_APP_KEY) {
+    window.Echo = new Echo({
+        broadcaster: 'reverb',
+        key: import.meta.env.VITE_REVERB_APP_KEY,
+        wsHost: import.meta.env.VITE_REVERB_HOST || window.location.hostname,
+        wsPort: Number(import.meta.env.VITE_REVERB_PORT || 80),
+        wssPort: Number(import.meta.env.VITE_REVERB_PORT || 443),
+        forceTLS: (import.meta.env.VITE_REVERB_SCHEME || 'https') === 'https',
+        enabledTransports: ['ws', 'wss'],
+    });
+}
