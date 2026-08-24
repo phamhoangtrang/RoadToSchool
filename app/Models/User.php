@@ -2,18 +2,20 @@
 
 namespace App\Models;
 
+use Hash;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Hash;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
     const ROLE_ADMIN = 0;
+
     const ROLE_TEACHER = 1;
+
     const ROLE_STUDENT = 2;
 
     public static $roles = [
@@ -37,23 +39,37 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_admin',
         'grade',
         'instructor_rate',
-        'working_place'
+        'working_place',
     ];
 
     const GRADE_0 = 0;
+
     const GRADE_1 = 1;
+
     const GRADE_2 = 2;
+
     const GRADE_3 = 3;
+
     const GRADE_4 = 4;
+
     const GRADE_5 = 5;
+
     const GRADE_6 = 6;
+
     const GRADE_7 = 7;
+
     const GRADE_8 = 8;
+
     const GRADE_9 = 9;
+
     const GRADE_10 = 10;
+
     const GRADE_11 = 11;
+
     const GRADE_12 = 12;
+
     const GRADE_13 = 13;
+
     const GRADE_14 = 14;
 
     public static $grades = [
@@ -73,6 +89,7 @@ class User extends Authenticatable implements MustVerifyEmail
         self::GRADE_13 => 'University and College',
         self::GRADE_14 => 'Out of grade',
     ];
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -132,38 +149,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return User::findOrFail($id);
     }
 
-    public function updateUser($data, $id)
-    {
-
-        $selectedUser = User::find($id);
-
-        if (isset($data['update_info'])) {
-            if (isset($data['cancel_value'])) {
-                $data['avatar'] = $selectedUser->avatar;
-            } elseif (isset($data['delete_value'])) {
-                $data['avatar'] = 'images/avatar/basic-avatar.png';
-            } else {
-                $file = $data['avatar'];
-                $file->store($file->getClientOriginalName());
-                $file->move('images/dummy_image', $file->getClientOriginalName());
-                $data['avatar'] = 'images/dummy_image/' . $file->getClientOriginalName();
-            }
-        }
-
-        if (isset($data['update_password'])) {
-            if (isset($data['old_password'])) {
-                $hasher = app('hash');
-                $result = $hasher->check($data['old_password'], $selectedUser->password);
-                if (!$result) {
-                    return false;
-                }
-                $data['password'] = Hash::make($data['new_password']);
-            }
-        }
-
-        return $selectedUser->update($data);
-    }
-
     public function getStudentsCount($idInstructor)
     {
         $coursesInstructor = Course::where('is_accepted', 1)->where('user_id', $idInstructor)->pluck('id');
@@ -181,7 +166,7 @@ class User extends Authenticatable implements MustVerifyEmail
             }
 
             $updateResult = $instructor->update(['instructor_rate' => $avgRate]);
-            if (!$updateResult) {
+            if (! $updateResult) {
                 return false;
             }
         }
@@ -189,14 +174,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return true;
     }
 
-
     public static function ordinal($number)
     {
-        $ends = array('th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th');
-        if ((($number % 100) >= 11) && (($number % 100) <= 13))
-            return $number . 'th';
-        else
-            return $number . $ends[$number % 10];
+        $ends = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'];
+        if ((($number % 100) >= 11) && (($number % 100) <= 13)) {
+            return $number.'th';
+        } else {
+            return $number.$ends[$number % 10];
+        }
     }
 
     public function createInstructor($data)

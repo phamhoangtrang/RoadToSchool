@@ -63,6 +63,14 @@ return [
             'throw' => true,
         ],
 
+        'avatar_images' => [
+            'driver' => 'local',
+            'root' => public_path('images/dummy_image'),
+            'url' => env('APP_URL').'/images/dummy_image',
+            'visibility' => 'public',
+            'throw' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

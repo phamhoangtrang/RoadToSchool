@@ -4,8 +4,14 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUserRequest;
-use App\Models\User;
 use App\Models\Course;
+use App\Models\Province;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -17,7 +23,6 @@ class UserController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param User $users
      * @return void
      */
     public function __construct(User $users)
@@ -28,7 +33,7 @@ class UserController extends Controller
     /**
      * Show detail user
      *
-     * @param mixed $id
+     * @param  mixed  $id
      * @return void
      */
     public function show($id)
@@ -36,9 +41,9 @@ class UserController extends Controller
         $selectedUser = $this->modelUser->findUser($id);
 
         // Get difftime from last login to now.
-        $diffTime = \Carbon\Carbon::parse($selectedUser->last_login)->diffForHumans();
+        $diffTime = Carbon::parse($selectedUser->last_login)->diffForHumans();
         // Get all province from database.
-        $selectProvince = \App\Models\Province::all()->pluck('name', 'id');
+        $selectProvince = Province::all()->pluck('name', 'id');
 
         return view('user.users.show', compact(
             'selectedUser',
@@ -49,14 +54,41 @@ class UserController extends Controller
 
     public function update(UpdateUserRequest $request, $id)
     {
-        $data = $request->all();
-        $result = $this->modelUser->updateUser($data, $id);
+        $user = $this->modelUser->findOrFail($id);
 
-        if ($result) {
+        if ($request->has('update_password')) {
+            $user->update([
+                'password' => Hash::make($request->validated('new_password')),
+                'remember_token' => Str::random(60),
+            ]);
             flash(__('messages.update_successfully'))->success();
-        } else {
-            flash(__('messages.update_failed'))->error();
+
+            return redirect()->route('users.show', $id);
         }
+
+        $data = $request->safe()->except('avatar');
+        $storedAvatar = null;
+
+        try {
+            if ($request->hasFile('avatar')) {
+                $storedAvatar = $request->file('avatar')->store('', 'avatar_images');
+                $data['avatar'] = 'images/dummy_image/'.$storedAvatar;
+            }
+
+            $oldAvatar = $user->avatar;
+            $user->update($data);
+            if ($storedAvatar && str_starts_with($oldAvatar, 'images/dummy_image/')) {
+                Storage::disk('avatar_images')->delete(basename($oldAvatar));
+            }
+        } catch (Throwable $exception) {
+            if ($storedAvatar) {
+                Storage::disk('avatar_images')->delete($storedAvatar);
+            }
+
+            throw $exception;
+        }
+
+        flash(__('messages.update_successfully'))->success();
 
         return redirect()->route('users.show', $id);
     }
