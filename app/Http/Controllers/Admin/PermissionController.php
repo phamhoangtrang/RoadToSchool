@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\PermissionUser;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Permission;
-use App\Models\User;
 use App\Http\Requests\CreateAdminPermissionRequest;
+use App\Models\Permission;
+use App\Models\PermissionUser;
+use App\Models\User;
+use App\Support\RoutePermissions;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PermissionController extends Controller
 {
     protected $modelPermission;
+
     protected $modelUser;
+
     protected $modelPermissionUser;
 
     public function __construct(Permission $permission, User $user, PermissionUser $permissionUser)
@@ -56,12 +60,11 @@ class PermissionController extends Controller
         $permissionList = $this->modelPermissionUser->where('user_id', $userId)->pluck('permission_id');
         $selectedUser = User::findOrFail($userId);
 
-        // Check update permission
-        if ($this->modelPermissionUser->where('permission_id', 19)->where('user_id', \Auth::user()->id)->first()) {
-            $responseData['allowUpdate'] = 1;
-        } else {
-            $responseData['allowUpdate'] = 0;
-        }
+        $responseData['allowUpdate'] = $this->modelPermissionUser
+            ->join('permissions', 'permissions.id', '=', 'permission_user.permission_id')
+            ->where('permission_user.user_id', $request->user()->id)
+            ->where('permissions.content', RoutePermissions::MAP['admin.permissions.updatePermission'])
+            ->exists() ? 1 : 0;
 
         $responseData['permissionList'] = $permissionList;
         $responseData['selectedUser'] = $selectedUser;
@@ -71,28 +74,24 @@ class PermissionController extends Controller
 
     public function updatePermission(Request $request, $userId)
     {
-        $data = $request->all();
-        if (!array_key_exists('checkedPermissionList', $data)) {
-            $this->modelPermissionUser->where('user_id', $userId)->delete();
+        $this->modelUser->findOrFail($userId);
+        $data = $request->validate([
+            'checkedPermissionList' => ['sometimes', 'array'],
+            'checkedPermissionList.*' => ['integer', 'distinct', 'exists:permissions,id'],
+        ]);
+        $checkedPermissionList = $data['checkedPermissionList'] ?? [];
 
-            return 200;
-        } else {
-            $checkedPermissionList = $data['checkedPermissionList'];
+        DB::transaction(function () use ($userId, $checkedPermissionList): void {
             $this->modelPermissionUser->where('user_id', $userId)->delete();
-            for ($x = 0; $x < count($checkedPermissionList); $x++) {
-                $checkPermissionExist = $this->modelPermissionUser->where('permission_id', $checkedPermissionList[$x])
-                    ->where('user_id', $userId)
-                    ->first();
-                if (!$checkPermissionExist) {
-                    $this->modelPermissionUser->create([
-                        'permission_id' => $checkedPermissionList[$x],
-                        'user_id' => $userId
-                    ]);
-                }
+            foreach ($checkedPermissionList as $permissionId) {
+                $this->modelPermissionUser->create([
+                    'permission_id' => $permissionId,
+                    'user_id' => $userId,
+                ]);
             }
+        });
 
-            return json_encode($checkedPermissionList);
-        }
+        return json_encode($checkedPermissionList);
     }
 
     public function create()
