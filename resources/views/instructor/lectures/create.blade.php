@@ -381,8 +381,7 @@
                         data: {
                             url: $('#input-youtube-url').val()
                         },
-                        success: function (response) {
-                            var responseData = jQuery.parseJSON(response);
+                        success: function (responseData) {
                             $('#button-get-duration').hide();
                             $('#input-video-duration').val(responseData.duration);
                             $('#input-video-title').val(responseData.title);

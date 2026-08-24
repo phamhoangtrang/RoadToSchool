@@ -2,33 +2,43 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\GetLectureCommentFromPusherEvent;
+use App\Events\GetNotificationFromPusherEvent;
+use App\Events\GetReplyLectureCommentFromPusherEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
-use App\Models\Lecture;
 use App\Models\Discussion;
+use App\Models\Lecture;
 use App\Models\LectureComment;
 use App\Models\Notification;
 use App\Models\Process;
 use App\Models\QuizElement;
 use App\Models\QuizElementzQuizResult;
 use App\Models\QuizResult;
-use Embed\Embed;
+use App\Services\YouTubeMetadataService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Events\GetLectureCommentFromPusherEvent;
-use App\Events\GetReplyLectureCommentFromPusherEvent;
-use App\Events\GetNotificationFromPusherEvent;
 
 class LectureController extends Controller
 {
     // protected $modelLecture;
     protected $modelDiscussion;
+
     protected $modelLectureComment;
+
     protected $modelNotification;
+
     protected $modelProcess;
+
     protected $modelLecture;
+
     protected $modelQuizElement;
+
     protected $modelQuizResult;
+
     protected $modelQuizElementzQuizResult;
+
+    protected $youtubeMetadata;
 
     public function __construct(
         Discussion $discussion,
@@ -38,9 +48,9 @@ class LectureController extends Controller
         Lecture $lecture,
         QuizElement $quizElement,
         QuizResult $quizResult,
-        QuizElementzQuizResult $quizElementzQuizResult
-    )
-    {
+        QuizElementzQuizResult $quizElementzQuizResult,
+        YouTubeMetadataService $youtubeMetadata,
+    ) {
         $this->modelDiscussion = $discussion;
         $this->modelLectureComment = $lectureComment;
         $this->modelNotification = $notification;
@@ -49,6 +59,7 @@ class LectureController extends Controller
         $this->modelQuizElement = $quizElement;
         $this->modelQuizResult = $quizResult;
         $this->modelQuizElementzQuizResult = $quizElementzQuizResult;
+        $this->youtubeMetadata = $youtubeMetadata;
     }
 
     public function show($id, $lectureId)
@@ -70,7 +81,7 @@ class LectureController extends Controller
             $link = Lecture::find($lectureId)->video_link;
             $description = Lecture::find($lectureId)->description;
             $teacher = Course::find($id)->user;
-            $embed = Embed::create($link);
+            $embedHtml = $this->youtubeMetadata->embedHtml($link);
             $lectures = Course::find($id)->lectures()->where('is_accepted', 1)->get();
             $lectureComments = $this->modelLectureComment->where('lecture_id', $lectureId)->get();
 
@@ -85,7 +96,7 @@ class LectureController extends Controller
             $lectureOutline = [];
             for ($i = 0; $i < $maxWeek; $i++) {
                 $result = $this->modelLecture->where('course_id', $id)->where('is_accepted', 1)->where('week', ($i + 1))->orderBy('index')->get();
-                if (!(\Auth::user()->is_admin || \Auth::user()->role == 1)) {
+                if (! (\Auth::user()->is_admin || \Auth::user()->role == 1)) {
                     foreach ($result as $lecture) {
                         $lecture->status = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first()->status;
                     }
@@ -115,7 +126,7 @@ class LectureController extends Controller
             }
 
             return view('user.lectures.show', compact(
-                'embed',
+                'embedHtml',
                 'lectures',
                 'id',
                 'description',
@@ -141,12 +152,12 @@ class LectureController extends Controller
         $lectureCommentedUserList = $this->modelLectureComment->where('lecture_id', $lectureId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
         // Create Notification
         $createdNotification = $this->modelNotification->createCommentNotification($lectureId, $lectureCommentedUserList, $createdLectureComment, Notification::LECTURE_COMMENT);
-        $notificationContent = '<b>' . $createdLectureComment->user->name . '</b>' . ' has commented in lecture ' . Lecture::findOrFail($lectureId)->title . ': ' . $createdLectureComment->content;
+        $notificationContent = '<b>'.$createdLectureComment->user->name.'</b>'.' has commented in lecture '.Lecture::findOrFail($lectureId)->title.': '.$createdLectureComment->content;
         $createNotificationIdList = $this->modelNotification->where('comment_id', $createdLectureComment->id)->pluck('id', 'user_id');
 
         if ($createdLectureComment && $createdNotification) {
             event(new GetLectureCommentFromPusherEvent($request, $createdLectureComment));
-            event(new GetNotificationFromPusherEvent($lectureId, $lectureCommentedUserList, $createdLectureComment, $notificationContent, $createdLectureComment->user->avatar, \Carbon\Carbon::parse($createdLectureComment->created_at)->diffForHumans(), $createNotificationIdList));
+            event(new GetNotificationFromPusherEvent($lectureId, $lectureCommentedUserList, $createdLectureComment, $notificationContent, $createdLectureComment->user->avatar, Carbon::parse($createdLectureComment->created_at)->diffForHumans(), $createNotificationIdList));
 
             return 200;
         }
@@ -162,9 +173,9 @@ class LectureController extends Controller
         $data['parent_comment'] = $parentCommentId;
 
         $createdComment = $this->modelLectureComment->storeNewLectureComment($data);
-//        $commentedUserList = $this->modelComment->where('user_id', '!=', $data['user_id'])->where('course_id', $courseId)->where('parent_comment', $parentCommentId)->groupBy('user_id')->pluck('user_id');
-//        $createdNotification = $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, 'replied');
-//        if($createdComment && $createdNotification) {
+        //        $commentedUserList = $this->modelComment->where('user_id', '!=', $data['user_id'])->where('course_id', $courseId)->where('parent_comment', $parentCommentId)->groupBy('user_id')->pluck('user_id');
+        //        $createdNotification = $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, 'replied');
+        //        if($createdComment && $createdNotification) {
         if ($createdComment) {
             event(new GetReplyLectureCommentFromPusherEvent($request, $createdComment, $parentCommentId));
 

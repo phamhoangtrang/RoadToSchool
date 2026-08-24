@@ -26,7 +26,7 @@
                             </div>
                         @endif
                     </div>
-                    {!! $embed->code !!}
+                    {!! $embedHtml !!}
                     @if (\App\Models\Lecture::find($lectureId + 1))
                     <div id="timer" style="display: none;">
                         <p class="text-center" style="font-weight: bold">Redirect to next lecture

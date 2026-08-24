@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Instructor;
 
+use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Lecture;
 use App\Models\QuizElement;
+use App\Services\YouTubeMetadataService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Embed\Embed;
+use InvalidArgumentException;
+use Throwable;
 
 class LectureController extends Controller
 {
@@ -15,21 +17,29 @@ class LectureController extends Controller
      * The dependency model instance.
      */
     protected $modelCourse;
+
     protected $modelLecture;
+
     protected $modelQuizElement;
+
+    protected $youtubeMetadata;
 
     /**
      * Create a new controller instance.
      *
-     * @param Course $course
-     * @param Category $category
+     * @param  Category  $category
      * @return void
      */
-    public function __construct(Course $course, Lecture $lecture, QuizElement $quizElement)
-    {
+    public function __construct(
+        Course $course,
+        Lecture $lecture,
+        QuizElement $quizElement,
+        YouTubeMetadataService $youtubeMetadata,
+    ) {
         $this->modelCourse = $course;
         $this->modelLecture = $lecture;
         $this->modelQuizElement = $quizElement;
+        $this->youtubeMetadata = $youtubeMetadata;
     }
 
     public function create($courseId)
@@ -59,15 +69,21 @@ class LectureController extends Controller
 
     public function getVideoDuration(Request $request)
     {
-        $data = $request->all();
+        $data = $request->validate([
+            'url' => ['required', 'url', 'max:2048'],
+        ]);
 
-        $embedUrl = Embed::create($data['url']);
-        $youtubeTimeFormat = $embedUrl->getProviders()['html']->getBag()->getAll()['duration'];
-        $responseData['duration'] = self::covtime($youtubeTimeFormat);
-        $responseData['title'] = $embedUrl->title;
-        $responseData['description'] = $embedUrl->description;
+        try {
+            return response()->json($this->youtubeMetadata->metadata($data['url']));
+        } catch (InvalidArgumentException $exception) {
+            return response()->json(['message' => $exception->getMessage()], 422);
+        } catch (Throwable $exception) {
+            report($exception);
 
-        return json_encode($responseData);
+            return response()->json([
+                'message' => 'Unable to read this YouTube video. Please check the URL and try again.',
+            ], 422);
+        }
     }
 
     public function store(Request $request, $courseId)
@@ -83,12 +99,12 @@ class LectureController extends Controller
                 $data['course_id'] = $courseId;
                 $data['is_lecture'] = 1;
                 $data['is_quiz'] = 0;
-//            $lectureWeek1List = $this->modelLecture->where('course_id', $courseId)->where('week', 1)->get();
-//            foreach($lectureWeek1List as $lecture) {
-//                $lecture->update(['index' => ($lecture->index++)]);
-//            }
+                //            $lectureWeek1List = $this->modelLecture->where('course_id', $courseId)->where('week', 1)->get();
+                //            foreach($lectureWeek1List as $lecture) {
+                //                $lecture->update(['index' => ($lecture->index++)]);
+                //            }
                 $result = $this->modelLecture->create($data);
-            } else if ($data['positionValue'] == -1) {
+            } elseif ($data['positionValue'] == -1) {
                 // At last
                 $data['index'] = 0;
                 $data['is_accepted'] = 0;
@@ -125,12 +141,12 @@ class LectureController extends Controller
                 $data['course_id'] = $courseId;
                 $data['is_lecture'] = 0;
                 $data['is_quiz'] = 1;
-//            $lectureWeek1List = $this->modelLecture->where('course_id', $courseId)->where('week', 1)->get();
-//            foreach($lectureWeek1List as $lecture) {
-//                $lecture->update(['index' => ($lecture->index++)]);
-//            }
+                //            $lectureWeek1List = $this->modelLecture->where('course_id', $courseId)->where('week', 1)->get();
+                //            foreach($lectureWeek1List as $lecture) {
+                //                $lecture->update(['index' => ($lecture->index++)]);
+                //            }
                 $createdLecture = $this->modelLecture->create($data);
-            } else if ($data['quizPositionValue'] == -1) {
+            } elseif ($data['quizPositionValue'] == -1) {
                 // At last
                 $data['index'] = 0;
                 $data['is_accepted'] = 0;
@@ -154,13 +170,13 @@ class LectureController extends Controller
 
             $questionList = $data['question'];
             foreach ($questionList as $key => $question) {
-                if (!is_null($question)) {
+                if (! is_null($question)) {
                     $dataElement = [];
                     $dataElement['content'] = $question;
                     $dataElement['is_question'] = 1;
-                    if (array_key_exists('is_multiple_choice_question_' . ($key + 1), $data)) {
+                    if (array_key_exists('is_multiple_choice_question_'.($key + 1), $data)) {
                         $dataElement['is_multiple_choice'] = 1;
-                    } else if (array_key_exists('is_single_choice_question_' . ($key + 1), $data) != null) {
+                    } elseif (array_key_exists('is_single_choice_question_'.($key + 1), $data) != null) {
                         $dataElement['is_multiple_choice'] = 0;
                     }
                     $dataElement['is_answer'] = 0;
@@ -169,11 +185,11 @@ class LectureController extends Controller
                     $questionIndex = $key + 1;
                     for ($temp = 1; $temp <= 4; $temp++) {
                         $dataElement = [];
-                        $dataElement['content'] = $data['question_' . $questionIndex . '_answer_' . $temp];
+                        $dataElement['content'] = $data['question_'.$questionIndex.'_answer_'.$temp];
                         $dataElement['is_question'] = 0;
                         $dataElement['is_answer'] = 1;
                         $dataElement['question_parent_id'] = $createdQuestion->id;
-                        if (array_key_exists('checkbox_question_' . $questionIndex . '_answer_' . $temp, $data)) {
+                        if (array_key_exists('checkbox_question_'.$questionIndex.'_answer_'.$temp, $data)) {
                             $dataElement['is_right_answer'] = 1;
                         } else {
                             $dataElement['is_right_answer'] = 0;
@@ -192,32 +208,5 @@ class LectureController extends Controller
         }
 
         return redirect()->route('instructor.courses.show', $courseId);
-    }
-
-    function covtime($youtube_time)
-    {
-        preg_match_all('/(\d+)/', $youtube_time, $parts);
-
-        // Put in zeros if we have less than 3 numbers.
-        if (count($parts[0]) == 1) {
-            array_unshift($parts[0], "0", "0");
-        } elseif (count($parts[0]) == 2) {
-            array_unshift($parts[0], "0");
-        }
-
-        $sec_init = $parts[0][2];
-        $seconds = $sec_init % 60;
-        $seconds_overflow = floor($sec_init / 60);
-
-        $min_init = $parts[0][1] + $seconds_overflow;
-        $minutes = ($min_init) % 60;
-        $minutes_overflow = floor(($min_init) / 60);
-
-        $hours = $parts[0][0] + $minutes_overflow;
-
-        if ($hours != 0)
-            return $hours . ':' . $minutes . ':' . $seconds;
-        else
-            return $minutes . ':' . $seconds;
     }
 }
