@@ -6,10 +6,6 @@
 
 @section('inline_styles')
     <!-- page css -->
-    <link href="{{ asset('assets/admin/vendor/selectize/dist/css/selectize.default.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/admin/vendor/summernote/dist/summernote-bs4.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css') }}"
-          rel="stylesheet">
 @endsection
 
 @section('content')
@@ -119,11 +115,6 @@
 @include('admin.layouts.delete_modal')
 
 @section('inline_scripts')
-    <script src="{{ asset('assets/admin/vendor/moment/min/moment.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/selectize/dist/js/standalone/selectize.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/summernote/dist/summernote-bs4.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/forms/form-elements.js') }}"></script>
     <script>
         $(document).ready(function () {
             $('#btn-reset').on('click', function (event) {

@@ -351,12 +351,8 @@ $("#notification-area").on("click", ".notification-detail", function () {
 // Timer notification
 var myTimer;
 
-// custom notification
-// Thay giá trị PUSHER_APP_KEY vào chỗ xxx này nhé
-var pusher = new Pusher("f2b354d9cdae3999c31d", {
-    encrypted: true,
-    cluster: "ap1"
-});
+// Realtime notifications
+var pusher = window.RoadToSchoolRealtime;
 
 // Subscribe to the channel we specified in our Laravel Event
 var notificationChannel = pusher.subscribe("notification");
@@ -388,7 +384,7 @@ notificationChannel.bind(
         var userAvatar = data.userAvatar;
         userAvatar = userAvatar.replace(
             "images/",
-            "http://127.0.0.1:8000/images/"
+            window.location.origin + "/images/"
         );
 
         var commentContent = "";
@@ -434,7 +430,7 @@ notificationChannel.bind(
             '">' +
             data.diffTime +
             "</span> </span> </span> </span> </li>";
-        var newDockHtml = '<li class="divider"></li><li class="text-center"><a href="http://127.0.0.1:8000/notifications/index"><h4> See all notifications </h4></a></li>';
+        var newDockHtml = '<li class="divider"></li><li class="text-center"><a href="' + window.location.origin + '/notifications"><h4> See all notifications </h4></a></li>';
         if ($('#none-dock').length) {
             $('#none-dock').hide();
             notificationList.prepend(newDockHtml);
@@ -626,12 +622,13 @@ $(document).on('keypress', function (e) {
 });
 
 // Conversation area
-document.getElementById('popup-messages').scrollTop = 9999999;
-// custom notification
-var pusher = new Pusher("f2b354d9cdae3999c31d", {
-    encrypted: true,
-    cluster: "ap1"
-});
+var popupMessages = document.getElementById('popup-messages');
+if (popupMessages) {
+    popupMessages.scrollTop = 9999999;
+}
+
+// Realtime conversations
+var pusher = window.RoadToSchoolRealtime;
 
 var conversationMessageChannel = pusher.subscribe("conversation-message");
 
@@ -643,7 +640,7 @@ conversationMessageChannel.bind(
             var userAvatar = data.fromUser.avatar;
             userAvatar = userAvatar.replace(
                 "images/",
-                "http://127.0.0.1:8000/images/"
+                window.location.origin + "/images/"
             );
             var newMessageHtml = '<div class="direct-chat-msg doted-border">\n' +
                 '                        <div class="direct-chat-info clearfix">\n' +
@@ -670,4 +667,3 @@ conversationMessageChannel.bind(
         }
     }
 );
-

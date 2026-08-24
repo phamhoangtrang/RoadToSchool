@@ -5,8 +5,6 @@
 @endsection
 
 @section('inline_styles')
-    <link rel="stylesheet"
-          href="{{ asset('assets/admin/vendor/datatables/media/css/dataTables.bootstrap4.min.css') }}"/>
     <link rel="stylesheet" href="{{ asset('assets/css/custom/hide-am-pm.css') }}"/>
 @endsection
 
@@ -345,9 +343,6 @@
 @endsection
 
 @section('inline_scripts')
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/jquery.dataTables.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/tables/data-table.js') }}"></script>
     <script>
         $(document).ready(function () {
             $('input[name=lecture_type]').on('change', function () {

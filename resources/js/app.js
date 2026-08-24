@@ -30,7 +30,7 @@ const noOpChannel = {
     },
 };
 
-window.RoadToSchoolRealtime = {
+const realtime = {
     subscribe(channelName) {
         if (!window.Echo) {
             return noOpChannel;
@@ -47,3 +47,10 @@ window.RoadToSchoolRealtime = {
         };
     },
 };
+
+const pendingRealtimeListeners = window.__RoadToSchoolRealtimeListeners || [];
+window.RoadToSchoolRealtime = realtime;
+pendingRealtimeListeners.forEach(({ channelName, eventName, listener }) => {
+    realtime.subscribe(channelName).bind(eventName, listener);
+});
+window.__RoadToSchoolRealtimeListeners = [];

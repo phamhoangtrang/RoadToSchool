@@ -3,21 +3,33 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build && npm run build:legacy",
+        "build": "vite build && npm run build:legacy && npm run build:admin",
+        "build:admin": "esbuild resources/js/admin.js --bundle --format=iife --global-name=RoadToSchoolAdmin --outfile=public/build/admin.js --minify",
         "build:legacy": "esbuild resources/js/legacy.js --bundle --format=iife --global-name=RoadToSchool --outfile=public/build/legacy.js --minify",
-        "dev": "vite"
+        "dev": "vite",
+        "test:browser": "node tests/browser/smoke.mjs"
     },
     "dependencies": {
         "@popperjs/core": "^2.11.8",
+        "@selectize/selectize": "^0.15.2",
         "axios": "^1.19.0",
+        "bootstrap-datepicker": "^1.10.1",
         "bootstrap": "^5.3.8",
+        "chart.js": "^4.5.1",
+        "datatables.net": "^3.0.2",
+        "datatables.net-bs5": "^3.0.2",
         "jquery": "^3.7.1",
+        "jquery-ui": "^1.14.2",
         "laravel-echo": "^2.4.0",
-        "pusher-js": "^8.6.0"
+        "moment": "^2.30.1",
+        "perfect-scrollbar": "^1.5.6",
+        "pusher-js": "^8.6.0",
+        "summernote": "^0.9.1"
     },
     "devDependencies": {
         "esbuild": "^0.28.2",
         "laravel-vite-plugin": "^3.2.0",
+        "playwright-core": "^1.62.1",
         "sass": "^1.103.1",
         "vite": "^8.2.2"
     }

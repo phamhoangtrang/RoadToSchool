@@ -6,10 +6,6 @@
 
 @section('inline_styles')
     <!-- page css -->
-    <link href="{{ asset('assets/admin/vendor/selectize/dist/css/selectize.default.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/admin/vendor/summernote/dist/summernote-bs4.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/admin/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css') }}"
-          rel="stylesheet">
     <style>
         .preview-images-zone {
             width: 100%;
@@ -253,12 +249,6 @@
 @include('admin.layouts.delete_modal')
 
 @section('inline_scripts')
-    <script src="{{ asset('assets/admin/vendor/moment/min/moment.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/selectize/dist/js/standalone/selectize.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/summernote/dist/summernote-bs4.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/forms/form-elements.js') }}"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     <script>
         var num = 4;
         var flag = 1;

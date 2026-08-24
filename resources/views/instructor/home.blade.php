@@ -6,7 +6,6 @@
 
 @section('page_style')
     {{-- page css --}}
-    <link rel="stylesheet" href="{{ asset('assets/admin/vendor/jvectormap-master/jquery-jvectormap-2.0.3.css') }}" )/>
 @endsection
 
 @section('content')
@@ -382,45 +381,4 @@
         </div>
     </div>
     <!-- Content Wrapper END -->
-@endsection
-
-@section('inline_scripts')
-    <!-- page js -->
-    <script src="{{ asset('assets/admin/vendor/chart.js/dist/Chart.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/jvectormap-master/jquery-jvectormap-2.0.3.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/maps/vector-map-lib/jquery-jvectormap-world-mill.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/dashboard/saas.js') }}"></script>
-    <script>
-        $(document).ready(function () {
-            //Statistic Chart
-            {{--    var statisticCtx = document.getElementById('statistic-chart').getContext('2d');--}}
-            {{--    var statisticChartGradient = statisticCtx.createLinearGradient(0, 0, 0, 150);--}}
-            {{--    statisticChartGradient.addColorStop(0, app.colors.gradientSuccessStart);--}}
-            {{--    statisticChartGradient.addColorStop(1, app.colors.gradientSuccessStop);--}}
-
-            {{--    var donutConfig = new Chart(statisticCtx, {--}}
-            {{--        type: 'doughnut',--}}
-            {{--        data: {--}}
-            {{--            labels: ["Admin", "Instructor", "Student"],--}}
-            {{--            datasets: [{--}}
-            {{--                data: ['{{ $count['adminsCount']/$count['totalUsers']*100 }}', '{{ $count['teachersCount']/$count['totalUsers']*100 }}', '{{ $count['studentsCount']/$count['totalUsers']*100 }}'],--}}
-            {{--                backgroundColor: [statisticChartGradient, app.colors.primary, app.colors.info]--}}
-            {{--            }]--}}
-            {{--        },--}}
-            {{--        options: {--}}
-            {{--            elements: {--}}
-            {{--                arc: {--}}
-            {{--                    borderWidth: 6,--}}
-            {{--                }--}}
-            {{--            },--}}
-            {{--            maintainAspectRatio: false,--}}
-            {{--            hover: {mode: null},--}}
-            {{--            legend: {--}}
-            {{--                display: false--}}
-            {{--            },--}}
-            {{--            cutoutPercentage: 78,--}}
-            {{--        }--}}
-            {{--    });--}}
-        })
-    </script>
 @endsection

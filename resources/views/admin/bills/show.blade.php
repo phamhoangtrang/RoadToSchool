@@ -147,9 +147,6 @@
 @include('admin.bills.partials.edit_status_modal')
 
 @section('inline_scripts')
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/jquery.dataTables.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/tables/data-table.js') }}"></script>
 
     <script>
         $(document).ready(function () {

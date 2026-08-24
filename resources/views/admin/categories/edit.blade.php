@@ -5,7 +5,6 @@
 @endsection
 
 @section('inline_styles')
-    <link rel="stylesheet" href="{{ asset('assets/admin/css/admin-custom.css') }}">
 @endsection
 
 @section('content')

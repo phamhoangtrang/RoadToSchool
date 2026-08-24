@@ -5,8 +5,6 @@
 @endsection
 
 @section('inline_styles')
-    <link rel="stylesheet"
-          href="{{ asset('assets/admin/vendor/datatables/media/css/dataTables.bootstrap4.min.css') }}"/>
 @endsection
 
 @section('content')
@@ -272,9 +270,6 @@
 @include('admin.layouts.delete_modal')
 
 @section('inline_scripts')
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/jquery.dataTables.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/tables/data-table.js') }}"></script>
     <script>
         $(document).ready(function () {
             $('#delete-modal').on('show.bs.modal', function (e) {

@@ -5,14 +5,11 @@
 
     <title>@yield('title')</title>
 
-<meta name="csrf-token" content="{{ csrf_token() }}">
-@vite('resources/js/app.js')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @vite(['resources/sass/admin.scss', 'resources/js/app.js'])
+    <script src="{{ asset('build/admin.js') }}"></script>
 
-    <link href="{{ asset('assets/admin/vendor/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet"/>
-    <link href="{{ asset('assets/admin/vendor/PACE/themes/blue/pace-theme-minimal.css') }}" rel="stylesheet"/>
-    <link href="{{ asset('assets/admin/vendor/perfect-scrollbar/css/perfect-scrollbar.min.css') }}" rel="stylesheet"/>
-
-    {{-- custom css --}}
+    {{-- Page-specific styles --}}
     @yield('inline_styles')
 
     <link href="{{ asset('assets/admin/css/font-awesome.min.css') }}" rel="stylesheet"/>

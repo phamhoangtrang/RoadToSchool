@@ -124,8 +124,6 @@
 <script type="text/javascript" src="{{ asset('assets/js/owl.carousel.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/wow.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/main.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/jquery.counterup.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/waypoints.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/jasny-bootstrap.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/form-validator.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/contact-form-script.js') }}"></script>

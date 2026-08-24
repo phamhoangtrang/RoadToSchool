@@ -6,7 +6,6 @@
 
 @section('page_style')
     {{-- page css --}}
-    <link rel="stylesheet" href="{{ asset('assets/admin/vendor/jvectormap-master/jquery-jvectormap-2.0.3.css') }}" )/>
 @endsection
 @section('content')
     <!-- Content Wrapper START -->
@@ -328,11 +327,6 @@
 @endsection
 
 @section('inline_scripts')
-    <!-- page js -->
-    <script src="{{ asset('assets/admin/vendor/chart.js/dist/Chart.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/jvectormap-master/jquery-jvectormap-2.0.3.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/maps/vector-map-lib/jquery-jvectormap-world-mill.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/dashboard/saas.js') }}"></script>
     <script>
         $(document).ready(function () {
             //Statistic Chart
@@ -346,7 +340,11 @@
                 data: {
                     labels: ["Admin", "Instructor", "Student"],
                     datasets: [{
-                        data: ['{{ $count['adminsCount']/$count['totalUsers']*100 }}', '{{ $count['teachersCount']/$count['totalUsers']*100 }}', '{{ $count['studentsCount']/$count['totalUsers']*100 }}'],
+                        data: [
+                            {{ $count['totalUsers'] ? $count['adminsCount'] / $count['totalUsers'] * 100 : 0 }},
+                            {{ $count['totalUsers'] ? $count['teachersCount'] / $count['totalUsers'] * 100 : 0 }},
+                            {{ $count['totalUsers'] ? $count['studentsCount'] / $count['totalUsers'] * 100 : 0 }}
+                        ],
                         backgroundColor: [statisticChartGradient, app.colors.primary, app.colors.info]
                     }]
                 },
@@ -357,11 +355,10 @@
                         }
                     },
                     maintainAspectRatio: false,
-                    hover: {mode: null},
-                    legend: {
-                        display: false
+                    plugins: {
+                        legend: { display: false }
                     },
-                    cutoutPercentage: 78,
+                    cutout: '78%',
                 }
             });
         })

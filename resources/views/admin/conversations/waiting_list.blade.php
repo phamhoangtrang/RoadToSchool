@@ -5,8 +5,6 @@
 @endsection
 
 @section('inline_styles')
-    {{--    <link rel="stylesheet"--}}
-    {{--          href="{{ asset('assets/admin/vendor/datatables/media/css/dataTables.bootstrap4.min.css') }}"/>--}}
 @endsection
 
 @section('content')
@@ -208,7 +206,6 @@
 @endsection
 
 @section('inline_scripts')
-    <script src="{{ asset('assets/admin/js/apps/chat.js') }}"></script>
     <script>
         $(document).ready(function () {
             $('.chat-app').on('click', '.change-status', function (e) {

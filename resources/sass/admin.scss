@@ -1,0 +1,22 @@
+@import 'bootstrap/scss/bootstrap';
+@import 'datatables.net-bs5/css/dataTables.bootstrap5';
+@import '@selectize/selectize/dist/css/selectize.default';
+@import 'summernote/dist/summernote-bs5';
+@import 'bootstrap-datepicker/dist/css/bootstrap-datepicker3';
+@import 'perfect-scrollbar/css/perfect-scrollbar';
+
+.pull-left {
+    float: left !important;
+}
+
+.pull-right {
+    float: right !important;
+}
+
+.btn-default {
+    @extend .btn-secondary;
+}
+
+.modal.in {
+    display: block;
+}

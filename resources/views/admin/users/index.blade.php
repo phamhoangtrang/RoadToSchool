@@ -6,8 +6,6 @@
 
 @section('inline_styles')
     <link rel="stylesheet"
-          href="{{ asset('assets/admin/vendor/datatables/media/css/dataTables.bootstrap4.min.css') }}"/>
-    <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css"/>
 @endsection
 
@@ -94,11 +92,8 @@
 @include('admin.layouts.delete_modal')
 
 @section('inline_scripts')
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/jquery.dataTables.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/dataTables.bootstrap4.min.js') }}"></script>
     <script type="text/javascript"
             src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
-    <script src="{{ asset('assets/admin/js/tables/data-table.js') }}"></script>
     <script>
         $(document).ready(function () {
             $('.datepicker').datepicker();

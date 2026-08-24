@@ -28,6 +28,5 @@
     </div>
 </div>
 </body>
-@include('admin.layouts.script')
 @yield('inline_scripts')
 </html>
