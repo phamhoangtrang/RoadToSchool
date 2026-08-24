@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Course;
+use App\Models\CourseUser;
 use App\Http\Requests\CreateInstructorRequest;
 
 class UserController extends Controller
@@ -70,24 +71,12 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $specializes = $this->modelUser->findSpecializesFollowUser($id);
+        $courseIds = $user->courses()->pluck('id');
+        $countStudent = CourseUser::whereIn('course_id', $courseIds)
+            ->distinct()
+            ->count('user_id');
 
-        if ($specializes->count() > 0) {
-            foreach ($specializes as $specialize) {
-                $specializesNameArray[] = $specialize->name;
-            }
-
-            $specializesName = implode(', ', $specializesNameArray);
-        } else {
-            $specializesName = 'None';
-        }
-
-        $countStudent = 0;
-        foreach ($user->courses as $course) {
-            $countStudent += $course->users->count();
-        }
-
-        return view('admin.users.show', compact('user', 'countStudent', 'specializesName'));
+        return view('admin.users.show', compact('user', 'countStudent'));
     }
 
     /**

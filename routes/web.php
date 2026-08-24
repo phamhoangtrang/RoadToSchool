@@ -64,7 +64,6 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'mi
     Route::get('/users/create_instructor', 'UserController@createNewInstructor')->name('users.create_instructor');
     Route::resource('users', 'UserController')->except('create', 'store', 'update');
     Route::post('users/{id}/updateUser', 'UserController@updateUser')->name('users.update');
-    Route::resource('specializes', 'SpecializeController')->except('create', 'show');
     Route::resource('categories', 'CategoryController')->except('create');
     Route::resource('courses', 'CourseController')->except('create', 'store');
     Route::post('courses/{id}/active', 'CourseController@acceptCourse')->name('active-course');

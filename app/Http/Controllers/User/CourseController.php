@@ -67,6 +67,8 @@ class CourseController extends Controller
     {
         $params = $request->all();
         $courses = $this->modelCourse->getAllCourse($params);
+        $categoryId = null;
+
         if (isset($params['sub_category_id']) && $params['sub_category_id']) {
             $categoryId = $request->sub_category_id;
         }

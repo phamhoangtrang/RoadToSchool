@@ -33,6 +33,7 @@ class CheckPermissionToAccessPage
             'admin.lectures.requests.index' => 'View all lecture requests',
             'admin.lectures.requests.accept' => 'Accept a lecture request',
             'admin.users.index' => 'View all users',
+            'admin.users.show' => 'View all users',
             'admin.instructor_ranking' => 'View instructor ranking',
             'admin.users.create_instructor' => 'Create new instructor',
             'admin.conversations.waiting' => 'Check and reply all conversation waiting',
