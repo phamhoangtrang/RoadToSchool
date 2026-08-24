@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\CourseUser;
+use App\Models\Lecture;
 use App\Models\Permission;
 use App\Models\PermissionUser;
 use App\Models\User;
@@ -73,6 +75,36 @@ class AdminContentManagementTest extends TestCase
         $this->assertSoftDeleted('courses', ['id' => $course->id]);
     }
 
+    public function test_lecture_acceptance_is_atomic_and_idempotent(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $instructor = User::factory()->instructor()->create();
+        $category = Category::create([
+            'title' => 'Development',
+            'vi_title' => 'Phát triển',
+            'parent_id' => 0,
+        ]);
+        $course = $this->createCourse($category, $instructor);
+        $existingLecture = $this->createLecture($course, 'Existing lecture', 0, true);
+        $pendingLecture = $this->createLecture($course, 'Pending lecture', 0, false);
+        foreach (User::factory()->count(2)->create() as $student) {
+            CourseUser::create(['course_id' => $course->id, 'user_id' => $student->id]);
+        }
+        $this->grant($admin, 'Accept a lecture request');
+
+        $this->actingAs($admin)->post('/admin/lectures/postAccept', [
+            'lectureId' => $pendingLecture->id,
+        ])->assertCreated();
+        $this->actingAs($admin)->post('/admin/lectures/postAccept', [
+            'lectureId' => $pendingLecture->id,
+        ])->assertOk();
+
+        $this->assertSame(1, $pendingLecture->fresh()->is_accepted);
+        $this->assertSame(0, $pendingLecture->fresh()->index);
+        $this->assertSame(1, $existingLecture->fresh()->index);
+        $this->assertDatabaseCount('processes', 2);
+    }
+
     private function createCourse(Category $category, User $instructor): Course
     {
         return Course::create([
@@ -91,6 +123,22 @@ class AdminContentManagementTest extends TestCase
             'is_accepted' => 0,
             'category_id' => $category->id,
             'user_id' => $instructor->id,
+        ]);
+    }
+
+    private function createLecture(Course $course, string $title, int $index, bool $accepted): Lecture
+    {
+        return Lecture::create([
+            'title' => $title,
+            'description' => 'Lecture description',
+            'video_link' => 'https://www.youtube.com/watch?v=PNp1prcWbkM',
+            'duration' => '00:10:00',
+            'week' => 1,
+            'index' => $index,
+            'is_lecture' => 1,
+            'is_quiz' => 0,
+            'is_accepted' => $accepted,
+            'course_id' => $course->id,
         ]);
     }
 

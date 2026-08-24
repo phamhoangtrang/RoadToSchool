@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\CourseUser;
 use App\Models\Lecture;
 use App\Models\Process;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class LectureController extends Controller
 {
     protected $modelLecture;
+
     protected $modelCourseUser;
+
     protected $modelProcess;
 
     public function __construct(Lecture $lecture, CourseUser $courseUser, Process $process)
@@ -32,29 +35,42 @@ class LectureController extends Controller
 
     public function acceptLectureRequest(Request $request)
     {
-        $data = $request->all();
+        $data = $request->validate([
+            'lectureId' => ['required', 'integer', 'exists:lectures,id'],
+        ]);
 
-        $lectureId = $data['lectureId'];
-        $selectedLecture = $this->modelLecture->findOrFail($lectureId);
-        $selectedLecture->update(['is_accepted' => 1]);
-        $week = $selectedLecture->week;
-        $currentIndex = $selectedLecture->index;
-        $sameWeekLectureList = $this->modelLecture->where('course_id', $selectedLecture->course_id)->where('week', $week)->get();
-        foreach($sameWeekLectureList as $lecture) {
-            if($lecture->id != $lectureId && $lecture->index >= $currentIndex) {
-                $lecture->update(['index' => ($lecture->index + 1)]);
+        $wasAccepted = DB::transaction(function () use ($data): bool {
+            $selectedLecture = $this->modelLecture
+                ->whereKey($data['lectureId'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($selectedLecture->is_accepted) {
+                return true;
             }
-        }
 
-        // All user add process of new lecture
-        $studentList = $this->modelCourseUser->where('course_id', $selectedLecture->course_id)->pluck('user_id')->toArray();
-        foreach($studentList as $studentId) {
-            $createProcessData['lecture_id'] = $lectureId;
-            $createProcessData['user_id'] = $studentId;
-            $createProcessData['status'] = 0;
-            $this->modelProcess->create($createProcessData);
-        }
+            $this->modelLecture
+                ->where('course_id', $selectedLecture->course_id)
+                ->where('week', $selectedLecture->week)
+                ->whereKeyNot($selectedLecture->id)
+                ->where('index', '>=', $selectedLecture->index)
+                ->increment('index');
+            $selectedLecture->update(['is_accepted' => 1]);
 
-        return 201;
+            $studentIds = $this->modelCourseUser
+                ->where('course_id', $selectedLecture->course_id)
+                ->distinct()
+                ->pluck('user_id');
+            foreach ($studentIds as $studentId) {
+                $this->modelProcess->firstOrCreate(
+                    ['lecture_id' => $selectedLecture->id, 'user_id' => $studentId],
+                    ['status' => 0],
+                );
+            }
+
+            return false;
+        });
+
+        return response()->noContent($wasAccepted ? 200 : 201);
     }
 }
