@@ -40,6 +40,7 @@ class HomeController extends Controller
 
     public function changeLanguage($language)
     {
+        abort_unless(in_array($language, ['en', 'vi'], true), 404);
         \Session::put('website_language', $language);
         \Session::save();
 

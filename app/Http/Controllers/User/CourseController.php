@@ -20,6 +20,7 @@ use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
@@ -284,14 +285,28 @@ class CourseController extends Controller
 
     public function postAppreciate(Request $request, $courseId)
     {
-        $data = $request->all();
-        $selectedCourseUser = $this->modelCourseUser->where('course_id', $courseId)->where('user_id', Auth::user()->id)->first();
-        $result = $selectedCourseUser->update(['rate' => $data['star'], 'appreciate' => $data['appreciate_content']]);
-        if ($result) {
-            flash(__('messages.appreciate_course_successfully'))->success();
-        } else {
-            flash(__('messages.appreciate_course_failed'))->error();
-        }
+        $data = $request->validate([
+            'star' => ['required', 'integer', 'between:1,5'],
+            'appreciate_content' => ['nullable', 'string', 'max:1000'],
+        ]);
+        DB::transaction(function () use ($request, $courseId, $data): void {
+            $course = $this->modelCourse->whereKey($courseId)->lockForUpdate()->firstOrFail();
+            $selectedCourseUser = $this->modelCourseUser
+                ->where('course_id', $course->id)
+                ->where('user_id', $request->user()->id)
+                ->firstOrFail();
+            $selectedCourseUser->update([
+                'rate' => $data['star'],
+                'appreciate' => e($data['appreciate_content'] ?? ''),
+            ]);
+            $course->update([
+                'course_rate' => round($this->modelCourseUser
+                    ->where('course_id', $course->id)
+                    ->whereNotNull('rate')
+                    ->avg('rate'), 2),
+            ]);
+        });
+        flash(__('messages.appreciate_course_successfully'))->success();
 
         return redirect()->back();
     }

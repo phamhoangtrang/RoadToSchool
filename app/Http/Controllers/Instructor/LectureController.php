@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Lecture;
 use App\Models\QuizElement;
+use App\Models\User;
 use App\Services\YouTubeMetadataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -74,6 +75,7 @@ class LectureController extends Controller
 
     public function getVideoDuration(Request $request)
     {
+        abort_unless($request->user()->is_admin || $request->user()->role === User::ROLE_TEACHER, 403);
         $data = $request->validate([
             'url' => ['required', 'url', 'max:2048'],
         ]);

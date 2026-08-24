@@ -52,6 +52,32 @@ class CourseAccessTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_only_enrolled_students_can_rate_and_course_average_is_recalculated(): void
+    {
+        $student = User::factory()->create();
+        $otherStudent = User::factory()->create();
+        [$course] = $this->createCourseAndLecture();
+        CourseUser::create(['course_id' => $course->id, 'user_id' => $student->id]);
+
+        $this->actingAs($otherStudent)->post("/courses/{$course->id}/postAppreciate", [
+            'star' => 5,
+            'appreciate_content' => 'Not enrolled',
+        ])->assertNotFound();
+
+        $this->actingAs($student)->post("/courses/{$course->id}/postAppreciate", [
+            'star' => 4,
+            'appreciate_content' => '<script>alert(1)</script>',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('course_user', [
+            'course_id' => $course->id,
+            'user_id' => $student->id,
+            'rate' => 4,
+            'appreciate' => '&lt;script&gt;alert(1)&lt;/script&gt;',
+        ]);
+        $this->assertEquals(4, $course->fresh()->course_rate);
+    }
+
     /** @return array{Course, Lecture} */
     private function createCourseAndLecture(bool $accepted = true): array
     {

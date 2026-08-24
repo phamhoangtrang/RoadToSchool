@@ -102,5 +102,6 @@ Route::group(['namespace' => 'Instructor', 'prefix' => 'instructor', 'as' => 'in
 
 Route::post('districts', 'User\DistrictController@getAllRecord');
 Route::post('communes', 'User\CommuneController@getAllRecord');
-Route::post('/youtube/getVideoDuration', 'Instructor\LectureController@getVideoDuration');
+Route::post('/youtube/getVideoDuration', 'Instructor\LectureController@getVideoDuration')
+    ->middleware(['auth', 'verified']);
 Route::get('/change-language/{language}', 'HomeController@changeLanguage')->name('user.change-language');

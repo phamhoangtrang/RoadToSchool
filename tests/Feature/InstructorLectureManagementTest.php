@@ -112,6 +112,18 @@ class InstructorLectureManagementTest extends TestCase
         $this->assertDatabaseMissing('lectures', ['title' => 'Unauthorized lecture']);
     }
 
+    public function test_youtube_metadata_endpoint_requires_an_instructor_or_admin(): void
+    {
+        $this->post('/youtube/getVideoDuration', [
+            'url' => 'https://www.youtube.com/watch?v=PNp1prcWbkM',
+        ])->assertRedirect('/login');
+
+        $student = User::factory()->create();
+        $this->actingAs($student)->post('/youtube/getVideoDuration', [
+            'url' => 'https://www.youtube.com/watch?v=PNp1prcWbkM',
+        ])->assertForbidden();
+    }
+
     /** @return array<string, mixed> */
     private function lecturePayload(string $title, int $week): array
     {
