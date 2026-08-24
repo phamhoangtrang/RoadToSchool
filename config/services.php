@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 return [
 
     /*
@@ -30,9 +32,16 @@ return [
     ],
 
     'stripe' => [
-        'model' => App\User::class,
+        'model' => User::class,
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
+    ],
+
+    'recommendation' => [
+        'endpoint' => env('RECOMMENDATION_ENDPOINT'),
+        'app_id' => env('RECOMMENDATION_APP_ID', 1),
+        'connect_timeout' => env('RECOMMENDATION_CONNECT_TIMEOUT', 1),
+        'timeout' => env('RECOMMENDATION_TIMEOUT', 3),
     ],
 
 ];
