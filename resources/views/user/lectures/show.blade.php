@@ -19,18 +19,18 @@
                     <div class="progress" style="height: 20px">
                         @if(!(\Auth::user()->is_admin || \Auth::user()->role == 1))
                             <div class="progress-bar progress-bar-info" role="progressbar"
-                                 aria-valuenow="{{ $learnedLectureCount/$allLectureCount*100 }}"
+                                 aria-valuenow="{{ $progressPercent }}"
                                  aria-valuemin="0" aria-valuemax="100"
-                                 style="width:{{ $learnedLectureCount/$allLectureCount*100 }}%">
-                                {{ round($learnedLectureCount/$allLectureCount*100, 2) }}%
+                                 style="width:{{ $progressPercent }}%">
+                                {{ $progressPercent }}%
                             </div>
                         @endif
                     </div>
                     {!! $embedHtml !!}
-                    @if (\App\Models\Lecture::find($lectureId + 1))
+                    @if ($nextLecture)
                     <div id="timer" style="display: none;">
                         <p class="text-center" style="font-weight: bold">Redirect to next lecture
-                            <i>{{ \App\Models\Lecture::findOrFail($lectureId + 1)->title }}</i> in <span
+                            <i>{{ $nextLecture->title }}</i> in <span
                                     id="timer-text"></span>s</p>
                     </div>
                     @endif

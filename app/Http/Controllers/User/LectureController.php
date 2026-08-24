@@ -64,8 +64,10 @@ class LectureController extends Controller
 
     public function show($id, $lectureId)
     {
-        if ($this->modelLecture::findOrFail($lectureId)->is_quiz == 1) {
-            $lecture = $this->modelLecture->findOrFail($lectureId);
+        $course = Course::findOrFail($id);
+        $lecture = $course->lectures()->where('is_accepted', 1)->findOrFail($lectureId);
+
+        if ($lecture->is_quiz == 1) {
             $allQuestion = $this->modelQuizElement->where('lecture_id', $lectureId)->where('is_question', 1)->get();
             foreach ($allQuestion as $question) {
                 // TODO xu ly cau hoi nhieu dap an va 1 dap an, pick dap an dung cho phu hop
@@ -78,12 +80,16 @@ class LectureController extends Controller
                 'allQuestion'
             ));
         } else {
-            $link = Lecture::find($lectureId)->video_link;
-            $description = Lecture::find($lectureId)->description;
-            $teacher = Course::find($id)->user;
+            $link = $lecture->video_link;
+            $description = $lecture->description;
+            $teacher = $course->user;
             $embedHtml = $this->youtubeMetadata->embedHtml($link);
-            $lectures = Course::find($id)->lectures()->where('is_accepted', 1)->get();
+            $lectures = $course->lectures()->where('is_accepted', 1)->orderBy('week')->orderBy('index')->get();
             $lectureComments = $this->modelLectureComment->where('lecture_id', $lectureId)->get();
+            $processStatuses = $this->modelProcess
+                ->where('user_id', \Auth::id())
+                ->whereIn('lecture_id', $lectures->pluck('id'))
+                ->pluck('status', 'lecture_id');
 
             // Get lecture follow week and index
             $maxWeek = 0;
@@ -96,10 +102,8 @@ class LectureController extends Controller
             $lectureOutline = [];
             for ($i = 0; $i < $maxWeek; $i++) {
                 $result = $this->modelLecture->where('course_id', $id)->where('is_accepted', 1)->where('week', ($i + 1))->orderBy('index')->get();
-                if (! (\Auth::user()->is_admin || \Auth::user()->role == 1)) {
-                    foreach ($result as $lecture) {
-                        $lecture->status = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first()->status;
-                    }
+                foreach ($result as $outlineLecture) {
+                    $outlineLecture->status = (bool) $processStatuses->get($outlineLecture->id, 0);
                 }
                 $lectureOutline[$i] = $result;
 
@@ -109,13 +113,12 @@ class LectureController extends Controller
             // if (!(\Auth::user()->is_admin || \Auth::user()->role == 1)) {
             // Get process
             $allLectureCount = $lectures->count();
-            $learnedLectureCount = 0;
-            foreach ($lectures as $lecture) {
-                $learnStatus = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first()->status;
-                if ($learnStatus) {
-                    $learnedLectureCount++;
-                }
-            }
+            $learnedLectureCount = $processStatuses->filter()->count();
+            $progressPercent = $allLectureCount > 0
+                ? round($learnedLectureCount / $allLectureCount * 100, 2)
+                : 0;
+            $currentOffset = $lectures->search(fn (Lecture $outlineLecture): bool => $outlineLecture->is($lecture));
+            $nextLecture = $currentOffset === false ? null : $lectures->get($currentOffset + 1);
             // }
 
             // Get all discussions in lecture
@@ -136,6 +139,8 @@ class LectureController extends Controller
                 'lectureComments',
                 'allLectureCount',
                 'learnedLectureCount',
+                'progressPercent',
+                'nextLecture',
                 'maxWeek',
                 'lectureOutline'
             ));

@@ -98,6 +98,12 @@ class CourseController extends Controller
     public function show($id)
     {
         $selectedCourse = $this->modelCourse->findCourse($id);
+        abort_unless(
+            $selectedCourse->is_accepted
+                || Auth::user()->is_admin
+                || Auth::user()->role == User::ROLE_TEACHER,
+            404,
+        );
         $allLectures = $selectedCourse->lectures()->where('is_accepted', 1)->get();
 
         // Get lecture follow week and index
@@ -122,14 +128,17 @@ class CourseController extends Controller
         // Get process
         $allLectureCount = $allLectures->count();
         $learnedLectureCount = 0;
+        $processStatuses = collect();
         if ($availableCourse) {
-            foreach ($allLectures as $lecture) {
-                $learnStatus = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', Auth::user()->id)->first()->status;
-                if ($learnStatus) {
-                    $learnedLectureCount++;
-                }
-            }
+            $processStatuses = $this->modelProcess
+                ->where('user_id', Auth::id())
+                ->whereIn('lecture_id', $allLectures->pluck('id'))
+                ->pluck('status', 'lecture_id');
+            $learnedLectureCount = $processStatuses->filter()->count();
         }
+        $progressPercent = $allLectureCount > 0
+            ? round($learnedLectureCount / $allLectureCount * 100, 2)
+            : 0;
         // }
 
         $mostRelatedCourse = $this->modelCourse->findMostRelatedCourse($id);
@@ -158,7 +167,9 @@ class CourseController extends Controller
             'liked',
             'lectureOutline',
             'allLectureCount',
-            'learnedLectureCount'
+            'learnedLectureCount',
+            'processStatuses',
+            'progressPercent'
         ));
     }
 

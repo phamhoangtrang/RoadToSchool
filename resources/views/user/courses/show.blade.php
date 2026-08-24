@@ -150,10 +150,10 @@
                                 @if($availableCourse)
                                     <div class="progress" style="height: 20px">
                                         <div class="progress-bar progress-bar-info" role="progressbar"
-                                             aria-valuenow="{{ $learnedLectureCount/$allLectureCount*100 }}"
+                                             aria-valuenow="{{ $progressPercent }}"
                                              aria-valuemin="0" aria-valuemax="100"
-                                             style="width:{{ $learnedLectureCount/$allLectureCount*100 }}%">
-                                            {{ round($learnedLectureCount/$allLectureCount*100, 2) }}%
+                                             style="width:{{ $progressPercent }}%">
+                                            {{ $progressPercent }}%
                                         </div>
                                     </div>
                                 @endif
@@ -187,7 +187,7 @@
                                         <tr id="lecture-{{ $lecture->id }}">
                                             @if($availableCourse)
                                                 <td class="col-xs-1 text-center">
-                                                    <i class="fa {{ \App\Models\Process::where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first()->status ? 'fa-star' : 'fa-star-o' }}">
+                                                    <i class="fa {{ $processStatuses->get($lecture->id, 0) ? 'fa-star' : 'fa-star-o' }}">
                                                     </i>
                                                 </td>
                                             @endif
