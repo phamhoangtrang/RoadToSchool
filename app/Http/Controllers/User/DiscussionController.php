@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\User;
 
-use Illuminate\Http\Request;
+use App\Events\GetDiscussionFromPusherEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Discussion;
-use App\Events\GetDiscussionFromPusherEvent;
+use Illuminate\Http\Request;
 
 class DiscussionController extends Controller
 {
@@ -18,18 +18,21 @@ class DiscussionController extends Controller
 
     public function createNewDiscussion(Request $request)
     {
-        $data = $request->all();
-        $result = $this->modelDiscussion->createNewDiscussion($data);
-        $createdDiscussion = $this->modelDiscussion->orderBy('created_at', 'desc')->limit(1)->first();
-        $createdDiscussionId = $createdDiscussion->id;
+        $data = $request->validate([
+            'content' => ['required', 'string', 'max:255'],
+            'lectureId' => ['required', 'integer', 'exists:lectures,id'],
+        ]);
+        $data['content'] = e($data['content']);
+        $data['userId'] = $request->user()->id;
+        $createdDiscussion = $this->modelDiscussion->createNewDiscussion($data);
 
-        if ($result) {
-            event(new GetDiscussionFromPusherEvent($data['content'], $data['userId'], $createdDiscussionId));
+        if ($createdDiscussion) {
+            event(new GetDiscussionFromPusherEvent($createdDiscussion->content, $request->user()->id, $createdDiscussion->id));
 
-            return 201;
+            return response()->noContent(201);
 
         }
 
-        return 500;
+        return response()->noContent(500);
     }
 }

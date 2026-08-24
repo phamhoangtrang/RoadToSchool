@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\GetCommentFromPusherEvent;
+use App\Events\GetLikeCountFromPusherEvent;
+use App\Events\GetNotificationFromPusherEvent;
+use App\Events\GetReplyCommentFromPusherEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\Course;
-use App\Models\CourseUser;
 use App\Models\Comment;
+use App\Models\Course;
+use App\Models\CourseLike;
+use App\Models\CourseUser;
 use App\Models\Lecture;
 use App\Models\Notification;
-use App\Models\User;
-use App\Models\CourseLike;
 use App\Models\Process;
+use App\Models\User;
 use Auth;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Events\GetCommentFromPusherEvent;
-use App\Events\GetReplyCommentFromPusherEvent;
-use App\Events\GetNotificationFromPusherEvent;
-use App\Events\GetLikeCountFromPusherEvent;
+use Illuminate\Http\Response;
 
 class CourseController extends Controller
 {
@@ -25,20 +27,26 @@ class CourseController extends Controller
      * The dependency model instance.
      */
     protected $modelUser;
+
     protected $modelCourse;
+
     protected $modelCategory;
+
     protected $modelCourseUser;
+
     protected $modelComment;
+
     protected $modelNotification;
+
     protected $modelCourseLike;
+
     protected $modelLecture;
+
     protected $modelProcess;
 
     /**
      * Create a new controller instance.
      *
-     * @param Course $course
-     * @param Category $category
      * @return void
      */
     public function __construct(
@@ -50,8 +58,7 @@ class CourseController extends Controller
         CourseLike $courseLike,
         Lecture $lecture,
         Process $process
-    )
-    {
+    ) {
         $this->modelUser = $user;
         $this->modelCourse = $course;
         $this->modelCategory = $category;
@@ -86,7 +93,7 @@ class CourseController extends Controller
     /**
      * Display a course of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show($id)
     {
@@ -117,7 +124,7 @@ class CourseController extends Controller
         $learnedLectureCount = 0;
         if ($availableCourse) {
             foreach ($allLectures as $lecture) {
-                $learnStatus = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first()->status;
+                $learnStatus = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', Auth::user()->id)->first()->status;
                 if ($learnStatus) {
                     $learnedLectureCount++;
                 }
@@ -132,14 +139,14 @@ class CourseController extends Controller
             $comment->child_comments = $this->modelComment->where('parent_comment', $comment->id)->orderBy('updated_at', 'asc')->get();
         }
         // Check current user has liked course
-        $checkResult = $this->modelCourseLike->where('course_id', $id)->where('user_id', \Auth::user()->id)->first();
+        $checkResult = $this->modelCourseLike->where('course_id', $id)->where('user_id', Auth::user()->id)->first();
         if ($checkResult) {
             $liked = 1;
         } else {
             $liked = 0;
         }
 
-//        dd($allLectures);
+        //        dd($allLectures);
         return view('user.courses.show', compact(
             'selectedCourse',
             'allLectures',
@@ -191,27 +198,39 @@ class CourseController extends Controller
     {
         $taggedUser = $this->modelUser->findOrFail($taggedUser);
         $namePosition = strpos($string, $taggedUser->name);
-        $name = substr($string, $namePosition, $namePosition + strlen($taggedUser->name));
-        $replacedString = str_replace($name, '<a href="http://127.0.0.1:8000/users/' . $taggedUser->id . '" style="color: #3498db">' . $taggedUser->name . '</a>', $string);
-        return $replacedString;
+
+        if ($namePosition === false) {
+            return e($string);
+        }
+
+        $escapedContent = e($string);
+        $escapedName = e($taggedUser->name);
+
+        return str_replace(
+            $escapedName,
+            '<a href="'.route('users.show', $taggedUser->id).'" style="color: #3498db">'.$escapedName.'</a>',
+            $escapedContent,
+        );
     }
 
     public function postCommentToPusher(Request $request, $courseId)
     {
-        $data = $request->all();
-        $data['user_id'] = $data['userId'];
+        $data = $request->validate(['content' => ['required', 'string', 'max:255']]);
+        $course = $this->modelCourse->findOrFail($courseId);
+        $data['content'] = e($data['content']);
+        $data['user_id'] = $request->user()->id;
         $data['course_id'] = $courseId;
 
         $createdComment = $this->modelComment->storeNewComment($data);
         $commentedUserList = $this->modelComment->where('course_id', $courseId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
         // Create Notification
         $createdNotification = $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, Notification::COMMENT);
-        $notificationContent = '<b>' . $createdComment->user->name . '</b> has commented in <b>' . Course::findOrFail($courseId)->first()->title . '</b>: ' . $createdComment->content;
+        $notificationContent = '<b>'.e($createdComment->user->name).'</b> has commented in <b>'.e($course->title).'</b>: '.$createdComment->content;
         $createNotificationIdList = $this->modelNotification->where('comment_id', $createdComment->id)->pluck('id', 'user_id');
 
         if ($createdComment && $createdNotification) {
             event(new GetCommentFromPusherEvent($request, $createdComment));
-            event(new GetNotificationFromPusherEvent($courseId, $commentedUserList, $createdComment, $notificationContent, $createdComment->user->avatar, \Carbon\Carbon::parse($createdComment->created_at)->diffForHumans(), $createNotificationIdList));
+            event(new GetNotificationFromPusherEvent($courseId, $commentedUserList, $createdComment, $notificationContent, $createdComment->user->avatar, Carbon::parse($createdComment->created_at)->diffForHumans(), $createNotificationIdList));
 
             return 200;
         }
@@ -221,8 +240,15 @@ class CourseController extends Controller
 
     public function postReplyCommentToPusher(Request $request, $courseId, $parentCommentId)
     {
-        $data = $request->all();
-        $data['user_id'] = $data['userId'];
+        $data = $request->validate([
+            'content' => ['required', 'string', 'max:255'],
+            'firstChildComment' => ['nullable'],
+            'prevCommentId' => ['nullable', 'integer'],
+        ]);
+        $this->modelCourse->findOrFail($courseId);
+        $this->modelComment->where('course_id', $courseId)->findOrFail($parentCommentId);
+        $data['content'] = e($data['content']);
+        $data['user_id'] = $request->user()->id;
         $data['course_id'] = $courseId;
         $data['parent_comment'] = $parentCommentId;
 
@@ -232,8 +258,8 @@ class CourseController extends Controller
         if ($createdComment && $createdNotification) {
             event(new GetReplyCommentFromPusherEvent($request, $createdComment, $parentCommentId));
 
-            if ($data['firstChildComment'] == 'false') {
-                $responseData['prevCommentId'] = $data['prevCommentId'];
+            if (! $request->boolean('firstChildComment')) {
+                $responseData['prevCommentId'] = $data['prevCommentId'] ?? null;
                 $responseData['parentCommentId'] = $parentCommentId;
 
                 return json_encode($responseData);
@@ -258,41 +284,41 @@ class CourseController extends Controller
 
         return redirect()->back();
     }
-//
-//    public function changeLikeStatus(Request $request, $courseId, $userId, $status)
-//    {
-//        $likeCount = $this->modelCourse->findOrFail($courseId)->like;
-//        // Unlike to Like
-//        if ($status == 0) {
-//            $this->modelCourseLike->create(['course_id' => $courseId, 'user_id' => $userId]);
-//            $newLikeCount = $likeCount + 1;
-//            $this->modelCourse->findOrFail($courseId)->update(['like' => $newLikeCount]);
-//        } else if ($status == 1) {
-//            // Like to Unlike
-//            $selectedId = $this->modelCourseLike->where('course_id', $courseId)->where('user_id', $userId)->first();
-//            $selectedId->delete();
-//            $newLikeCount = $likeCount - 1;
-//            $this->modelCourse->findOrFail($courseId)->update(['like' => $newLikeCount]);
-//        }
-//        event(new GetLikeCountFromPusherEvent($newLikeCount));
-//
-//        return 201;
-//    }
+    //
+    //    public function changeLikeStatus(Request $request, $courseId, $userId, $status)
+    //    {
+    //        $likeCount = $this->modelCourse->findOrFail($courseId)->like;
+    //        // Unlike to Like
+    //        if ($status == 0) {
+    //            $this->modelCourseLike->create(['course_id' => $courseId, 'user_id' => $userId]);
+    //            $newLikeCount = $likeCount + 1;
+    //            $this->modelCourse->findOrFail($courseId)->update(['like' => $newLikeCount]);
+    //        } else if ($status == 1) {
+    //            // Like to Unlike
+    //            $selectedId = $this->modelCourseLike->where('course_id', $courseId)->where('user_id', $userId)->first();
+    //            $selectedId->delete();
+    //            $newLikeCount = $likeCount - 1;
+    //            $this->modelCourse->findOrFail($courseId)->update(['like' => $newLikeCount]);
+    //        }
+    //        event(new GetLikeCountFromPusherEvent($newLikeCount));
+    //
+    //        return 201;
+    //    }
 
     public function getMyCourse($userId)
     {
-        $courseIdList = $this->modelCourseUser->where('user_id', $userId)->pluck('course_id')->toArray();
+        $courseIdList = $this->modelCourseUser->where('user_id', Auth::id())->pluck('course_id')->toArray();
         $courseList = $this->modelCourse->whereIn('id', $courseIdList)->get();
-        foreach($courseList as $course) {
-            $processList = \App\Models\Process::whereIn('lecture_id', $course->lectures()->pluck('id')->toArray())->where('user_id', \Auth::user()->id);
+        foreach ($courseList as $course) {
+            $processList = Process::whereIn('lecture_id', $course->lectures()->pluck('id')->toArray())->where('user_id', Auth::user()->id);
             $learnedLectureCount = $processList->where('status', 1)->count();
-            $allLectureCount = \App\Models\Process::whereIn('lecture_id', $course->lectures()->pluck('id')->toArray())->where('user_id', \Auth::user()->id)->count();
-            if($allLectureCount == 0) {
+            $allLectureCount = Process::whereIn('lecture_id', $course->lectures()->pluck('id')->toArray())->where('user_id', Auth::user()->id)->count();
+            if ($allLectureCount == 0) {
                 $course->process = 0;
                 $course->learnedCount = 0;
                 $course->totalLecture = 0;
             } else {
-                $course->process = round($learnedLectureCount/$allLectureCount*100, 2);
+                $course->process = round($learnedLectureCount / $allLectureCount * 100, 2);
                 $course->learnedCount = $learnedLectureCount;
                 $course->totalLecture = $allLectureCount;
             }

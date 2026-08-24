@@ -144,15 +144,17 @@ class LectureController extends Controller
 
     public function postCommentToPusher(Request $request, $lectureId)
     {
-        $data = $request->all();
-        $data['user_id'] = $data['userId'];
+        $data = $request->validate(['content' => ['required', 'string', 'max:255']]);
+        $this->modelLecture->findOrFail($lectureId);
+        $data['content'] = e($data['content']);
+        $data['user_id'] = $request->user()->id;
         $data['lecture_id'] = $lectureId;
 
         $createdLectureComment = $this->modelLectureComment->storeNewLectureComment($data);
         $lectureCommentedUserList = $this->modelLectureComment->where('lecture_id', $lectureId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
         // Create Notification
         $createdNotification = $this->modelNotification->createCommentNotification($lectureId, $lectureCommentedUserList, $createdLectureComment, Notification::LECTURE_COMMENT);
-        $notificationContent = '<b>'.$createdLectureComment->user->name.'</b>'.' has commented in lecture '.Lecture::findOrFail($lectureId)->title.': '.$createdLectureComment->content;
+        $notificationContent = '<b>'.e($createdLectureComment->user->name).'</b>'.' has commented in lecture '.e(Lecture::findOrFail($lectureId)->title).': '.$createdLectureComment->content;
         $createNotificationIdList = $this->modelNotification->where('comment_id', $createdLectureComment->id)->pluck('id', 'user_id');
 
         if ($createdLectureComment && $createdNotification) {
@@ -167,8 +169,15 @@ class LectureController extends Controller
 
     public function postReplyLectureCommentToPusher(Request $request, $lectureId, $parentCommentId)
     {
-        $data = $request->all();
-        $data['user_id'] = $data['userId'];
+        $data = $request->validate([
+            'content' => ['required', 'string', 'max:255'],
+            'firstChildComment' => ['nullable'],
+            'prevCommentId' => ['nullable', 'integer'],
+        ]);
+        $this->modelLecture->findOrFail($lectureId);
+        $this->modelLectureComment->where('lecture_id', $lectureId)->findOrFail($parentCommentId);
+        $data['content'] = e($data['content']);
+        $data['user_id'] = $request->user()->id;
         $data['lecture_id'] = $lectureId;
         $data['parent_comment'] = $parentCommentId;
 
@@ -179,8 +188,8 @@ class LectureController extends Controller
         if ($createdComment) {
             event(new GetReplyLectureCommentFromPusherEvent($request, $createdComment, $parentCommentId));
 
-            if ($data['firstChildComment'] == 'false') {
-                $responseData['prevCommentId'] = $data['prevCommentId'];
+            if (! $request->boolean('firstChildComment')) {
+                $responseData['prevCommentId'] = $data['prevCommentId'] ?? null;
                 $responseData['parentCommentId'] = $parentCommentId;
 
                 return json_encode($responseData);

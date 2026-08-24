@@ -3,13 +3,11 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
 
 class GetReplyCommentFromPusherEvent implements ShouldBroadcast
@@ -17,8 +15,11 @@ class GetReplyCommentFromPusherEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $content;
+
     public $user;
+
     public $createdComment;
+
     public $parentCommentId;
 
     /**
@@ -28,8 +29,7 @@ class GetReplyCommentFromPusherEvent implements ShouldBroadcast
      */
     public function __construct(Request $request, $createdComment, $parentCommentId)
     {
-        $data = $request->all();
-        $this->content = $data['content'];
+        $this->content = $createdComment->content;
         $this->user = json_encode(Auth::user());
         $this->createdComment = json_encode($createdComment);
         $this->parentCommentId = $parentCommentId;
@@ -38,7 +38,7 @@ class GetReplyCommentFromPusherEvent implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return \Illuminate\Broadcasting\Channel|array
+     * @return Channel|array
      */
     public function broadcastOn()
     {

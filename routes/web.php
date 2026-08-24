@@ -60,8 +60,6 @@ Route::middleware('auth', 'verified', 'locale')->group(function () {
     Route::post('discussions/pusher/pushNewDiscussion', 'User\DiscussionController@createNewDiscussion');
     Route::post('lectures/{lectureId}/pusher/postComment', 'User\LectureController@postCommentToPusher')->name('lectures.postCommentToPusher');
     Route::post('lectures/{lectureId}/pusher/replyLectureComment/{parentCommentId}', 'User\LectureController@postReplyLectureCommentToPusher')->name('lectures.comment.postReplyCommentToPusher');
-    // Course Like
-    Route::post('/courses/{courseId}/like/{userId}/changeStatus/{status}', 'User\CourseController@changeLikeStatus');
     // Change process Status
     Route::post('/lectures/{lectureId}/user/{userId}/changeProcessStatus', 'User\ProcessController@changeProcessStatus');
     Route::resource('quiz_results', 'User\QuizResultController')->only('store');
