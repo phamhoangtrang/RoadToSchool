@@ -6,13 +6,18 @@ const browser = await chromium.launch({
     headless: true,
 });
 const errors = [];
+const ignoredBrowserWarnings = [
+    /permissions policy violation: compute-pressure is not allowed in this document/i,
+];
 
 async function smokeRole({ email, password, paths, screenshot }) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     const page = await context.newPage();
 
     page.on('console', (message) => {
-        if (message.type() === 'error') {
+        const isKnownExternalWarning = ignoredBrowserWarnings.some((pattern) => pattern.test(message.text()));
+
+        if (message.type() === 'error' && !isKnownExternalWarning) {
             errors.push(`console ${page.url()}: ${message.text()}`);
         }
     });
