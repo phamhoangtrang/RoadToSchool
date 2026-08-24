@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Auth;
 
 class Bill extends Model
 {
     protected $table = 'bills';
+
     protected $fillable = [
         'customer_name',
         'customer_email',
@@ -18,10 +18,11 @@ class Bill extends Model
         'get_ads',
         'status',
         'total_amount',
-        'user_id'
+        'user_id',
     ];
 
     const PAYMENT_BY_CARD = 1;
+
     const CASH_ON_DELIVERY = 2;
 
     public static $roles = [
@@ -30,9 +31,13 @@ class Bill extends Model
     ];
 
     const PENDING = 0;
+
     const IN_TRANSPORT = 1;
+
     const ALREADY_PAID = 2;
+
     const ACTIVATED = 3;
+
     const CANCELED = 4;
 
     public static $status = [
@@ -43,30 +48,14 @@ class Bill extends Model
         self::CANCELED => 'Canceled',
     ];
 
-    public function addBill($data)
+    protected function casts(): array
     {
-        $data['payment'] = self::CASH_ON_DELIVERY;
-        $data['status'] = self::PENDING;
-        if (isset($data['get_ads'])) {
-            $data['get_ads'] = true;
-        } else {
-            $data['get_ads'] = false;
-        }
-        if (\Auth::check()) {
-            $data['user_id'] = Auth::user()->id;
-        }
-
-        $createBillResult = Bill::create($data);
-        if (!$createBillResult) {
-            return false;
-        }
-        $createdBillId = $createBillResult->id;
-        $createBillCourseResult = BillCourse::createNewBillCourse($createdBillId, $data['course_id'], $data['price']);
-
-        if (!$createBillCourseResult) {
-            return false;
-        }
-
-        return $createBillResult;
+        return [
+            'get_ads' => 'boolean',
+            'payment' => 'integer',
+            'status' => 'integer',
+            'total_amount' => 'decimal:2',
+            'user_id' => 'integer',
+        ];
     }
 }
