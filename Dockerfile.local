@@ -6,6 +6,7 @@ RUN apt-get update \
         libcurl4-openssl-dev \
         libicu-dev \
         libonig-dev \
+        libsqlite3-dev \
         libzip-dev \
         unzip \
     && docker-php-ext-install -j"$(nproc)" \
@@ -15,6 +16,7 @@ RUN apt-get update \
         mbstring \
         pcntl \
         pdo_mysql \
+        pdo_sqlite \
         sockets \
         zip \
     && rm -rf /var/lib/apt/lists/*
