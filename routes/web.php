@@ -76,7 +76,7 @@ Route::middleware('auth', 'verified', 'locale')->group(function () {
     Route::post('/categories/{categoryId}/getSubCategoryList', 'User\CategoryController@getSubCategoryList');
 });
 
-Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['access_page', 'is_admin', 'verified', 'locale']], function () {
+Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'verified', 'locale', 'access_page', 'is_admin']], function () {
     Route::get('/', 'HomeController@index')->name('dashboard');
     Route::get('/users/instructor_ranking', 'UserController@getInstructorRanking')->name('instructor_ranking');
     Route::get('/users/create_instructor', 'UserController@createNewInstructor')->name('users.create_instructor');
@@ -96,7 +96,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'mi
     Route::post('/users/create_new_instructor', 'UserController@storeNewInstructor')->name('users.store_new_instructor');
 });
 
-Route::group(['namespace' => 'Instructor', 'prefix' => 'instructor', 'as' => 'instructor.', 'middleware' => ['access_page', 'verified', 'locale']], function () {
+Route::group(['namespace' => 'Instructor', 'prefix' => 'instructor', 'as' => 'instructor.', 'middleware' => ['auth', 'verified', 'locale', 'access_page']], function () {
     Route::get('/', 'HomeController@index')->name('dashboard');
     Route::resource('courses', 'CourseController')->only('index', 'create', 'store', 'show');
     Route::get('courses/{courseId}/lectures/create', 'LectureController@create')->name('courses.lectures.create');
