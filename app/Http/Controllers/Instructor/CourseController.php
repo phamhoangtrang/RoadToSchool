@@ -48,7 +48,10 @@ class CourseController extends Controller
 
     public function show($id)
     {
-        $selectedCourse = $this->modelCourse->findOrFail($id);
+        $selectedCourse = $this->modelCourse
+            ->whereKey($id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
         $allLectures = $selectedCourse->lectures;
 
         // Get lecture follow week and index
