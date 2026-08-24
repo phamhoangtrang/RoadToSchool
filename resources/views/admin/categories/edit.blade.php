@@ -1,4 +1,4 @@
-@extends('admin.admin_layouts.master')
+@extends('admin.layouts.default')
 
 @section('title')
     {{ __('information') }}
@@ -17,10 +17,10 @@
                 <h2 class="header-title">{{ __('categories') }}</h2>
                 <div class="header-sub-title">
                     <nav class="breadcrumb breadcrumb-dash">
-                        <a href="{{ route('admins.adminDashboard') }}" class="breadcrumb-item">
+                        <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item">
                             <i class="ti-home p-r-5"></i>{{ __('admin dashboard') }}
                         </a>
-                        <a href="{{ route('admins.categories.index') }}" class="breadcrumb-item">
+                        <a href="{{ route('admin.categories.index') }}" class="breadcrumb-item">
                             {{ __('categories') }}
                         </a>
                         <span class="breadcrumb-item active">{{ $category->title }}</span>
@@ -32,7 +32,7 @@
                     <h4 class="card-title">{{ __('update existed category') }}</h4>
                 </div>
                 <div class="card-body">
-                    {{ Form::model($category, ['route' => ['admins.categories.update', $category->id], 'method' => 'put']) }}
+                    {{ Form::model($category, ['route' => ['admin.categories.update', $category->id], 'method' => 'put']) }}
 
                     @foreach ($errors->all() as $error)
                         <p class="alert alert-danger fix-alert">{{ $error }}</p>
@@ -42,7 +42,7 @@
                         <div class="col-sm-10 offset-sm-1">
                             <div class="row">
                                 <div class="col-sm-8 offset-sm-2">
-                                    <form class="m-t-45">
+                                    <div class="m-t-45">
                                         <div class="form-group">
                                             {!! Form::label('title', __('title'), ['class' => 'control-label']) !!}
                                             {!! Form::text('title', null, ['class' => 'form-control']) !!}
@@ -58,7 +58,7 @@
                                                 {{ Form::submit(__('update'), ['class' => 'btn btn-gradient-success m-b-20']) }}
                                             </div>
                                         </div>
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>

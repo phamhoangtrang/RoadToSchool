@@ -80,10 +80,10 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'mi
     Route::get('/', 'HomeController@index')->name('dashboard');
     Route::get('/users/instructor_ranking', 'UserController@getInstructorRanking')->name('instructor_ranking');
     Route::get('/users/create_instructor', 'UserController@createNewInstructor')->name('users.create_instructor');
-    Route::resource('users', 'UserController')->except('create', 'store', 'update');
+    Route::resource('users', 'UserController')->only('index', 'show', 'destroy');
     Route::post('users/{id}/updateUser', 'UserController@updateUser')->name('users.update');
-    Route::resource('categories', 'CategoryController')->except('create');
-    Route::resource('courses', 'CourseController')->except('create', 'store');
+    Route::resource('categories', 'CategoryController')->only('index', 'store', 'edit', 'update', 'destroy');
+    Route::resource('courses', 'CourseController')->only('index', 'destroy');
     Route::post('courses/{id}/active', 'CourseController@acceptCourse')->name('active-course');
     Route::resource('bills', 'BillController')->only('index', 'create', 'show');
     Route::post('bills/status/update', 'BillController@updateStatus')->name('bills.updateStatus');

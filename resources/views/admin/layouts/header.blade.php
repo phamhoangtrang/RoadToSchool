@@ -5,7 +5,7 @@
             <a href="{{ route('admin.dashboard') }}">
                 {{--<img class="logo logo-dark" src="{{ asset('assets/admin/images/logo/logo.png') }}">--}}
                 <div class="logo logo-white"
-                     style="background-image: url(http://localhost:8000/assets/admin/images/logo/logo-white.png);"></div>
+                     style="background-image: url('{{ asset('assets/admin/images/logo/logo-white.png') }}');"></div>
                 {{--<img class="logo logo-white" src="{{ asset('assets/admin/images/logo/logo-white.png') }}" style="height: 64px">--}}
             </a>
         </div>

@@ -49,9 +49,11 @@ await smokeRole({
     paths: [
         '/admin',
         '/admin/users',
+        '/admin/users/2',
         '/admin/users/create_instructor',
         '/admin/courses',
         '/admin/categories',
+        '/admin/categories/1/edit',
         '/admin/permissions',
         '/admin/lectures/requests',
         '/admin/conversations/waiting',

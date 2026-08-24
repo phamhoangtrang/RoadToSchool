@@ -27,6 +27,16 @@ class CourseController extends Controller
         $selectedCourse = $this->modelCourse->findOrFail($courseId);
         $selectedCourse->update(['is_accepted' => 1]);
 
-        return json_encode($selectedCourse);
+        return response()->json($selectedCourse);
+    }
+
+    public function destroy($id)
+    {
+        $course = $this->modelCourse->findOrFail($id);
+        $course->delete();
+
+        flash(__('delete status').$course->id)->success();
+
+        return redirect()->route('admin.courses.index');
     }
 }

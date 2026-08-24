@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Course extends Model
 {
+    use SoftDeletes;
+
     const SELLER_ASC = 'seller|asc';
     const SELLER_DESC = 'seller|desc';
     const PRICE_ASC = 'promotion_price|asc';
