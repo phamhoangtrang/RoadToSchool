@@ -55,6 +55,14 @@ return [
             'visibility' => 'public',
         ],
 
+        'course_images' => [
+            'driver' => 'local',
+            'root' => public_path('images/course_avatar'),
+            'url' => env('APP_URL').'/images/course_avatar',
+            'visibility' => 'public',
+            'throw' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

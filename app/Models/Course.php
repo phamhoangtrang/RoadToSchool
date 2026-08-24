@@ -10,12 +10,19 @@ class Course extends Model
     use SoftDeletes;
 
     const SELLER_ASC = 'seller|asc';
+
     const SELLER_DESC = 'seller|desc';
+
     const PRICE_ASC = 'promotion_price|asc';
+
     const PRICE_DESC = 'promotion_price|desc';
+
     const LEVEL_ASC = 'level|asc';
+
     const LEVEL_DESC = 'level|desc';
+
     const DURATION_ASC = 'duration|asc';
+
     const DURATION_DESC = 'duration|desc';
 
     public static $filter_options = [
@@ -77,13 +84,13 @@ class Course extends Model
         return $this->hasMany('App\Models\Lecture');
     }
 
-    public function getAllCourse($params = array())
+    public function getAllCourse($params = [])
     {
         $builder = Course::orderBy('updated_at', 'DESC')->where('is_accepted', 1);
 
         if (isset($params['filter_option']) && $params['filter_option']) {
             $filterCondition = $params['filter_option'];
-            $partOfVerticalBar = explode("|", $filterCondition, 2);
+            $partOfVerticalBar = explode('|', $filterCondition, 2);
             $fieldSearch = $partOfVerticalBar[0];
             $sortOption = $partOfVerticalBar[1];
             $builder->orderBy($fieldSearch, $sortOption);
@@ -92,7 +99,7 @@ class Course extends Model
             $builder->where('course_rate', '>=', $params['course_rate']);
         }
         if (isset($params['keyword']) && $params['keyword']) {
-            $builder->where('title', 'LIKE', '%' . $params['keyword'] . '%');
+            $builder->where('title', 'LIKE', '%'.$params['keyword'].'%');
         }
         if (isset($params['sub_category_id']) && $params['sub_category_id']) {
             $categoryIdList = Category::where('id', $params['sub_category_id'])->pluck('id');
@@ -126,37 +133,5 @@ class Course extends Model
         $selectedCategoryId = Course::findOrFail($id)->category_id;
 
         return Course::where('is_accepted', 1)->where('category_id', $selectedCategoryId)->get()->count();
-    }
-
-    public function createNewCourse($request)
-    {
-        $data = $request->all();
-        $fileExtension = $request->file('course_avatar')->getClientOriginalExtension(); // Lấy . của file
-        $fileName = time() . "_" . rand(0,9999999) . "_" . md5(rand(0,9999999)) . "." . $fileExtension;
-        $uploadPath = public_path('/images/course_avatar/');
-        $request->file('course_avatar')->move($uploadPath, $fileName);
-        $data['course_avatar'] = 'public/images/course_avatar/' . $fileName;
-
-        $fileExtension = $request->file('course_avatar_2')->getClientOriginalExtension(); // Lấy . của file
-        $fileName = time() . "_" . rand(0,9999999) . "_" . md5(rand(0,9999999)) . "." . $fileExtension;
-        $uploadPath = public_path('/images/course_avatar/');
-        $request->file('course_avatar_2')->move($uploadPath, $fileName);
-        $data['course_avatar_2'] = 'public/images/course_avatar/' . $fileName;
-
-        $fileExtension = $request->file('course_avatar_3')->getClientOriginalExtension(); // Lấy . của file
-        $fileName = time() . "_" . rand(0,9999999) . "_" . md5(rand(0,9999999)) . "." . $fileExtension;
-        $uploadPath = public_path('/images/course_avatar/');
-        $request->file('course_avatar_3')->move($uploadPath, $fileName);
-        $data['course_avatar_3'] = 'public/images/course_avatar/' . $fileName;
-
-        $data['origin_price'] = 0;
-        $data['lecture_numbers'] = 0;
-        $data['duration'] = 0;
-        $data['seller'] = 0;
-        $data['course_rate'] = 0;
-        $data['is_accepted'] = 0;
-        $data['user_id'] = \Auth::user()->id;
-
-        return Course::create($data);
     }
 }

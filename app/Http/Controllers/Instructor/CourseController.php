@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Instructor;
 
-use App\Models\Category;
-use App\Models\CourseUser;
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreateInstructorCourseRequest;
+use App\Models\Category;
 use App\Models\Course;
+use App\Models\CourseUser;
 use App\Models\Lecture;
+use App\Models\Process;
+use App\Models\User;
 use Auth;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class CourseController extends Controller
 {
@@ -17,16 +20,18 @@ class CourseController extends Controller
      * The dependency model instance.
      */
     protected $modelCourse;
+
     protected $modelLecture;
+
     protected $modelCategory;
+
     protected $modelCourseUser;
+
     protected $modelUser;
 
     /**
      * Create a new controller instance.
      *
-     * @param Course $course
-     * @param Category $category
      * @return void
      */
     public function __construct(Course $course, Lecture $lecture, Category $category, CourseUser $courseUser, User $user)
@@ -39,7 +44,7 @@ class CourseController extends Controller
 
     public function index()
     {
-        $instructorCourseList = $this->modelCourse->where('user_id', \Auth::user()->id)->get();
+        $instructorCourseList = $this->modelCourse->where('user_id', Auth::user()->id)->get();
 
         return view('instructor.courses.index', compact(
             'instructorCourseList'
@@ -70,9 +75,9 @@ class CourseController extends Controller
         $studentIdList = $this->modelCourseUser->where('course_id', $id)->pluck('user_id');
         $studentList = User::whereIn('id', $studentIdList)->get();
         foreach ($studentList as $student) {
-            $processList = \App\Models\Process::whereIn('lecture_id', $selectedCourse->lectures()->pluck('id')->toArray())->where('user_id', $student->id);
+            $processList = Process::whereIn('lecture_id', $selectedCourse->lectures()->pluck('id')->toArray())->where('user_id', $student->id);
             $learnedLectureCount = $processList->where('status', 1)->count();
-            $allLectureCount = \App\Models\Process::whereIn('lecture_id', $selectedCourse->lectures()->pluck('id')->toArray())->where('user_id', $student->id)->count();
+            $allLectureCount = Process::whereIn('lecture_id', $selectedCourse->lectures()->pluck('id')->toArray())->where('user_id', $student->id)->count();
             if ($allLectureCount == 0) {
                 $student->progress = 0;
             } else {
@@ -91,7 +96,7 @@ class CourseController extends Controller
 
     public function create()
     {
-        $parentCategoryList = $this->modelCategory->where('parent_id', '')->get();
+        $parentCategoryList = $this->modelCategory->where('parent_id', 0)->get();
         foreach ($parentCategoryList as $parentCategory) {
             $parentCategory->childCategory = $this->modelCategory->where('parent_id', $parentCategory->id)->get();
         }
@@ -101,14 +106,32 @@ class CourseController extends Controller
         ));
     }
 
-    public function store(Request $request)
+    public function store(CreateInstructorCourseRequest $request)
     {
-        $result = $this->modelCourse->createNewCourse($request);
+        $data = $request->safe()->except(['course_avatar', 'course_avatar_2', 'course_avatar_3']);
+        $storedImages = [];
 
-        if ($result) {
+        try {
+            foreach (['course_avatar', 'course_avatar_2', 'course_avatar_3'] as $field) {
+                $storedImages[] = $request->file($field)->store('', 'course_images');
+                $data[$field] = 'public/images/course_avatar/'.end($storedImages);
+            }
+
+            $this->modelCourse->create([
+                ...$data,
+                'origin_price' => 0,
+                'lecture_numbers' => 0,
+                'duration' => 0,
+                'seller' => 0,
+                'course_rate' => 0,
+                'is_accepted' => 0,
+                'user_id' => $request->user()->id,
+            ]);
             flash(__('messages.create_course_successfully'))->success();
-        } else {
-            flash(__('messages.create_course_failed'))->error();
+        } catch (Throwable $exception) {
+            Storage::disk('course_images')->delete($storedImages);
+
+            throw $exception;
         }
 
         return redirect()->route('instructor.courses.index');
