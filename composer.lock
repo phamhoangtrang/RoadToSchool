@@ -67,12 +67,12 @@
             "version": "5.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/davejamesmiller/laravel-breadcrumbs.git",
+                "url": "https://github.com/diglactic/laravel-breadcrumbs.git",
                 "reference": "6465e8710341578092fdd8aea24319d4f53ab27c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/davejamesmiller/laravel-breadcrumbs/zipball/6465e8710341578092fdd8aea24319d4f53ab27c",
+                "url": "https://api.github.com/repos/diglactic/laravel-breadcrumbs/zipball/6465e8710341578092fdd8aea24319d4f53ab27c",
                 "reference": "6465e8710341578092fdd8aea24319d4f53ab27c",
                 "shasum": ""
             },
@@ -114,7 +114,7 @@
                 }
             ],
             "description": "A simple Laravel-style way to create breadcrumbs.",
-            "homepage": "https://github.com/davejamesmiller/laravel-breadcrumbs",
+            "homepage": "https://github.com/diglactic/laravel-breadcrumbs",
             "keywords": [
                 "laravel"
             ],

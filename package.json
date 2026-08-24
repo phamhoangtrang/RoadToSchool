@@ -20,6 +20,6 @@
         "vue": "^2.5.7"
     },
     "dependencies": {
-        "pusher-js": "^4.4.0",
+        "pusher-js": "^4.4.0"
     }
 }
