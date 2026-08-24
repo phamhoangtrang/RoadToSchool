@@ -126,14 +126,6 @@
                         success: function (response) {
                             var responseData = jQuery.parseJSON(response);
                             $('#quiz-result-id').attr('value', responseData);
-
-                            $.ajax({
-                                url: '/quiz_element_quiz_result/storeNewRecord',
-                                type: 'post',
-                                data: {
-                                    quizResultId: responseData,
-                                }
-                            });
                         }
                     });
                 }

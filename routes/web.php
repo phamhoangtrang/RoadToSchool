@@ -46,15 +46,15 @@ Route::middleware('auth', 'verified', 'locale')->group(function () {
     Route::post('cart_items/checkout', 'User\BillController@postCheckout')->name('cart_items.checkout.post');
     Route::post('cart_items/create', 'User\CartItemController@createNewItem');
     Route::post('cart_items/{action}', 'User\CartItemController@changeStatus');
-//    Route::get('/pusher/getComment', function(Illuminate\Http\Request $request) {
-//        event(new App\Events\GetCommentFromPusherEvent($request));
-//
-//        return redirect()->back();
-//    });
+    //    Route::get('/pusher/getComment', function(Illuminate\Http\Request $request) {
+    //        event(new App\Events\GetCommentFromPusherEvent($request));
+    //
+    //        return redirect()->back();
+    //    });
     Route::post('courses/{courseId}/pusher/postComment', 'User\CourseController@postCommentToPusher')->name('courses.postCommentToPusher');
     Route::post('courses/{courseId}/pusher/replyComment/{parentCommentId}', 'User\CourseController@postReplyCommentToPusher')->name('courses.comment.postReplyCommentToPusher');
-//    Route::post('courses/{id}/postComment', 'User\CourseController@createNewComment')->name('courses.comment.store');
-//    Route::post('courses/{id}/replyComment/{commentId}', 'User\CourseController@replyComment')->name('courses.comment.store_reply');
+    //    Route::post('courses/{id}/postComment', 'User\CourseController@createNewComment')->name('courses.comment.store');
+    //    Route::post('courses/{id}/replyComment/{commentId}', 'User\CourseController@replyComment')->name('courses.comment.store_reply');
     Route::resource('notifications', 'User\NotificationController')->only('index');
     Route::post('notifications/{id}/changeStatus', 'User\NotificationController@changeStatus');
     Route::post('discussions/pusher/pushNewDiscussion', 'User\DiscussionController@createNewDiscussion');
@@ -64,7 +64,6 @@ Route::middleware('auth', 'verified', 'locale')->group(function () {
     Route::post('/lectures/{lectureId}/user/{userId}/changeProcessStatus', 'User\ProcessController@changeProcessStatus');
     Route::resource('quiz_results', 'User\QuizResultController')->only('store');
     Route::post('/quiz_results/storeNewResult', 'User\QuizResultController@storeNewResult');
-    Route::post('/quiz_element_quiz_result/storeNewRecord', 'User\QuizElementzQuizResultController@storeNewRecord');
     Route::get('/courses/{id}/lectures/{lectureId}/getResult', 'User\LectureController@showQuizResult')->name('quiz.result')->middleware('access_lecture');
     Route::post('/courses/{courseId}/postAppreciate', 'User\CourseController@postAppreciate');
     Route::post('/conversations/store', 'User\ConversationController@store')->name('conversations.store');

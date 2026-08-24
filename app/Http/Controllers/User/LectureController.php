@@ -213,8 +213,8 @@ class LectureController extends Controller
         $quizResult = $this->modelQuizResult
             ->where('lecture_id', $lectureId)
             ->where('user_id', \Auth::user()->id)
-            ->get()
-            ->last();
+            ->latest('id')
+            ->firstOrFail();
         foreach ($allQuestion as $question) {
             // TODO xu ly cau hoi nhieu dap an va 1 dap an, pick dap an dung cho phu hop
             $answer = $this->modelQuizElement->where('lecture_id', $lectureId)->where('question_parent_id', $question->id)->get();
@@ -225,9 +225,12 @@ class LectureController extends Controller
                 ->pluck('id')->toArray();
             $userChoice = $this->modelQuizElementzQuizResult
                 ->where('quiz_element_id', $question->id)
-                ->where('quiz_result_id', $quizResult->id)->get()
-                ->last()->user_choice;
-            $question->userChoice = explode(',', $userChoice);
+                ->where('quiz_result_id', $quizResult->id)
+                ->firstOrFail()
+                ->user_choice;
+            $question->userChoice = $userChoice
+                ? array_map('intval', explode(',', $userChoice))
+                : [];
 
             if ($question->trueAnswer == $question->userChoice) {
                 $question->checkResult = 1;
