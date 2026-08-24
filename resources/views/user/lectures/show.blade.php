@@ -322,11 +322,7 @@
                 $('#input-content').focus();
             })
 
-            // Thay giá trị PUSHER_APP_KEY vào chỗ xxx này nhé
-            var pusher = new Pusher('f2b354d9cdae3999c31d', {
-                encrypted: true,
-                cluster: "ap1"
-            });
+            var pusher = window.RoadToSchoolRealtime;
 
             // Subscribe to the channel we specified in our Laravel Event
             var channel = pusher.subscribe('discussion');
@@ -376,7 +372,7 @@
             channelComment.bind('App\\Events\\GetLectureCommentFromPusherEvent', function (data) {
                 var commentedUser = jQuery.parseJSON(data.user);
                 var userAvatar = commentedUser.avatar;
-                userAvatar = userAvatar.replace("images/", "http://127.0.0.1:8000/images/");
+                userAvatar = userAvatar.replace("images/", window.location.origin + "/images/");
                 var createdLectureComment = jQuery.parseJSON(data.createdLectureComment);
                 var newCommentHtml =
                     '<li id="li-comment-' + createdLectureComment.id + '"><div class="media"><div class="thumb-left"><img alt="'
@@ -417,7 +413,7 @@
                 var replyLectureComments = $('#reply-comment-' + data.parentCommentId + '-list');
                 var commentedUser = jQuery.parseJSON(data.user);
                 var userAvatar = commentedUser.avatar;
-                userAvatar = userAvatar.replace("images/", "http://127.0.0.1:8000/images/");
+                userAvatar = userAvatar.replace("images/", window.location.origin + "/images/");
                 var createdComment = jQuery.parseJSON(data.createdComment);
                 var replyUser = '';
                 var currentUserId = '{{ \Auth::user()->id }}';

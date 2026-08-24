@@ -260,12 +260,12 @@
                             if(userAvatar.includes("public")) {
                                 userAvatar = userAvatar.replace(
                                     "public/images/",
-                                    "http://127.0.0.1:8000/images/"
+                                    window.location.origin + "/images/"
                                 );
                             } else {
                                 userAvatar = userAvatar.replace(
                                     "images/",
-                                    "http://127.0.0.1:8000/images/"
+                                    window.location.origin + "/images/"
                                 );
                             }
                             $('#user-avatar').attr('src', userAvatar);

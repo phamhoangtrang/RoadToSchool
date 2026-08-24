@@ -620,11 +620,7 @@
 @section('inline_scripts')
     <script type="text/javascript">
         $(document).ready(function () {
-            // Thay giá trị PUSHER_APP_KEY vào chỗ xxx này nhé
-            var pusher = new Pusher('f2b354d9cdae3999c31d', {
-                encrypted: true,
-                cluster: "ap1"
-            });
+            var pusher = window.RoadToSchoolRealtime;
 
             // // Like course
             // $('#like-course').on('click', function (event) {
@@ -676,7 +672,7 @@
             channel.bind('App\\Events\\GetCommentFromPusherEvent', function (data) {
                 var commentedUser = jQuery.parseJSON(data.user);
                 var userAvatar = commentedUser.avatar;
-                userAvatar = userAvatar.replace("images/", "http://127.0.0.1:8000/images/");
+                userAvatar = userAvatar.replace("images/", window.location.origin + "/images/");
                 var createdComment = jQuery.parseJSON(data.createdComment);
                 var newCommentHtml =
                     '<li id="li-comment-' + createdComment.id + '"><div class="media"><div class="thumb-left"><img alt="'
@@ -709,7 +705,7 @@
                 var replyComments = $('#reply-comment-' + data.parentCommentId + '-list');
                 var commentedUser = jQuery.parseJSON(data.user);
                 var userAvatar = commentedUser.avatar;
-                userAvatar = userAvatar.replace("images/", "http://127.0.0.1:8000/images/");
+                userAvatar = userAvatar.replace("images/", window.location.origin + "/images/");
                 var createdComment = jQuery.parseJSON(data.createdComment);
                 var replyUser = '';
                 var currentUserId = '{{ \Auth::user()->id }}';

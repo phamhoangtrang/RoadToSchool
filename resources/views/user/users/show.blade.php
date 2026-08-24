@@ -351,7 +351,7 @@
 
         $('#button-delete-avatar').on('click', function (e) {
             e.preventDefault();
-            $('#img-upload').attr('src', 'http://127.0.0.1:8000/images/default_avatar/default_avatar.jpg');
+            $('#img-upload').attr('src', '{{ asset('images/default_avatar/default_avatar.jpg') }}');
             $('#button-delete-avatar').fadeOut(300);
         })
 

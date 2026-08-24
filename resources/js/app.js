@@ -23,3 +23,27 @@ if (import.meta.env.VITE_REVERB_APP_KEY) {
         enabledTransports: ['ws', 'wss'],
     });
 }
+
+const noOpChannel = {
+    bind() {
+        return this;
+    },
+};
+
+window.RoadToSchoolRealtime = {
+    subscribe(channelName) {
+        if (!window.Echo) {
+            return noOpChannel;
+        }
+
+        const channel = window.Echo.channel(channelName);
+
+        return {
+            bind(eventName, listener) {
+                channel.listen(`.${eventName}`, listener);
+
+                return this;
+            },
+        };
+    },
+};

@@ -209,7 +209,6 @@
 
 @section('inline_scripts')
     <script src="{{ asset('assets/admin/js/apps/chat.js') }}"></script>
-    <script src="//js.pusher.com/3.1/pusher.min.js"></script>
     <script>
         $(document).ready(function () {
             $('.chat-app').on('click', '.change-status', function (e) {
@@ -347,10 +346,7 @@
 
             // Conversation area
             // custom notification
-            var pusher = new Pusher("f2b354d9cdae3999c31d", {
-                encrypted: true,
-                cluster: "ap1"
-            });
+            var pusher = window.RoadToSchoolRealtime;
 
             var conversationMessageChannel = pusher.subscribe("conversation-message");
 
@@ -361,7 +357,7 @@
                     var userAvatar = data.fromUser.avatar;
                     userAvatar = userAvatar.replace(
                         "images/",
-                        "http://127.0.0.1:8000/images/"
+                        window.location.origin + "/images/"
                     );
                     if (is_in_progress) {
                         var currentAdminId = '{{ \Auth::user()->id }}';
