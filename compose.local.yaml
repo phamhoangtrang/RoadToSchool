@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    working_dir: /var/www/html
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: mariadb:10.11
+    environment:
+      MARIADB_DATABASE: road_to_school
+      MARIADB_USER: roadtoschool
+      MARIADB_PASSWORD: roadtoschool_local
+      MARIADB_ROOT_PASSWORD: root_local
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - roadtoschool_database:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  roadtoschool_database:
+

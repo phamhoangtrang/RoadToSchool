@@ -1,0 +1,19 @@
+FROM php:7.4-cli-bullseye
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git \
+        libonig-dev \
+        libzip-dev \
+        unzip \
+    && docker-php-ext-install -j"$(nproc)" \
+        bcmath \
+        mbstring \
+        pdo_mysql \
+        zip \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2.2 /usr/bin/composer /usr/local/bin/composer
+
+WORKDIR /var/www/html
+
