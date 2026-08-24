@@ -1,23 +1,57 @@
 <?php
 
-use Faker\Generator as Faker;
+namespace Database\Factories;
 
-/*
-|--------------------------------------------------------------------------
-| Model Factories
-|--------------------------------------------------------------------------
-|
-| This directory should contain each of the model factory definitions for
-| your application. Factories provide a convenient way to generate new
-| model instances for testing / seeding your application's database.
-|
-*/
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-$factory->define(App\User::class, function (Faker $faker) {
-    return [
-        'name' => $faker->name,
-        'email' => $faker->unique()->safeEmail,
-        'password' => '$2y$10$TKh8H1.PfQx37YgCzwiKb.KjNyWgaHb9cbcoQgdIVFlYg7B77UdFm', // secret
-        'remember_token' => \Illuminate\Support\Str::random(10),
-    ];
-});
+/** @extends Factory<User> */
+class UserFactory extends Factory
+{
+    protected $model = User::class;
+
+    /** @return array<string, mixed> */
+    public function definition(): array
+    {
+        return [
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => bcrypt('password'),
+            'remember_token' => Str::random(10),
+            'phone' => fake()->e164PhoneNumber(),
+            'birthday' => fake()->dateTimeBetween('-60 years', '-10 years')->format('Y-m-d'),
+            'address' => fake()->address(),
+            'avatar' => 'images/avatar/basic-avatar.png',
+            'personal_info' => fake()->paragraph(),
+            'working_place' => fake()->company(),
+            'grade' => User::GRADE_14,
+            'role' => User::ROLE_STUDENT,
+            'is_admin' => false,
+            'instructor_rate' => 0,
+        ];
+    }
+
+    public function unverified(): static
+    {
+        return $this->state(fn (): array => ['email_verified_at' => null]);
+    }
+
+    public function instructor(): static
+    {
+        return $this->state(fn (): array => [
+            'avatar' => 'images/default_avatar/teacher.jpg',
+            'role' => User::ROLE_TEACHER,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (): array => [
+            'avatar' => 'images/default_avatar/admin.jpg',
+            'role' => User::ROLE_ADMIN,
+            'is_admin' => true,
+        ]);
+    }
+}

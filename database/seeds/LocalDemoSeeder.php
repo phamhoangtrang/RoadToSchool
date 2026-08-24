@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class LocalDemoSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $now = Carbon::now();
 
