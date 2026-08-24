@@ -14,22 +14,21 @@ services:
         condition: service_healthy
 
   database:
-    image: mariadb:10.11
+    image: mysql:8.4
     environment:
-      MARIADB_DATABASE: road_to_school
-      MARIADB_USER: roadtoschool
-      MARIADB_PASSWORD: roadtoschool_local
-      MARIADB_ROOT_PASSWORD: root_local
+      MYSQL_DATABASE: road_to_school
+      MYSQL_USER: roadtoschool
+      MYSQL_PASSWORD: roadtoschool_local
+      MYSQL_ROOT_PASSWORD: root_local
     ports:
       - "127.0.0.1:3307:3306"
     volumes:
-      - roadtoschool_database:/var/lib/mysql
+      - roadtoschool_mysql84:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
       timeout: 5s
       retries: 20
 
 volumes:
-  roadtoschool_database:
-
+  roadtoschool_mysql84:

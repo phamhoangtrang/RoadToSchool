@@ -13,7 +13,25 @@
 
 Route::get('/', 'HomeController@index')->middleware(['locale']);
 
-Auth::routes(['verify' => true]);
+Route::middleware('guest')->group(function () {
+    Route::get('/login', 'Auth\LoginController@showLoginForm')->name('login');
+    Route::post('/login', 'Auth\LoginController@login');
+    Route::get('/register', 'Auth\RegisterController@showRegistrationForm')->name('register');
+    Route::post('/register', 'Auth\RegisterController@register');
+    Route::get('/password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+    Route::post('/password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+    Route::get('/password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+    Route::post('/password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');
+});
+
+Route::post('/logout', 'Auth\LoginController@logout')->middleware('auth')->name('logout');
+Route::get('/email/verify', 'Auth\VerificationController@show')->middleware('auth')->name('verification.notice');
+Route::get('/email/verify/{id}/{hash}', 'Auth\VerificationController@verify')
+    ->middleware(['auth', 'signed', 'throttle:6,1'])
+    ->name('verification.verify');
+Route::post('/email/verification-notification', 'Auth\VerificationController@resend')
+    ->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.resend');
 
 Route::get('/home', 'HomeController@index')->middleware(['locale'])->name('home');
 

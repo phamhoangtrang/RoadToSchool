@@ -15,17 +15,6 @@ $app = new Illuminate\Foundation\Application(
     realpath(__DIR__.'/../')
 );
 
-// Laravel 5.7 only understands Composer 1's installed.json structure.
-// Replace its package manifest reader with a Composer 1/2 compatible version.
-$app->instance(
-    Illuminate\Foundation\PackageManifest::class,
-    new App\Foundation\PackageManifest(
-        new Illuminate\Filesystem\Filesystem,
-        $app->basePath(),
-        $app->getCachedPackagesPath()
-    )
-);
-
 /*
 |--------------------------------------------------------------------------
 | Bind Important Interfaces
