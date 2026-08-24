@@ -98,10 +98,10 @@
                 $.ajax({
                     type: 'POST',
                     url: 'notifications/' + $(this).data('notiid') + '/changeStatus',
-                    success: function () {
+                    success: function (response) {
+                        window.location.replace(response.redirect_url);
                     }
                 }, "json");
-                window.location.replace($(this).attr('href'));
             })
         })
     </script>

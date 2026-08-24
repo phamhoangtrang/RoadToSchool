@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Models\Notification;
-use App\Models\Comment;
-use App\Models\LectureComment;
-use App\Models\Lecture;
-use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use App\Http\Controllers\Controller;
+use App\Models\Comment;
+use App\Models\Lecture;
+use App\Models\LectureComment;
+use App\Models\Notification;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
@@ -21,28 +20,24 @@ class NotificationController extends Controller
 
     public function changeStatus(Request $request, $id)
     {
-        $result = Notification::findOrFail($id)->update(['status' => Notification::SEEN]);
-        $data = $request->all();
-        if (Arr::exists($data, 'courseId')) {
-            $parentCommentId = Comment::findOrFail($data['commentId'])->parent_comment;
-            $typeComment = 'course';
-            $lectureInCourseId = '';
-        } elseif (Arr::exists($data, 'lectureId')) {
-            $parentCommentId = LectureComment::findOrFail($data['commentId'])->parent_comment;
-            $typeComment = 'lecture';
-            $lectureInCourseId = Lecture::findOrFail($data['lectureId'])->course->id;
-        }
-        if ($parentCommentId) {
-            $data['parentCommentId'] = $parentCommentId;
-        }
-        $data['$typeComment'] = $typeComment;
-        $data['lectureInCourseId'] = $lectureInCourseId;
+        $notification = Notification::where('user_id', $request->user()->id)->findOrFail($id);
+        $notification->update(['status' => Notification::SEEN]);
+        $redirectUrl = route('notifications.index');
 
-        if ($result) {
-            return $data;
+        if ($notification->course_id && $notification->comment_id) {
+            $comment = Comment::where('course_id', $notification->course_id)
+                ->findOrFail($notification->comment_id);
+            $anchorId = $comment->parent_comment ?: $comment->id;
+            $redirectUrl = route('courses.show', $notification->course_id).'#li-comment-'.$anchorId;
+        } elseif ($notification->lecture_id && $notification->comment_id) {
+            $lecture = Lecture::findOrFail($notification->lecture_id);
+            $comment = LectureComment::where('lecture_id', $lecture->id)
+                ->findOrFail($notification->comment_id);
+            $anchorId = $comment->parent_comment ?: $comment->id;
+            $redirectUrl = url("/courses/{$lecture->course_id}/lectures/{$lecture->id}").'#li-comment-'.$anchorId;
         }
 
-        return 500;
+        return response()->json(['redirect_url' => $redirectUrl]);
     }
 
     public function index()

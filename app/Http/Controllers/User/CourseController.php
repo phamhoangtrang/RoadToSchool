@@ -265,7 +265,7 @@ class CourseController extends Controller
 
         $createdComment = $this->modelComment->storeNewComment($data);
         $commentedUserList = $this->modelComment->where('user_id', '!=', $data['user_id'])->where('course_id', $courseId)->where('parent_comment', $parentCommentId)->groupBy('user_id')->pluck('user_id');
-        $createdNotification = $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, 'replied');
+        $createdNotification = $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, Notification::COMMENT);
         if ($createdComment && $createdNotification) {
             event(new GetReplyCommentFromPusherEvent($request, $createdComment, $parentCommentId));
 

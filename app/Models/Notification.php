@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use DB;
+use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
@@ -20,16 +20,19 @@ class Notification extends Model
     ];
 
     const WELCOME = 0;
+
     const COMMENT = 1;
+
     const LECTURE_COMMENT = 2;
 
     public static $type = [
         self::WELCOME => 'Welcome Notification',
         self::COMMENT => 'Comment Notification',
-        self::LECTURE_COMMENT => 'Lecture Comment Notification'
+        self::LECTURE_COMMENT => 'Lecture Comment Notification',
     ];
 
     const NOT_SEEN = 0;
+
     const SEEN = 1;
 
     public static $status = [
@@ -44,42 +47,33 @@ class Notification extends Model
 
     public function createCommentNotification($courseOrLectureId, $userIdList, $comment, $type)
     {
-        DB::beginTransaction();
-        if ($type == self::COMMENT) {
-            foreach ($userIdList as $userId) {
-                $result =
+        DB::transaction(function () use ($courseOrLectureId, $userIdList, $comment, $type): void {
+            if ($type == self::COMMENT) {
+                $course = Course::findOrFail($courseOrLectureId);
+                foreach ($userIdList as $userId) {
                     Notification::create([
                         'type' => self::COMMENT,
-                        'content' => '<b>' . $comment->user->name . '</b> has commented in <b>' . Course::findOrFail($courseOrLectureId)->first()->title . '</b>: ' . $comment->content,
+                        'content' => '<b>'.e($comment->user->name).'</b> has commented in <b>'.e($course->title).'</b>: '.$comment->content,
                         'status' => self::NOT_SEEN,
                         'course_id' => $courseOrLectureId,
                         'comment_id' => $comment->id,
-                        'user_id' => $userId
+                        'user_id' => $userId,
                     ]);
-
-                if (!$result) {
-                    return false;
                 }
-            }
-        } elseif ($type == self::LECTURE_COMMENT) {
-            foreach ($userIdList as $userId) {
-                $result =
+            } elseif ($type == self::LECTURE_COMMENT) {
+                $lecture = Lecture::findOrFail($courseOrLectureId);
+                foreach ($userIdList as $userId) {
                     Notification::create([
                         'type' => self::LECTURE_COMMENT,
-                        'content' => '<b>' . $comment->user->name . '</b> has commented in lecture <b>' . Lecture::findOrFail($courseOrLectureId)->title . '</b>: ' . $comment->content,
+                        'content' => '<b>'.e($comment->user->name).'</b> has commented in lecture <b>'.e($lecture->title).'</b>: '.$comment->content,
                         'status' => self::NOT_SEEN,
                         'lecture_id' => $courseOrLectureId,
                         'comment_id' => $comment->id,
-                        'user_id' => $userId
+                        'user_id' => $userId,
                     ]);
-
-                if (!$result) {
-                    return false;
                 }
             }
-        }
-
-        DB::commit();
+        });
 
         return true;
     }
@@ -90,6 +84,7 @@ class Notification extends Model
         $data['content'] = 'Welcome to Road To School';
         $data['status'] = 0;
         $data['user_id'] = $userId;
+
         return Notification::create($data);
     }
 }

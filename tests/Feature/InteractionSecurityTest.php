@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Comment;
 use App\Models\Conversation;
 use App\Models\Course;
 use App\Models\Lecture;
+use App\Models\Notification;
 use App\Models\Process;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -98,6 +100,45 @@ class InteractionSecurityTest extends TestCase
         $this->actingAs($otherStudent)
             ->post("/conversations/{$conversation->id}/storeNewMessage", ['content' => 'Not allowed'])
             ->assertForbidden();
+    }
+
+    public function test_notifications_can_only_be_read_by_their_owner_and_ignore_client_targets(): void
+    {
+        $student = User::factory()->create();
+        $otherStudent = User::factory()->create();
+        [$course] = $this->createCourseAndLecture();
+        $commentAuthor = User::factory()->create();
+        $comment = Comment::create([
+            'content' => 'Course comment',
+            'course_id' => $course->id,
+            'user_id' => $commentAuthor->id,
+        ]);
+        $notification = Notification::create([
+            'type' => Notification::COMMENT,
+            'content' => 'New comment',
+            'status' => Notification::NOT_SEEN,
+            'course_id' => $course->id,
+            'comment_id' => $comment->id,
+            'user_id' => $student->id,
+        ]);
+
+        $this->actingAs($otherStudent)
+            ->post("/notifications/{$notification->id}/changeStatus")
+            ->assertNotFound();
+        $this->assertSame(Notification::NOT_SEEN, $notification->fresh()->status);
+
+        $response = $this->actingAs($student)
+            ->post("/notifications/{$notification->id}/changeStatus", [
+                'courseId' => 999,
+                'commentId' => 999,
+            ])
+            ->assertOk();
+
+        $this->assertSame(Notification::SEEN, $notification->fresh()->status);
+        $this->assertSame(
+            route('courses.show', $course->id).'#li-comment-'.$comment->id,
+            $response->json('redirect_url'),
+        );
     }
 
     /** @return array{Course, Lecture} */
