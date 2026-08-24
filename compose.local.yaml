@@ -29,7 +29,7 @@ services:
     image: node:24-alpine
     user: "1000:1000"
     working_dir: /var/www/html
-    command: sh -lc "npm install --ignore-scripts && npm run build"
+    command: sh -lc "npm ci --ignore-scripts && npm run build"
     environment:
       NPM_CONFIG_CACHE: /tmp/npm-cache
       VITE_REVERB_APP_KEY: roadtoschool-local-key

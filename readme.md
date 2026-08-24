@@ -1,65 +1,62 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+# RoadToSchool
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+RoadToSchool is a bilingual learning-management application for students, instructors and administrators. The original Blade interface and workflows are preserved while the runtime has been upgraded to a supported modern stack.
 
-## About Laravel
+## Technology
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
+- PHP 8.5, Laravel 13 and PHPUnit 13
+- MySQL 8.4 and Eloquent ORM
+- Blade, Bootstrap 5, jQuery 3.7 and Vite 8
+- Laravel Reverb for comments, notifications and conversations
+- English and Vietnamese interfaces
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Local setup with Docker
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications.
+Requirements: Docker Engine with the Compose plugin and Google Chrome if you want to run the browser smoke test.
 
-## Learning Laravel
+```bash
+cp .env.example .env
+docker compose -f compose.local.yaml build
+docker compose -f compose.local.yaml run --rm --no-deps app composer install
+docker compose -f compose.local.yaml run --rm --no-deps app php artisan key:generate
+docker compose -f compose.local.yaml up -d database
+docker compose -f compose.local.yaml run --rm app php artisan migrate --seed
+docker compose -f compose.local.yaml up -d
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of any modern web application framework, making it a breeze to get started learning the framework.
+Open <http://localhost:8000>. Reverb listens on <http://localhost:8080> and MySQL is exposed locally on port `3307`.
 
-If you're not in the mood to read, [Laracasts](https://laracasts.com) contains over 1100 video tutorials on a range of topics including Laravel, modern PHP, unit testing, JavaScript, and more. Boost the skill level of yourself and your entire team by digging into our comprehensive video library.
+The local demo seeder creates these accounts; all use password `123456`:
 
-## Laravel Sponsors
+| Role | Email |
+| --- | --- |
+| Administrator | `admin@roadtoschool.local` |
+| Instructor | `instructor@roadtoschool.local` |
+| Student | `student@roadtoschool.local` |
 
-We would like to extend our thanks to the following sponsors for helping fund on-going Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell):
+`php artisan migrate --seed` is intended for a new database. To deliberately rebuild the local demo database, use `php artisan migrate:fresh --seed`; this deletes existing local data.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
+## Development commands
 
-## Contributing
+```bash
+# Service status and logs
+docker compose -f compose.local.yaml ps
+docker compose -f compose.local.yaml logs -f app reverb
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# PHP tests and dependency audit
+docker compose -f compose.local.yaml exec -T app php artisan test
+docker compose -f compose.local.yaml exec -T app composer audit
 
-## Security Vulnerabilities
+# Frontend build and audit in the pinned Node 24 container
+docker compose -f compose.local.yaml run --rm --no-deps assets
+docker compose -f compose.local.yaml run --rm --no-deps assets npm audit
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Browser smoke test (requires Node.js and Google Chrome on the host)
+npm run test:browser
+```
 
-## License
+Generated frontend files are written to `public/build` and are intentionally ignored by Git. Configure production secrets in the deployment environment; never commit a populated `.env` file.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Optional services
+
+The recommendation service is disabled when `RECOMMENDATION_ENDPOINT` is empty. Configure the `RECOMMENDATION_*` variables to enable it. Reverb is the default broadcaster; Pusher-compatible credentials are no longer embedded in browser assets.
