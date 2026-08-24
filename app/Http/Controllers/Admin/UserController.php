@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Course;
 use App\Models\CourseUser;
 use App\Http\Requests\CreateInstructorRequest;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -35,7 +36,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all()->where('isAdmin', 0);
+        $users = User::query()->where('is_admin', false)->get();
 
         return view('admin.users.index', compact('users'));
     }
@@ -99,9 +100,25 @@ class UserController extends Controller
      */
     public function updateUser(Request $request, $id)
     {
-        User::find($id)->update($request->all());
+        $user = User::findOrFail($id);
+        $data = $request->validate([
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'phone' => ['sometimes', 'nullable', 'string', 'max:30'],
+            'birthday' => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
+            'address' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'personal_info' => ['sometimes', 'nullable', 'string', 'max:50000'],
+            'working_place' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'grade' => ['sometimes', 'nullable', 'integer', 'between:0,14'],
+            'role' => ['sometimes', 'integer', Rule::in([User::ROLE_TEACHER, User::ROLE_STUDENT])],
+        ]);
 
-        return User::find('id');
+        if (array_key_exists('personal_info', $data) && $data['personal_info'] === null) {
+            $data['personal_info'] = '';
+        }
+
+        $user->update($data);
+
+        return response()->json($user->fresh());
     }
 
     /**
@@ -110,9 +127,13 @@ class UserController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $result = $this->modelUser->deleteUser($id);
+        $user = User::findOrFail($id);
+
+        abort_if($request->user()->is($user), 422, 'You cannot delete your own account.');
+
+        $result = $user->delete();
 
         if ($result) {
             flash(__('delete status') . $id)->success();
@@ -120,7 +141,7 @@ class UserController extends Controller
             flash(__('something wrong'))->error();
         }
 
-        return redirect(route('admins.users.index'));
+        return redirect()->route('admin.users.index');
     }
 
     public function getInstructorRanking()

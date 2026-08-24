@@ -49,12 +49,12 @@
                 </div>
                 <div class="form-group">
                     {{ Form::label('role', __('titles.role'), ['class' => 'control-label']) }}
-                    {{ Form::select('role', \App\Models\User::$roles, null, ['class' => 'form-control', 'id' => 'm-role']) }}
+                    {{ Form::select('role', array_intersect_key(\App\Models\User::$roles, array_flip([\App\Models\User::ROLE_TEACHER, \App\Models\User::ROLE_STUDENT])), null, ['class' => 'form-control', 'id' => 'm-role']) }}
                     <p style="color: red" id="error-m-role" hidden=""></p>
                 </div>
                 {{ Form::close() }}</div>
             <div class="modal-footer">
-                <button class="btn btn-warning" type="submit" id="update-user-info" data-id="{{ $user->id }}">
+                <button class="btn btn-warning" type="submit" id="update-user-info">
                     {{ __('titles.update_user_infomation') }}
                 </button>
                 <button class="btn btn-warning" type="button" data-dismiss="modal">

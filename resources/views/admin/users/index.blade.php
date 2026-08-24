@@ -4,11 +4,6 @@
     {{ __('titles.all_users') }}
 @endsection
 
-@section('inline_styles')
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css"/>
-@endsection
-
 @section('content')
     <div class="message-display">
         @include('flash::message')
@@ -92,8 +87,6 @@
 @include('admin.layouts.delete_modal')
 
 @section('inline_scripts')
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
     <script>
         $(document).ready(function () {
             $('.datepicker').datepicker();
@@ -106,6 +99,7 @@
 
             $('.edit-user').on('click', function () {
                 var user = $(this).data('user')
+                $('#update-user-info').data('id', user.id);
                 $('#m-email').val(user.email);
                 $('#m-name').val(user.name);
                 $('#m-phone').val(user.phone);
@@ -128,11 +122,13 @@
                     type: 'POST',
                     url: '/admin/users/' + id + '/updateUser',
                     data: {
-                        id: id,
+                        name: $('#m-name').val(),
                         working_place: $('#m-working-place').val(),
                         phone: $('#m-phone').val(),
                         birthday: $('#m-birthday').val(),
                         address: $('#m-address').val(),
+                        personal_info: $('#m-personal-info').val(),
+                        grade: $('#m-grade').val(),
                         role: $('#m-role').val()
                     },
                     success: function (data) {

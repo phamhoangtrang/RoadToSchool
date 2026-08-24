@@ -27,8 +27,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'phone',
+        'birthday',
         'avatar',
         'address',
+        'personal_info',
         'role',
         'is_admin',
         'grade',
@@ -74,7 +77,16 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var array
      */
-    protected $hidden = ['password'];
+    protected $hidden = ['password', 'remember_token'];
+
+    protected function casts(): array
+    {
+        return [
+            'birthday' => 'date',
+            'email_verified_at' => 'datetime',
+            'is_admin' => 'boolean',
+        ];
+    }
 
     /**
      * Get the courses for the teacher teaches.
