@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Constants\CreateCartItemStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Bill;
+use App\Models\BillCourse;
 use App\Models\CartItem;
 use App\Models\CourseUser;
-use App\Models\BillCourse;
-use App\Constants\CreateCartItemStatus;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CartItemController extends Controller
 {
@@ -17,14 +18,17 @@ class CartItemController extends Controller
      * The user model instance.
      */
     protected $modelCartItem;
+
     protected $modelBill;
+
     protected $modelCourseUser;
+
     protected $modelBillCourse;
 
     /**
      * Create a new controller instance.
      *
-     * @param User $users
+     * @param  User  $users
      * @return void
      */
     public function __construct(CartItem $cartItem, Bill $bill, CourseUser $courseUser, BillCourse $billCourse)
@@ -55,24 +59,60 @@ class CartItemController extends Controller
 
     public function changeStatus(Request $requestAjax, $action)
     {
-        $result = $this->modelCartItem->changeStatusCartItem($requestAjax->cartItemId, $action);
+        $statusByAction = [
+            'save_for_later' => CartItem::IN_LATER_TYPE,
+            'move_to_wishlist' => CartItem::IN_WISHLIST_TYPE,
+            'move_to_cart' => CartItem::IN_CART_TYPE,
+        ];
+        abort_unless($action === 'remove' || array_key_exists($action, $statusByAction), 404);
+        $data = $requestAjax->validate(['cartItemId' => ['required', 'integer']]);
+        $cartItem = $this->modelCartItem
+            ->where('user_id', $requestAjax->user()->id)
+            ->findOrFail($data['cartItemId']);
 
-        return response()->json($result);
+        if ($action === 'remove') {
+            $cartItem->delete();
+
+            return response()->json(true);
+        }
+
+        $cartItem->update(['cart_item_type' => $statusByAction[$action]]);
+
+        return response()->json(['cartItem' => $cartItem->fresh()]);
     }
 
     public function createNewItem(Request $requestAjax)
     {
-        $billIds = $this->modelBill->where('user_id', Auth::user()->id)->select('id')->get();
+        $data = $requestAjax->validate([
+            'courseId' => [
+                'required',
+                'integer',
+                Rule::exists('courses', 'id')->where(fn ($query) => $query
+                    ->where('is_accepted', 1)
+                    ->whereNull('deleted_at')),
+            ],
+            'cartItemType' => ['required', Rule::in(['add-to-cart', 'add-to-wishlist'])],
+        ]);
+        $billIds = $this->modelBill
+            ->where('user_id', $requestAjax->user()->id)
+            ->where('status', '!=', Bill::CANCELED)
+            ->pluck('id');
         $courseIds = $this->modelBillCourse->whereIn('bill_id', $billIds)->pluck('course_id')->toArray();
 
-        if ($this->modelCartItem->where('course_id', $requestAjax->courseId)->where('user_id', Auth::user()->id)->first()) {
+        if ($this->modelCartItem->where('course_id', $data['courseId'])->where('user_id', $requestAjax->user()->id)->exists()) {
             $result = CreateCartItemStatus::CART_ITEM_ALREADY;
-        } else if ($this->modelCourseUser->where('course_id', $requestAjax->courseId)->where('user_id', Auth::user()->id)->first()) {
+        } elseif ($this->modelCourseUser->where('course_id', $data['courseId'])->where('user_id', $requestAjax->user()->id)->exists()) {
             $result = CreateCartItemStatus::MY_COURSE_ALREADY;
-        } else if (in_array($requestAjax->courseId, $courseIds)) {
+        } elseif (in_array($data['courseId'], $courseIds)) {
             $result = CreateCartItemStatus::MY_BILL_ALREADY;
         } else {
-            $result = $this->modelCartItem->createNewItem($requestAjax->courseId, $requestAjax->cartItemType);
+            $result = $this->modelCartItem->create([
+                'course_id' => $data['courseId'],
+                'user_id' => $requestAjax->user()->id,
+                'cart_item_type' => $data['cartItemType'] === 'add-to-cart'
+                    ? CartItem::IN_CART_TYPE
+                    : CartItem::IN_WISHLIST_TYPE,
+            ]);
         }
 
         return response()->json($result);
