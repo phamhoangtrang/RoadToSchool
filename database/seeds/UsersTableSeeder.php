@@ -2,7 +2,9 @@
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
-use Faker\Generator as Faker;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class UsersTableSeeder extends Seeder
 {
@@ -11,7 +13,7 @@ class UsersTableSeeder extends Seeder
      *
      * @return void
      */
-    public function run(Faker $faker)
+    public function run()
     {
         Schema::disableForeignKeyConstraints();
         DB::table('users')->truncate();
@@ -23,221 +25,176 @@ class UsersTableSeeder extends Seeder
         }
         Schema::enableForeignKeyConstraints();
 
+        $vnLastNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Phan', 'Vũ', 'Võ', 'Đặng', 'Bùi', 'Đỗ', 'Hồ', 'Ngô', 'Dương', 'Lý', 'Đinh', 'Đoàn'];
+        $vnMiddleNames = ['Văn', 'Thị', 'Đức', 'Quốc', 'Thanh', 'Hữu', 'Đình', 'Xuân', 'Minh', 'Ngọc', 'Hải', 'Thành', 'Hoàng', 'Phương', 'Bảo', 'Anh'];
+        $vnFirstNames = ['An', 'Bình', 'Cường', 'Dũng', 'Dương', 'Đạt', 'Hải', 'Hà', 'Hương', 'Huy', 'Khoa', 'Kiên', 'Lâm', 'Linh', 'Long', 'Mai', 'Minh', 'Nam', 'Nghĩa', 'Phong', 'Phúc', 'Quân', 'Quang', 'Sơn', 'Tâm', 'Thắng', 'Thành', 'Thảo', 'Thịnh', 'Trang', 'Trung', 'Tuấn', 'Tùng', 'Vinh', 'Vũ', 'Yến'];
+
+        $vnPhonePrefixes = ['090', '091', '092', '093', '094', '096', '097', '098', '086', '088', '089', '032', '033', '034', '035', '036', '037', '038', '039', '070', '076', '077', '078', '079'];
+        $getVnPhone = function () use ($vnPhonePrefixes) {
+            return $vnPhonePrefixes[array_rand($vnPhonePrefixes)] . rand(1000000, 9999999);
+        };
+
+        $getVnName = function () use ($vnLastNames, $vnMiddleNames, $vnFirstNames) {
+            return $vnLastNames[array_rand($vnLastNames)] . ' ' . $vnMiddleNames[array_rand($vnMiddleNames)] . ' ' . $vnFirstNames[array_rand($vnFirstNames)];
+        };
+
+        $vnAddresses = [
+            'Số 15 Phố Huế, Quận Hai Bà Trưng, Hà Nội',
+            'Số 42 Đường Giải Phóng, Quận Đống Đa, Hà Nội',
+            'Số 88 Đường Cầu Giấy, Quận Cầu Giấy, Hà Nội',
+            'Số 102 Đường Nguyễn Trãi, Quận Thanh Xuân, Hà Nội',
+            'Số 256 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh',
+            'Số 18 Đường Nguyễn Thị Minh Khai, Quận 3, TP. Hồ Chí Minh',
+            'Số 75 Đường Trần Hưng Đạo, Quận Hải Châu, Đà Nẵng',
+            'Số 120 Đường Hai Bà Trưng, Quận Ninh Kiều, Cần Thơ',
+            'Số 35 Đường Điện Biên Phủ, Quận Hồng Bàng, Hải Phòng',
+            'Số 45 Đường Hoàng Diệu, Quận Ba Đình, Hà Nội',
+            'Số 90 Đường Điện Biên Phủ, Quận Bình Thạnh, TP. Hồ Chí Minh',
+            'Số 12 Đường Lê Duẩn, Quận Thanh Khê, Đà Nẵng'
+        ];
+
+        $vnWorkplaces = [
+            'Trường Đại học Bách Khoa Hà Nội, Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội',
+            'Trường Đại học Công nghệ - ĐHQGHN, 144 Xuân Thủy, Cầu Giấy, Hà Nội',
+            'Trường Đại học Bách Khoa TP.HCM, 268 Lý Thường Kiệt, Quận 10, TP.HCM',
+            'Công ty TNHH Phần mềm FPT (FPT Software), Cầu Giấy, Hà Nội',
+            'Tập đoàn Công nghiệp - Viễn thông Quân đội (Viettel), Cầu Giấy, Hà Nội',
+            'Công ty Cổ phần VNG, Campus VNG, Quận 7, TP.HCM',
+            'Tập đoàn Bưu chính Viễn thông Việt Nam (VNPT), Hà Nội',
+            'Viện Công nghệ Thông tin - Viện Hàn lâm KH&CN Việt Nam',
+            'Shopee Việt Nam, Tòa nhà Capital Place, Ba Đình, Hà Nội',
+            'Công ty Cổ phần Tiki, Quận Phú Nhuận, TP.HCM'
+        ];
+
+        $vnInstructorBios = [
+            'Giảng viên cao cấp với hơn 10 năm kinh nghiệm nghiên cứu và giảng dạy chuyên sâu trong lĩnh vực Công nghệ thông tin. Đã đào tạo hàng ngàn sinh viên và kỹ sư phần mềm làm việc tại các tập đoàn lớn.',
+            'Chuyên gia phát triển phần mềm Full-stack và Kiến trúc sư hệ thống. Đam mê chia sẻ kiến thức thực chiến, giúp học viên làm chủ công nghệ mới và ứng dụng ngay vào dự án thực tế.',
+            'Kỹ sư Trí tuệ Nhân tạo (AI) và Dữ liệu lớn (Big Data). Từng chủ trì nhiều dự án chuyển đổi số doanh nghiệp. Phương pháp giảng dạy trực quan, thực tiễn và truyền cảm hứng.',
+            'Chuyên gia Thiết kế UI/UX và Phát triển sản phẩm số. Hơn 8 năm kinh nghiệm dẫn dắt các dự án thiết kế ứng dụng di động và website cho các thương hiệu hàng đầu.',
+            'Lập trình viên kỳ cựu với chuyên môn sâu về Mobile App (Flutter, React Native, iOS). Nhiệt huyết trong công tác đào tạo và đồng hành cùng học viên từ cơ bản đến nâng cao.'
+        ];
+
+        $vnStudentBios = [
+            'Học viên đam mê công nghệ, yêu thích khám phá lập trình và mong muốn trở thành kỹ sư phần mềm chuyên nghiệp.',
+            'Sinh viên chuyên ngành CNTT, luôn chủ động học hỏi và cập nhật các kỹ năng số mới nhất để phát triển sự nghiệp.',
+            'Người học chuyển ngành sang lập trình, kiên trì theo đuổi đam mê công nghệ và hoàn thiện kỹ năng thực tế qua các khóa học trực tuyến.',
+            'Đang trau dồi thêm kỹ năng lập trình web và trí tuệ nhân tạo để phục vụ cho các dự án thực tế tại doanh nghiệp.'
+        ];
+
+        // 1. Super Admin
         User::create([
-            'name' => 'super_admin',
+            'name' => 'Quản trị viên Hệ thống',
             'email' => 'super_admin@gmail.com',
             'email_verified_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s'),
             'password' => Hash::make('123456'),
-            'phone' => '+84965818552',
+            'phone' => '0965818552',
             'birthday' => '1996-12-15',
-            'address' => 'Ha Noi',
+            'address' => 'Số 1 Đại Cồ Việt, Quận Hai Bà Trưng, Hà Nội',
             'avatar' => 'images/default_avatar/admin.jpg',
             'is_admin' => '1',
-            'personal_info' => 'Proficient instructor with many years’ experience teaching children between grade levels fourth through 10th. Able to adapt teaching methods to best meet the needs of the specific class. Excellent track record of teaching classrooms that exceed standardized test scores. Professional who brings fun and enthusiasm to the table and can get any classroom in order.',
-            'working_place' => 'Hanoi University of Science and Technology 1 Dai Co Viet Road, Ha Noi, Viet Nam Tel: 043 869 2222 - Fax: 043 869 200'
+            'personal_info' => 'Quản trị viên cấp cao của nền tảng RoadToSchool. Chịu trách nhiệm quản trị nội dung, kiểm duyệt khóa học và hỗ trợ giảng viên cùng học viên trên toàn hệ thống.',
+            'working_place' => 'Trường Đại học Bách Khoa Hà Nội - Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội'
         ]);
 
+        // 2..10. Admin Staff
         for ($temp = 2; $temp <= 10; $temp++) {
             User::create([
-                'name' => 'admin' . $temp,
+                'name' => $getVnName(),
                 'email' => 'admin' . $temp . '@gmail.com',
                 'email_verified_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s'),
                 'password' => Hash::make('123456'),
-                'phone' => $faker->e164PhoneNumber,
-                'birthday' => $faker->date($format = 'Y-m-d', $max = 'now'),
-                'address' => $faker->address,
+                'phone' => $getVnPhone(),
+                'birthday' => '199' . rand(0, 8) . '-' . sprintf('%02d', rand(1, 12)) . '-' . sprintf('%02d', rand(1, 28)),
+                'address' => $vnAddresses[array_rand($vnAddresses)],
                 'avatar' => 'images/default_avatar/default_avatar.jpg',
                 'is_admin' => '1',
-                'personal_info' => $faker->realText($maxNbChars = 500, $indexSize = 2),
-                'working_place' => $faker->company,
+                'personal_info' => 'Thành viên ban quản trị hệ thống RoadToSchool. Phụ trách kiểm duyệt chất lượng bài giảng và hỗ trợ kỹ thuật vận hành.',
+                'working_place' => $vnWorkplaces[array_rand($vnWorkplaces)],
             ]);
         }
 
+        // 11. Instructor mẫu
         User::create([
-            'name' => 'instructor',
+            'name' => 'ThS. Nguyễn Văn Minh',
             'email' => 'instructor@gmail.com',
             'email_verified_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s'),
             'password' => Hash::make('123456'),
-            'phone' => '+84965818552',
-            'birthday' => '1996-12-15',
-            'address' => 'Ha Noi',
+            'phone' => '0912345678',
+            'birthday' => '1990-08-20',
+            'address' => 'Số 88 Đường Cầu Giấy, Quận Cầu Giấy, Hà Nội',
             'avatar' => 'images/default_avatar/teacher.jpg',
             'role' => 1,
             'is_admin' => '0',
-            'personal_info' => 'Proficient instructor with many years’ experience teaching children between grade levels fourth through 10th. Able to adapt teaching methods to best meet the needs of the specific class. Excellent track record of teaching classrooms that exceed standardized test scores. Professional who brings fun and enthusiasm to the table and can get any classroom in order.',
-            'working_place' => 'Hanoi University of Science and Technology 1 Dai Co Viet Road, Ha Noi, Viet Nam Tel: 043 869 2222 - Fax: 043 869 200'
+            'personal_info' => 'Thạc sĩ Công nghệ Thông tin với hơn 10 năm kinh nghiệm giảng dạy lập trình Web, Di động và Trí tuệ Nhân tạo. Từng cố vấn kỹ thuật cho nhiều startup công nghệ thành công.',
+            'working_place' => 'Trường Đại học Bách Khoa Hà Nội - Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội'
         ]);
 
+        // 12. Andrew Ng
         User::create([
-            'name' => 'Andrew Ng',
+            'name' => 'GS. Andrew Ng (Ngô Ân)',
             'email' => 'andrew_ng@gmail.com',
             'email_verified_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s'),
             'password' => Hash::make('123456'),
-            'phone' => '+84965818552',
-            'birthday' => '1976-12-15',
-            'address' => 'Ha Noi',
+            'phone' => '0987654321',
+            'birthday' => '1976-04-18',
+            'address' => 'Quận Ba Đình, Hà Nội',
             'avatar' => 'images/default_avatar/andrew_ng.jpeg',
             'role' => 1,
             'is_admin' => '0',
-            'personal_info' => '<p>Andrew Ng is Co-founder of Coursera, an and Adjunct Professor of Computer Science at Stanford University. His machine learning course is the MOOC that had led to the founding of Coursera!<br>In 2011, he led the development of Stanford University’s main MOOC (Massive Open Online Courses) platform and also taught an online Machine Learning class to over 100,000 students, thus helping launch the MOOC movement and also leading to the founding of Coursera.<br>Ng also works on machine learning, with an emphasis on deep learning. He had founded and led the “Google Brain” project, which developed massive-scale deep learning algorithms. This resulted in the famous “Google cat” result, in which a massive neural network with 1 billion parameters learned from unlabeled YouTube videos to detect cats. Until recently, he led Baidu\'s ~1300 person AI Group, which developed technologies in deep learning, speech, computer vision, NLP, and other areas.</p>',
-            'working_place' => 'CEO/Founder Landing AI; Co-founder, Coursera; Adjunct Professor, Stanford University;'
+            'personal_info' => '<p>Andrew Ng là Nhà đồng sáng lập Coursera và Giáo sư thỉnh giảng ngành Khoa học Máy tính tại Đại học Stanford. Khóa học Machine Learning nổi tiếng của ông đã giúp hàng triệu người trên toàn thế giới tiếp cận trí tuệ nhân tạo.<br>Năm 2011, ông dẫn dắt dự án Google Brain, phát triển các mạng nơ-ron học sâu quy mô lớn. Ông cũng từng giữ vị trí Giám đốc nhóm Trí tuệ nhân tạo tại Baidu và hiện là Nhà sáng lập Landing AI.</p>',
+            'working_place' => 'Nhà sáng lập Landing AI; Đồng sáng lập Coursera; Giáo sư Đại học Stanford'
         ]);
 
-        for ($temp = 12; $temp <= 30; $temp++) {
+        // 13..30. Các giảng viên khác (Instructors)
+        for ($temp = 13; $temp <= 30; $temp++) {
             User::create([
-                'name' => $faker->name,
+                'name' => (rand(0, 1) ? 'ThS. ' : 'Kỹ sư ') . $getVnName(),
                 'email' => 'instructor' . $temp . '@gmail.com',
                 'email_verified_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s'),
                 'password' => Hash::make('123456'),
-                'phone' => $faker->e164PhoneNumber,
-                'birthday' => $faker->date($format = 'Y-m-d', $max = 'now'),
-                'address' => $faker->address,
+                'phone' => $getVnPhone(),
+                'birthday' => '198' . rand(2, 9) . '-' . sprintf('%02d', rand(1, 12)) . '-' . sprintf('%02d', rand(1, 28)),
+                'address' => $vnAddresses[array_rand($vnAddresses)],
                 'avatar' => 'images/default_avatar/default_avatar.jpg',
                 'role' => 1,
                 'is_admin' => '0',
-                'personal_info' => $faker->realText($maxNbChars = 500, $indexSize = 2),
-                'working_place' => $faker->company,
+                'personal_info' => $vnInstructorBios[array_rand($vnInstructorBios)],
+                'working_place' => $vnWorkplaces[array_rand($vnWorkplaces)],
             ]);
         }
 
+        // 31. Student mẫu
         User::create([
-            'name' => 'student',
+            'name' => 'Nguyễn Thu Trang',
             'email' => 'student@gmail.com',
             'email_verified_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s'),
             'password' => Hash::make('123456'),
-            'phone' => '+84965818552',
-            'birthday' => '1996-12-15',
-            'address' => 'Ha Noi',
+            'phone' => '0934567890',
+            'birthday' => '2001-05-15',
+            'address' => 'Số 102 Nguyễn Trãi, Quận Thanh Xuân, Hà Nội',
             'avatar' => 'images/default_avatar/student.jpeg',
             'role' => 2,
             'is_admin' => '0',
-            'personal_info' => 'Proficient instructor with many years’ experience teaching children between grade levels fourth through 10th. Able to adapt teaching methods to best meet the needs of the specific class. Excellent track record of teaching classrooms that exceed standardized test scores. Professional who brings fun and enthusiasm to the table and can get any classroom in order.',
-            'working_place' => 'Hanoi University of Science and Technology 1 Dai Co Viet Road, Ha Noi, Viet Nam Tel: 043 869 2222 - Fax: 043 869 200'
+            'personal_info' => 'Học viên đam mê công nghệ, hiện đang theo học lộ trình Lập trình Web Full-Stack và Trí tuệ Nhân tạo tại RoadToSchool.',
+            'working_place' => 'Sinh viên Trường Đại học Bách Khoa Hà Nội'
         ]);
 
-        for ($temp = 31; $temp <= 100; $temp++) {
+        // 32..100. Học viên (Students)
+        for ($temp = 32; $temp <= 100; $temp++) {
             User::create([
-                'name' => $faker->name,
+                'name' => $getVnName(),
                 'email' => 'student' . $temp . '@gmail.com',
                 'email_verified_at' => \Carbon\Carbon::now()->format('Y-m-d H:i:s'),
                 'password' => Hash::make('123456'),
-                'phone' => $faker->e164PhoneNumber,
-                'birthday' => $faker->date($format = 'Y-m-d', $max = 'now'),
-                'address' => $faker->address,
+                'phone' => $getVnPhone(),
+                'birthday' => '200' . rand(0, 4) . '-' . sprintf('%02d', rand(1, 12)) . '-' . sprintf('%02d', rand(1, 28)),
+                'address' => $vnAddresses[array_rand($vnAddresses)],
                 'avatar' => 'images/default_avatar/default_avatar.jpg',
                 'role' => 2,
                 'is_admin' => '0',
-                'personal_info' => $faker->realText($maxNbChars = 500, $indexSize = 2),
-                'working_place' => $faker->company,
+                'personal_info' => $vnStudentBios[array_rand($vnStudentBios)],
+                'working_place' => $vnWorkplaces[array_rand($vnWorkplaces)],
             ]);
         }
     }
-
-//        User::create([
-//            'name' => 'teacher',
-//            'email' => 'teacher@gmail.com',
-//            'password' => Hash::make('123456'),
-//            'address' => 'Ha Noi',
-//            'role' => '0',
-//            'avatar' => 'images/avatar/admin-avatar.jpg',
-//            'is_admin' => '0',
-//        ]);
-//
-//        User::create([
-//            'name' => 'Lam',
-//            'email' => 'lam@gmail.com',
-//            'password' => Hash::make('123456'),
-//            'phone' => '+01665118758',
-//            'birthday' => '1996-11-19',
-//            'address' => 'Ha Noi',
-//            'personal_info' => 'Một trong những giáo viên tốt nhất tại BKHN',
-//            'role' => '0',
-//            'avatar' => 'images/avatar/lam.jpg',
-//            'working_place' => 'BKHN',
-//            'is_admin' => '0',
-//        ]);
-//
-//        User::create([
-//            'name' => 'Hung',
-//            'email' => 'hung@gmail.com',
-//            'password' => Hash::make('123456'),
-//            'phone' => '+0123456789',
-//            'birthday' => '1996-12-05',
-//            'address' => 'Ha Noi',
-//            'personal_info' => 'Một trong những sinh viên giỏi nhất tại BKHN',
-//            'role' => '1',
-//            'avatar' => 'images/avatar/hung.jpeg',
-//            'working_place' => 'BKHN',
-//            'is_admin' => '0',
-//        ]);
-//
-//        User::create([
-//            'name' => 'Minh',
-//            'email' => 'minh@gmail.com',
-//            'password' => Hash::make('123456'),
-//            'phone' => '+016658873389',
-//            'birthday' => '1996-01-02',
-//            'address' => 'Ha Noi',
-//            'personal_info' => 'Một trong những sinh viên giỏi nhất tại BKHN',
-//            'role' => '1',
-//            'avatar' => 'images/avatar/minh.jpeg',
-//            'working_place' => 'BKHN',
-//            'is_admin' => '0',
-//        ]);
-//
-//        User::create([
-//            'name' => 'Thanh',
-//            'email' => 'thanh@gmail.com',
-//            'password' => Hash::make('123456'),
-//            'phone' => '+01665118758',
-//            'birthday' => '1996-12-04',
-//            'address' => 'Ha Noi',
-//            'personal_info' => 'Một trong những giáo viên tốt nhất tại BKHN',
-//            'role' => '0',
-//            'avatar' => 'images/avatar/lam.jpg',
-//            'working_place' => 'BKHN',
-//            'is_admin' => '0',
-//        ]);
-//
-//        User::create([
-//            'name' => 'Phong',
-//            'email' => 'phong@gmail.com',
-//            'password' => Hash::make('123456'),
-//            'phone' => '+84123274821',
-//            'birthday' => '1989-12-19',
-//            'address' => 'Ha Noi',
-//            'personal_info' => 'Một trong những giáo viên tốt nhất tại BKHN',
-//            'role' => '0',
-//            'avatar' => 'images/avatar/minh.jpg',
-//            'working_place' => 'BKHN',
-//            'is_admin' => '0',
-//        ]);
-//
-//        User::create([
-//            'name' => 'Hai',
-//            'email' => 'hai@gmail.com',
-//            'password' => Hash::make('123456'),
-//            'phone' => '+016658873389',
-//            'birthday' => '2004-01-13',
-//            'address' => 'Ha Noi',
-//            'personal_info' => 'Một trong những sinh viên giỏi nhất tại BKHN',
-//            'role' => '1',
-//            'avatar' => 'images/avatar/minh.jpeg',
-//            'working_place' => 'BKHN',
-//            'is_admin' => '0',
-//        ]);
-//
-//        User::create([
-//            'name' => 'Le',
-//            'email' => 'le@gmail.com',
-//            'password' => Hash::make('123456'),
-//            'birthday' => '2008-12-02',
-//            'address' => 'Ha Noi',
-//            'personal_info' => 'Một trong những sinh viên giỏi nhất tại BKHN',
-//            'role' => '1',
-//            'avatar' => 'images/avatar/hung.jpeg',
-//            'working_place' => 'BKHN',
-//            'is_admin' => '0',
-//        ]);
-//    }
 }

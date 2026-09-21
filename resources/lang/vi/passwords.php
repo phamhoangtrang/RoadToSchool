@@ -1,22 +1,15 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
-    | Password Reset Language Lines
+    | Password Reset Language Lines (Tiếng Việt)
     |--------------------------------------------------------------------------
-    |
-    | The following language lines are the default lines which match reasons
-    | that are given by the password broker for a password update attempt
-    | has failed, such as for an invalid token or invalid new password.
-    |
     */
 
-    'password' => 'Passwords must be at least six characters and match the confirmation.',
-    'reset' => 'Your password has been reset!',
-    'sent' => 'We have e-mailed your password reset link!',
-    'token' => 'This password reset token is invalid.',
-    'user' => "We can't find a user with that e-mail address.",
-
+    'password' => 'Mật khẩu phải có ít nhất 6 ký tự và trùng khớp với xác nhận mật khẩu.',
+    'reset' => 'Mật khẩu của bạn đã được thiết lập lại thành công!',
+    'sent' => 'Chúng tôi đã gửi email chứa đường link đặt lại mật khẩu của bạn!',
+    'token' => 'Mã xác thực đặt lại mật khẩu không hợp lệ.',
+    'user' => "Không tìm thấy người dùng với địa chỉ email này.",
 ];

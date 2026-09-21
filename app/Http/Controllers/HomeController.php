@@ -22,7 +22,7 @@ class HomeController extends Controller
     public function index()
     {
         try {
-            $currentUserId = \Auth::user()->id;
+            $currentUserId = \Auth::id();
             $client = new \GuzzleHttp\Client();
             $res = $client->post(
                 'http://127.0.0.1:5000/r2s/v1/recommend/itemstouser',

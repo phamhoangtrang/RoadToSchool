@@ -17,18 +17,18 @@
     <div class="main-content">
         <div class="container-fluid">
             <div class="page-header">
-                <h2 class="header-title">Add new permission</h2>
+                <h2 class="header-title">Thêm quyền mới</h2>
                 <div class="header-sub-title">
                     <nav class="breadcrumb breadcrumb-dash">
-                        <a href="#" class="breadcrumb-item"><i class="ti-home p-r-5"></i>Home</a>
-                        <a class="breadcrumb-item" href="{{ route('admin.permissions.index') }}">Permissions</a>
-                        <span class="breadcrumb-item active">Add new permission</span>
+                        <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item"><i class="ti-home p-r-5"></i>{{ __('titles.r2s_dashboard') }}</a>
+                        <a class="breadcrumb-item" href="{{ route('admin.permissions.index') }}">Phân quyền</a>
+                        <span class="breadcrumb-item active">Thêm quyền mới</span>
                     </nav>
                 </div>
             </div>
             <div class="card">
                 <div class="card-header border bottom">
-                    <h4 class="card-title">Add new permission</h4>
+                    <h4 class="card-title">Thêm quyền mới</h4>
                 </div>
                 @if ($errors->any())
                     <div class="alert alert-danger">
@@ -40,8 +40,7 @@
                     </div>
                 @endif
                 <div class="card-body">
-                    <p>Please input <code> permission content </code> and <code> permission group </code>
-                        for create new permission.</p>
+                    <p>Vui lòng nhập <code> nội dung quyền </code> và chọn <code> nhóm phân quyền </code> để tạo quyền mới trong hệ thống.</p>
                     @include('flash::message')
                     <form action="{{ route('admin.permissions.store') }}" method="post">
                         @csrf
@@ -49,16 +48,16 @@
                             <div class="col-md-4">
                                 <div class="p-h-10">
                                     <div class="form-group">
-                                        <label class="control-label">Permission Content *</label>
-                                        <input type="text" class="form-control" id="input-permission-content" name="content" placeholder="Permission Content ...">
+                                        <label class="control-label">Nội dung quyền *</label>
+                                        <input type="text" class="form-control" id="input-permission-content" name="content" placeholder="Nhập nội dung quyền...">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="control-label">Select permission group *</label>
+                                    <label class="control-label">Chọn nhóm phân quyền *</label>
                                     <select class="form-control" id="input-permission-group" name="group_permission">
-                                        <option disabled="disabled" selected></option>
+                                        <option disabled="disabled" selected>Chọn nhóm...</option>
                                         @foreach($permissionGroupList as $key => $value)
                                             <option value="{{ $key }}"> {{ $value }}</option>
                                         @endforeach
@@ -68,12 +67,12 @@
                             <div class="col-md-4" style="padding-top: 10px">
                                 <div class="m-t-15">
                                     <div class="col-md-6" style="float: right;">
-                                        <button class="btn btn-default" id="btn-reset" style="display: inline">Reset
+                                        <button class="btn btn-default" id="btn-reset" style="display: inline">Nhập lại
                                         </button>
                                     </div>
                                     <div class="col-md-6" style="float: right">
                                         <button class="btn btn-info" id="btn-get-permission" style="display: inline;">
-                                            Create
+                                            Tạo mới
                                         </button>
                                     </div>
                                 </div>

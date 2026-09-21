@@ -16,14 +16,14 @@ class Course extends Model
     const DURATION_DESC = 'duration|desc';
 
     public static $filter_options = [
-        self::SELLER_ASC => 'Sort By Lowest Seller',
-        self::SELLER_DESC => 'Sort By Highest Seller',
-        self::PRICE_ASC => 'Sort By Lowest Price',
-        self::PRICE_DESC => 'Sort By Highest Price',
-        self::LEVEL_ASC => 'Sort By Lowest Level',
-        self::LEVEL_DESC => 'Sort By Highest Level',
-        self::DURATION_ASC => 'Sort By Lowest Duration',
-        self::DURATION_DESC => 'Sort By Highest Duration',
+        self::SELLER_ASC => 'Lượt mua tăng dần',
+        self::SELLER_DESC => 'Lượt mua giảm dần',
+        self::PRICE_ASC => 'Giá tiền tăng dần',
+        self::PRICE_DESC => 'Giá tiền giảm dần',
+        self::LEVEL_ASC => 'Cấp độ tăng dần',
+        self::LEVEL_DESC => 'Cấp độ giảm dần',
+        self::DURATION_ASC => 'Thời lượng tăng dần',
+        self::DURATION_DESC => 'Thời lượng giảm dần',
     ];
 
     protected $table = 'courses';

@@ -3,7 +3,7 @@
     <div class="side-nav-inner">
         <ul class="side-nav-menu scrollable">
             <li class="side-nav-header">
-                <span>Navigation</span>
+                <span>Điều hướng</span>
             </li>
             @can('check-admin')
                 <li class="nav-item dropdown {{ setOpen('admin') }}">
@@ -11,7 +11,7 @@
                                     <span class="icon-holder">
                                         <i class="mdi mdi-view-dashboard"></i>
                                     </span>
-                        <span class="title">Dashboard</span>
+                        <span class="title">Bảng điều khiển</span>
                     </a>
                 </li>
                 <li class="nav-item dropdown {{ setOpen('admin/users') }}">
@@ -19,30 +19,21 @@
                                     <span class="icon-holder">
                                         <i class="mdi mdi-account"></i>
                                     </span>
-                        <span class="title">Users</span>
+                        <span class="title">Người dùng</span>
                         <span class="arrow">
                                         <i class="mdi mdi-chevron-right"></i>
                                     </span>
                     </a>
                     <ul class="dropdown-menu">
                         <li {{ setActive('admin/users') }}>
-                            <a href="{{ route('admin.users.index') }}">All Users</a>
+                            <a href="{{ route('admin.users.index') }}">Tất cả người dùng</a>
                         </li>
                         <li {{ setActive('admin/users/instructor_ranking') }}>
-                            <a href="{{ route('admin.instructor_ranking') }}">Instructor Ranking</a>
+                            <a href="{{ route('admin.instructor_ranking') }}">Xếp hạng giảng viên</a>
                         </li>
                         <li {{ setActive('admin/users/create_instructor') }}>
-                            <a href="{{ route('admin.users.create_instructor') }}">Create new Instructor</a>
+                            <a href="{{ route('admin.users.create_instructor') }}">Tạo giảng viên mới</a>
                         </li>
-                        {{--<li>--}}
-                        {{--<a href="chat-app.html">Chat App</a>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                        {{--<a href="contact.html">Contact</a>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                        {{--<a href="task.html">Task</a>--}}
-                        {{--</li>--}}
                     </ul>
                 </li>
                 <li class="nav-item dropdown {{ setOpen('admin/permissions') }}">
@@ -50,24 +41,18 @@
                                     <span class="icon-holder">
                                         <i class="mdi mdi-account-star"></i>
                                     </span>
-                        <span class="title">Permissions</span>
+                        <span class="title">Phân quyền</span>
                         <span class="arrow">
                                         <i class="mdi mdi-chevron-right"></i>
                                     </span>
                     </a>
                     <ul class="dropdown-menu">
                         <li {{ setActive('admin/permissions') }}>
-                            <a href="{{ route('admin.permissions.index') }}">Permission Management</a>
+                            <a href="{{ route('admin.permissions.index') }}">Quản lý phân quyền</a>
                         </li>
                         <li {{ setActive('admin/permissions/create') }}>
-                            <a href="{{ route('admin.permissions.create') }}">Add new permission</a>
+                            <a href="{{ route('admin.permissions.create') }}">Thêm quyền mới</a>
                         </li>
-                        {{--<li>--}}
-                        {{--<a href="contact.html">Contact</a>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                        {{--<a href="task.html">Task</a>--}}
-                        {{--</li>--}}
                     </ul>
                 </li>
                 <li class="nav-item dropdown {{ setOpen('admin/courses') }}">
@@ -75,21 +60,15 @@
                 <span class="icon-holder">
                 <i class="mdi mdi-book-multiple"></i>
                 </span>
-                        <span class="title">Courses</span>
+                        <span class="title">Khóa học</span>
                         <span class="arrow">
                 <i class="mdi mdi-chevron-right"></i>
                 </span>
                     </a>
                     <ul class="dropdown-menu">
                         <li {{ setActive('admin/courses') }}>
-                            <a href="{{ route('admin.courses.index') }}">All Courses</a>
+                            <a href="{{ route('admin.courses.index') }}">Tất cả khóa học</a>
                         </li>
-                        {{--<li>--}}
-                        {{--<a href="widgets-media.html">Media Widgets</a>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                        {{--<a href="widgets-chart.html">Chart Widgets</a>--}}
-                        {{--</li>--}}
                     </ul>
                 </li>
                 <li class="nav-item dropdown {{ setOpen('admin/lectures') }}">
@@ -97,14 +76,14 @@
                 <span class="icon-holder">
                 <i class="mdi mdi-arrange-send-to-back"></i>
                 </span>
-                        <span class="title">Lecture Requests</span>
+                        <span class="title">Yêu cầu bài giảng</span>
                         <span class="arrow">
                 <i class="mdi mdi-chevron-right"></i>
                 </span>
                     </a>
                     <ul class="dropdown-menu">
                         <li {{ setActive('admin/lectures/requests') }}>
-                            <a href="{{ route('admin.lectures.requests.index') }}">All Requests</a>
+                            <a href="{{ route('admin.lectures.requests.index') }}">Tất cả yêu cầu</a>
                         </li>
                     </ul>
                 </li>
@@ -113,21 +92,15 @@
                 <span class="icon-holder">
                 <i class="mdi mdi-dice-multiple"></i>
                 </span>
-                        <span class="title">Categories</span>
+                        <span class="title">Danh mục</span>
                         <span class="arrow">
                 <i class="mdi mdi-chevron-right"></i>
                 </span>
                     </a>
                     <ul class="dropdown-menu">
                         <li {{ setActive('admin/categories') }}>
-                            <a href="{{ route('admin.categories.index') }}">All Categories</a>
+                            <a href="{{ route('admin.categories.index') }}">Tất cả danh mục</a>
                         </li>
-                        {{--<li>--}}
-                        {{--<a href="widgets-media.html">Media Widgets</a>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                        {{--<a href="widgets-chart.html">Chart Widgets</a>--}}
-                        {{--</li>--}}
                     </ul>
                 </li>
                 <li class="nav-item dropdown {{ setOpen('admin/bills') }}">
@@ -135,18 +108,15 @@
                                     <span class="icon-holder">
                                         <i class="mdi mdi-receipt"></i>
                                     </span>
-                        <span class="title">Bills</span>
+                        <span class="title">Đơn hàng</span>
                         <span class="arrow">
                                         <i class="mdi mdi-chevron-right"></i>
                                     </span>
                     </a>
                     <ul class="dropdown-menu">
                         <li {{ setActive('admin/bills') }}>
-                            <a href="{{ route('admin.bills.index') }}">All Bills</a>
+                            <a href="{{ route('admin.bills.index') }}">Tất cả đơn hàng</a>
                         </li>
-{{--                        <li {{ setActive('admin/bills/create') }}>--}}
-{{--                            <a href="{{ route('admin.bills.create') }}">Create New Bill</a>--}}
-{{--                        </li>--}}
                     </ul>
                 </li>
                 <li class="nav-item dropdown {{ setOpen('admin/conversations') }}">
@@ -154,17 +124,14 @@
                                     <span class="icon-holder">
                                         <i class="mdi mdi-message-reply-text"></i>
                                     </span>
-                        <span class="title">Conversations</span>
+                        <span class="title">Cuộc trò chuyện</span>
                         <span class="arrow">
                                         <i class="mdi mdi-chevron-right"></i>
                                     </span>
                     </a>
                     <ul class="dropdown-menu">
-                        {{--                    <li {{ setActive('admin/bills') }}>--}}
-                        {{--                        <a href="{{ route('admin.bills.index') }}">All Bills</a>--}}
-                        {{--                    </li>--}}
                         <li {{ setActive('admin/conversations/waiting') }}>
-                            <a href="{{ route('admin.conversations.waiting') }}">Waiting Conversations</a>
+                            <a href="{{ route('admin.conversations.waiting') }}">Cuộc trò chuyện chờ</a>
                         </li>
                     </ul>
                 </li>
@@ -174,7 +141,7 @@
                                     <span class="icon-holder">
                                         <i class="mdi mdi-view-dashboard"></i>
                                     </span>
-                        <span class="title">Dashboard</span>
+                        <span class="title">Bảng điều khiển</span>
                     </a>
                 </li>
 
@@ -183,24 +150,18 @@
                 <span class="icon-holder">
                 <i class="mdi mdi-book-multiple"></i>
                 </span>
-                        <span class="title">Courses</span>
+                        <span class="title">Khóa học</span>
                         <span class="arrow">
                 <i class="mdi mdi-chevron-right"></i>
                 </span>
                     </a>
                     <ul class="dropdown-menu">
                         <li {{ setActive('instructor/courses') }}>
-                            <a href="{{ route('instructor.courses.index') }}">All my courses</a>
+                            <a href="{{ route('instructor.courses.index') }}">Khóa học của tôi</a>
                         </li>
                         <li {{ setActive('instructor/courses/create') }}>
-                            <a href="{{ route('instructor.courses.create') }}">Create new courses</a>
+                            <a href="{{ route('instructor.courses.create') }}">Tạo khóa học mới</a>
                         </li>
-                        {{--<li>--}}
-                        {{--<a href="widgets-media.html">Media Widgets</a>--}}
-                        {{--</li>--}}
-                        {{--<li>--}}
-                        {{--<a href="widgets-chart.html">Chart Widgets</a>--}}
-                        {{--</li>--}}
                     </ul>
                 </li>
             @endcan

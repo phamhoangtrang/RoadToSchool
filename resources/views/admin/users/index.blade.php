@@ -52,27 +52,27 @@
                                     <td>{{ $user->email }}</td>
                                     <td>
                                         @if($user->is_admin == 1)
-                                            Admin
+                                            <span class="badge badge-pill badge-danger">Quản trị viên</span>
                                         @else
                                             @if($user->role === 1)
-                                                Teacher
+                                                <span class="badge badge-pill badge-primary">Giảng viên</span>
                                             @elseif ($user->role === 2)
-                                                Student
+                                                <span class="badge badge-pill badge-info">Học viên</span>
                                             @endif
                                         @endif
                                     </td>
                                     <td class="text-center font-size-18">
-                                        <a class="text-gray" data-toggle="modal"
+                                        <a class="text-gray" data-toggle="modal" title="Xem chi tiết"
                                            data-target="#detail-modal"
                                            data-url="{{ route('admin.users.show', $user->id) }}">
                                             <i class="ti-info"></i>
                                         </a>&ensp;
-                                        <a class="text-gray edit-user" data-user="{{ $user }}" data-toggle="modal"
+                                        <a class="text-gray edit-user" data-user="{{ $user }}" data-toggle="modal" title="Chỉnh sửa"
                                            data-target="#edit-modal">
                                             <i class="ti-pencil"></i>
                                         </a>&ensp;
                                         @if(Auth::user()->id !== $user->id)
-                                            <a class="text-gray" data-toggle="modal"
+                                            <a class="text-gray" data-toggle="modal" title="Xóa người dùng"
                                                data-target="#delete-modal"
                                                data-url="{{ route('admin.users.destroy', $user->id) }}">
                                                 <i class="ti-trash"></i>

@@ -31,12 +31,12 @@
                             <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Customer Name</th>
-                                <th>Status</th>
-                                <th>Courses Code</th>
-                                <th>Last Transaction</th>
-                                <th>Amount</th>
-                                <th>Action</th>
+                                <th>Tên khách hàng</th>
+                                <th>Trạng thái</th>
+                                <th>Mã khóa học</th>
+                                <th>Giao dịch gần nhất</th>
+                                <th>Tổng tiền</th>
+                                <th>Thao tác</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -64,7 +64,7 @@
                                         @endforeach
                                     </td>
                                     <td> {{ $bill->updated_at }} </td>
-                                    <td> ${{ $bill->total_amount }}</td>
+                                    <td> {{ format_price($bill->total_amount) }}</td>
                                     <td class="text-center font-size-18">
                                         <a href="#" class="text-gray m-r-15 edit-status" data-id="{{ $bill->id }}"
                                            data-status="{{ $bill->status }}"><i class="ti-exchange-vertical"></i></a>
@@ -123,27 +123,27 @@
                         switch (statusId) {
                             case '0': {
                                 statusBillElement.addClass('badge badge-pill badge-gradient-warning');
-                                statusBillElement.html('Pending');
+                                statusBillElement.html('Chờ xử lý');
                                 break;
                             }
                             case '1': {
                                 statusBillElement.addClass('badge badge-pill badge-gradient-info');
-                                statusBillElement.html('Transporting');
+                                statusBillElement.html('Đang giao hàng');
                                 break;
                             }
                             case '2': {
                                 statusBillElement.addClass('badge badge-pill badge-gradient-primary');
-                                statusBillElement.html('Already Paid');
+                                statusBillElement.html('Đã thanh toán');
                                 break;
                             }
                             case '3': {
                                 statusBillElement.addClass('badge badge-pill badge-gradient-success');
-                                statusBillElement.html('Activated');
+                                statusBillElement.html('Đã kích hoạt');
                                 break;
                             }
                             case '4': {
                                 statusBillElement.addClass('badge badge-pill badge-gradient-danger');
-                                statusBillElement.html('Canceled');
+                                statusBillElement.html('Đã hủy');
                                 break;
                             }
                         }

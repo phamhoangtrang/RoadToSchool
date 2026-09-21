@@ -14,10 +14,10 @@
                 <ul class="nav navbar-nav navbar-right" id="top-nav-area">
                     @guest
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                            <a class="nav-link" href="{{ route('login') }}">{{ __('titles.login') }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                            <a class="nav-link" href="{{ route('register') }}">{{ __('titles.register') }}</a>
                         </li>
                     @else
                         <input type="hidden" value="{{ \Auth::user()->id }}" id="current-user">
@@ -64,10 +64,10 @@
                                                    <span class="item-info">
                                                       <span><strong> {{ (strlen($cartItem->course->title) >= 19) ? substr($cartItem->course->title, 0, 15) . '...' : $cartItem->course->title }}  </strong></span>
                                                       <span>
-                                                         @if(isset($cartItem->course->promotion_price))
-                                                              <p><b style="color:red">{{ $cartItem->course->promotion_price }}$ </b><strike> {{ $cartItem->course->origin_price }}$</strike></p>
+                                                         @if(isset($cartItem->course->promotion_price) && $cartItem->course->promotion_price < $cartItem->course->origin_price)
+                                                              <p><b style="color:red">{{ format_price($cartItem->course->promotion_price) }} </b><strike> {{ format_price($cartItem->course->origin_price) }}</strike></p>
                                                           @else
-                                                              <b>{{ $cartItem->course->origin_price }}$</b>
+                                                              <b>{{ format_price($cartItem->course->origin_price) }}</b>
                                                           @endif
                                                       </span>
                                                    </span>
@@ -80,13 +80,13 @@
                                     <li>
                                         <h5 class="text-center">
                                             <p>
-                                                @if(0 != $totalPromotionPrice)
+                                                @if(0 != $totalPromotionPrice && $totalPromotionPrice < $totalOriginPrice)
                                                     <strong>{{ __('titles.total') }}</strong>: <b
-                                                            style="color:red">{{ $totalPromotionPrice }}$ </b>
-                                                    <strike> {{ $totalOriginPrice }} $</strike>
+                                                            style="color:red">{{ format_price($totalPromotionPrice) }} </b>
+                                                    <strike> {{ format_price($totalOriginPrice) }}</strike>
                                             @else
                                                 <h4>{{ __('titles.total') }}</h4>
-                                                : <b>{{ $totalOriginPrice }}$</b>
+                                                : <b>{{ format_price($totalOriginPrice) }}</b>
                                                 @endif
                                                 </p>
                                         </h5>
@@ -181,23 +181,6 @@
                                 @endif
                             </ul>
                         </li>
-                        {{-- Language--}}
-                        <li class="nav-item dropdown">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                {{ __('titles.language') }}</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{!! route('user.change-language', ['en']) !!}"
-                                   style="display: block;">
-                                    {{ __('titles.english') }}
-                                </a>
-                                <a class="dropdown-item" href="{!! route('user.change-language', ['vi']) !!}"
-                                   style="display: block;">
-                                    {{ __('titles.vietnamese') }}
-                                </a>
-                            </div>
-                        </li>
                         {{--Account--}}
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
@@ -227,7 +210,7 @@
                                 @endif
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    {{ __('Logout') }}
+                                    {{ __('titles.logout') }}
                                 </a>
                                 {{ Form::open(['method' => 'post', 'url' => 'logout', 'id' => 'logout-form', 'style' => 'display: none;']) }}
                                 {{ Form::close() }}

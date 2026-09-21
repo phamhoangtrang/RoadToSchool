@@ -39,7 +39,7 @@
                     </div>
                 @endif
                 <div class="card-body">
-                    <p>Please input instructor information for create new instructor.</p>
+                    <p>Vui lòng nhập thông tin để tạo tài khoản giảng viên mới.</p>
                     @include('flash::message')
                     <form action="{{ route('admin.users.store_new_instructor') }}" method="post">
                         @csrf
@@ -47,39 +47,36 @@
                             <div class="col-md-6">
                                 <div class="p-h-10">
                                     <div class="form-group">
-                                        <label class="control-label" for="input-instructor-name">Instructor Name
-                                            *</label>
+                                        <label class="control-label" for="input-instructor-name">Tên giảng viên *</label>
                                         <input type="text" class="form-control" id="input-instructor-name" name="name"
-                                               placeholder="Instructor Name...">
+                                               placeholder="Nhập tên giảng viên...">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="p-h-10">
                                     <div class="form-group">
-                                        <label class="control-label" for="input-instructor-email">Instructor Email
-                                            *</label>
+                                        <label class="control-label" for="input-instructor-email">Email giảng viên *</label>
                                         <input type="text" class="form-control" id="input-instructor-email" name="email"
-                                               placeholder="Instructor Email...">
+                                               placeholder="Nhập email giảng viên...">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="p-h-10">
                                     <div class="form-group">
-                                        <label class="control-label" for="input-instructor-password">Password *</label>
+                                        <label class="control-label" for="input-instructor-password">Mật khẩu *</label>
                                         <input type="password" class="form-control" id="input-instructor-password"
-                                               name="password" placeholder="Type one password...">
+                                               name="password" placeholder="Nhập mật khẩu...">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="p-h-10">
                                     <div class="form-group">
-                                        <label class="control-label" for="input-instructor-repassword">Retype Password
-                                            *</label>
+                                        <label class="control-label" for="input-instructor-repassword">Xác nhận mật khẩu *</label>
                                         <input type="password" class="form-control" id="input-instructor-repassword"
-                                               name="password_confirmation" placeholder="Retype password...">
+                                               name="password_confirmation" placeholder="Nhập lại mật khẩu...">
                                     </div>
                                 </div>
                             </div>
@@ -97,13 +94,10 @@
                             <div class="col-md-4" style="padding-top: 10px">
                                 <div class="m-t-15">
                                     <div class="col-md-6" style="float: right;">
-                                        <button class="btn btn-default" id="btn-reset" style="display: inline">Reset
-                                        </button>
+                                        <button class="btn btn-default" id="btn-reset" style="display: inline">Nhập lại</button>
                                     </div>
                                     <div class="col-md-6" style="float: right">
-                                        <button class="btn btn-info" id="btn-get-permission" style="display: inline;">
-                                            Create
-                                        </button>
+                                        <button class="btn btn-info" id="btn-get-permission" style="display: inline;">Tạo mới</button>
                                     </div>
                                 </div>
                             </div>

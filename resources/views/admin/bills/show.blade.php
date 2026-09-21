@@ -17,15 +17,15 @@
                         <ul class="list-unstyle list-inline text-right">
                             <li class="list-inline-item">
                                 <a href="#" class="btn text-gray text-hover display-block p-10 m-b-0"
-                                   onclick="window.print();">
+                                    onclick="window.print();">
                                     <i class="ti-printer text-info p-r-5"></i>
-                                    <b>Print</b>
+                                    <b>In hóa đơn</b>
                                 </a>
                             </li>
                             <li class="list-inline-item">
                                 <a href="#" class="text-gray text-hover display-block p-10 m-b-0">
                                     <i class="fa fa-file-pdf-o text-danger p-r-5"></i>
-                                    <b>Export PDF</b>
+                                    <b>Xuất PDF</b>
                                 </a>
                             </li>
                         </ul>
@@ -46,34 +46,33 @@
                                     <img class="img-fluid" src="{{ asset('assets/admin/images/logo/logo.jpg') }}"
                                          alt="">
                                     <address class="p-l-10 m-t-20">
-                                        <b class="text-dark">R2S Inc.</b><br>
-                                        <span>1 Dai Co Viet Road</span><br>
-                                        <span>Ha Noi, Viet Nam</span><br>
-                                        <abbr class="text-dark" title="Phone">Phone:</abbr>
+                                        <b class="text-dark">RoadToSchool Inc.</b><br>
+                                        <span>Số 1 Đại Cồ Việt</span><br>
+                                        <span>Hà Nội, Việt Nam</span><br>
+                                        <abbr class="text-dark" title="Phone">Điện thoại:</abbr>
                                         <span>(+84) 965 818 552</span>
                                     </address>
                                 </div>
                                 <div class="pull-right">
-                                    <h2>BILL DETAIL #{{ $bill->id }}</h2>
-                                    <h3 id="bill-status">Bill
-                                        Status: {{ \App\Models\Bill::$status[$bill->status] }}</h3>
+                                    <h2>CHI TIẾT ĐƠN HÀNG #{{ $bill->id }}</h2>
+                                    <h3 id="bill-status">Trạng thái: {{ \App\Models\Bill::$status[$bill->status] }}</h3>
                                     <a href="#" id="edit-status" data-id="{{ $bill->id }}"
-                                       data-status="{{ $bill->status }}">Change Bill Status</a>
+                                       data-status="{{ $bill->status }}">Đổi trạng thái đơn hàng</a>
                                 </div>
                             </div>
                             <div class="row m-t-20">
                                 <div class="col-sm-9">
-                                    <h3 class="p-l-10 m-t-10">Customer Infomation</h3>
+                                    <h3 class="p-l-10 m-t-10">Thông tin khách hàng</h3>
                                     <address class="p-l-10 m-t-10">
-                                        <b class="text-dark">Name: </b><span> {{ $bill->customer_name }} </span><br>
-                                        <b class="text-dark">Phone: </b><span> {{ $bill->customer_phone }} </span><br>
-                                        <b class="text-dark">Address: </b><span> {{ $bill->customer_address }} </span><br>
-                                        <b class="text-dark">Note: </b><span> {{ $bill->customer_note ?? 'No note' }} </span><br>
+                                        <b class="text-dark">Họ tên: </b><span> {{ $bill->customer_name }} </span><br>
+                                        <b class="text-dark">Số điện thoại: </b><span> {{ $bill->customer_phone }} </span><br>
+                                        <b class="text-dark">Địa chỉ: </b><span> {{ $bill->customer_address }} </span><br>
+                                        <b class="text-dark">Ghi chú: </b><span> {{ $bill->customer_note ?? 'Không có ghi chú' }} </span><br>
                                     </address>
                                 </div>
                                 <div class="col-sm-3">
                                     <div class="m-t-80">
-                                        <div class="text-dark text-uppercase d-inline-block"><b>Bill No :</b></div>
+                                        <div class="text-dark text-uppercase d-inline-block"><b>Mã đơn hàng :</b></div>
                                         <div class="pull-right">#{{ $bill->id }}</div>
                                     </div>
                                     <div class="text-dark text-uppercase d-inline-block"><b> {{ __('titles.date') }}
@@ -90,17 +89,17 @@
                                     <table class="table table-hover">
                                         <thead>
                                         <tr>
-                                            <th>Course ID</th>
-                                            <th>Items</th>
-                                            <th class="text-right">Price</th>
+                                            <th>Mã khóa học</th>
+                                            <th>Tên khóa học</th>
+                                            <th class="text-right">Đơn giá</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @foreach($billCourses as $billCourse)
                                             <tr>
-                                                <td><a href="TODO"> #{{ $billCourse->course_id }} </a></td>
+                                                <td><a href="{{ route('courses.show', $billCourse->course_id) }}"> #{{ $billCourse->course_id }} </a></td>
                                                 <td>{{ App\Models\Course::findOrFail($billCourse->course_id)->title }}</td>
-                                                <td class="text-right">${{ $billCourse->price }}</td>
+                                                <td class="text-right">{{ format_price($billCourse->price) }}</td>
                                             </tr>
                                         @endforeach
                                         </tbody>
@@ -108,10 +107,10 @@
                                     <div class="row m-t-30">
                                         <div class="col-sm-12">
                                             <div class="pull-right text-right">
-                                                <p>Total amount: ${{ $bill->total_amount }}</p>
-                                                <p>Discount : $0 </p>
+                                                <p>Tạm tính: {{ format_price($bill->total_amount) }}</p>
+                                                <p>Giảm giá : 0 ₫ </p>
                                                 <hr>
-                                                <h3><b>Total :</b> ${{ $bill->total_amount }}</h3>
+                                                <h3><b>Tổng cộng :</b> {{ format_price($bill->total_amount) }}</h3>
                                             </div>
                                         </div>
                                     </div>

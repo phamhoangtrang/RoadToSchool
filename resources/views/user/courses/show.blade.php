@@ -141,8 +141,7 @@
                                 <strong> {{ __('titles.all_lectures') }} </strong>
                                 @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
                                     @if($availableCourse)
-                                        <b style="float: right; padding-right: 30px;">Your
-                                            progress: {{ $learnedLectureCount }}/{{ $allLectureCount }}</b>
+                                        <b style="float: right; padding-right: 30px;">Tiến độ học tập: {{ $learnedLectureCount }}/{{ $allLectureCount }}</b>
                                     @endif
                                 @endif
                             </h2>
@@ -190,7 +189,10 @@
                                         <tr id="lecture-{{ $lecture->id }}">
                                             @if($availableCourse)
                                                 <td class="col-xs-1 text-center">
-                                                    <i class="fa {{ \App\Models\Process::where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first()->status ? 'fa-star' : 'fa-star-o' }}">
+                                                    @php
+                                                        $proc = \App\Models\Process::where('lecture_id', $lecture->id)->where('user_id', \Auth::id())->first();
+                                                    @endphp
+                                                    <i class="fa {{ ($proc && $proc->status) ? 'fa-star' : 'fa-star-o' }}">
                                                     </i>
                                                 </td>
                                             @endif
@@ -226,7 +228,7 @@
                                                     <a href="#" class="delete-modal btn btn-danger btn-sm" data-id="{{ $lecture->id }}">
                                                         <i class="glyphicon glyphicon-trash"></i>
                                                     </a> --}}
-                                                    @if(\App\Models\QuizResult::where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first())
+                                                    @if(\App\Models\QuizResult::where('lecture_id', $lecture->id)->where('user_id', \Auth::id())->first())
                                                         <a href="{{ url('/courses/' . $selectedCourse->id . '/lectures/' . $lecture->id . '/getResult') }}"
                                                            class="show-modal btn btn-info btn-sm" data-id="">
                                                             <i class="fa fa-eye"></i> {{ __('titles.result') }}
@@ -249,67 +251,72 @@
                         <br>
                         <div id="comments">
                             <div class="inner-box">
-                                <h3 style="font-size: 30px; font-weight: bold;">Comments ({{ $comments->count() }})</h3>
+                                <h3 style="font-size: 30px; font-weight: bold;">Bình luận ({{ $comments->count() }})</h3>
                                 <hr>
                                 <ol class="comments-list" id="comment-list">
                                     @foreach($comments as $comment)
+                                        @if($comment->user)
                                         <li id="li-comment-{{ $comment->id }}">
                                             <div class="media">
                                                 <div class="thumb-left">
                                                     <a href="{{ route('users.show', $comment->user->id) }}">
                                                         <img alt="{{ $comment->user->name }}"
                                                              style="height: 75px; width: 75px"
-                                                             src="{{ str_replace(' ', '', str_replace('public/', '', asset($comment->user->avatar))) }}"/>
+                                                             src="{{ str_replace(' ', '', str_replace('public/', '', asset($comment->user->avatar ?? 'images/default_avatar/default_avatar.jpg'))) }}"/>
                                                     </a>
                                                 </div>
                                                 <div class="info-body">
                                                     <div class="media-heading">
                                                         <h4 class="name">{{ $comment->user->name }}</h4> |
                                                         <span class="comment-date">{{ $comment->updated_at }}</span>
+                                                        @auth
                                                         <a class="reply-link" data-id="{{ $comment->id }}"
                                                            data-tagged="{{ $comment->user->id }}"><i
-                                                                    class="fa fa-reply-all"></i> Reply</a>
+                                                                    class="fa fa-reply-all"></i> Trả lời</a>
+                                                        @endauth
                                                     </div>
                                                     {!!  $comment->content !!}
                                                 </div>
                                             </div>
                                             <br>
+                                            @auth
                                             <div class="reply-comment" style="display: none"
                                                  id="reply-comment-{{ $comment->id }}">
                                                 <form>
                                                     <div class="row">
                                                         @csrf
                                                         <input type="hidden" name="user_id"
-                                                               value="{{ Auth::user()->id }}">
+                                                               value="{{ Auth::id() }}">
                                                         <div class="row">
                                                             <div class=" col-md-10 pull-right">
                                                                 <div class="form-group">
-                        <textarea id="content-{{ $comment->id }}" class="form-control content-reply" name="content" cols="30"
-                                  rows="1"
-                                  placeholder="Write a reply...">@if($comment->user->name !== \Auth::user()->name) {{ $comment->user->name }} @endif
-                        </textarea>
+                                    <textarea id="content-{{ $comment->id }}" class="form-control content-reply" name="content" cols="30"
+                                              rows="1"
+                                              placeholder="Viết phản hồi...">@if(Auth::check() && $comment->user->name !== \Auth::user()->name) {{ $comment->user->name }} @endif</textarea>
                                                                 </div>
                                                                 <input type="hidden" name="taggedUser"
-                                                                       id="tagged-user-{{ $comment->id }}">
+                                                                       id="tagged-user-{{ $comment->user->id }}">
                                                                 <button type="submit" id="submit"
                                                                         class="btn btn-sm btn-common submit-reply-comment"
                                                                         data-parent="{{ $comment->id }}">
-                                                                    Reply
+                                                                    Gửi trả lời
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </form>
                                             </div>
+                                            @endauth
                                             <ul id="reply-comment-{{ $comment->id }}-list">
                                                 @foreach($comment->child_comments as $child_comment)
+                                                    @if($child_comment->user)
                                                     <li>
                                                         <div class="media">
                                                             <div class="thumb-left">
-                                                                <a href="{{ route('users.show', $comment->user->id) }}">
+                                                                <a href="{{ route('users.show', $child_comment->user->id) }}">
                                                                     <img alt="{{ $child_comment->user->name }}"
                                                                          style="height: 75px; width: 75px"
-                                                                         src="{{ str_replace('public/', '', asset($child_comment->user->avatar)) }}"/>
+                                                                         src="{{ str_replace('public/', '', asset($child_comment->user->avatar ?? 'images/default_avatar/default_avatar.jpg')) }}"/>
                                                                 </a>
                                                             </div>
                                                             <div class="info-body">
@@ -317,29 +324,32 @@
                                                                     <h4 class="name">{{ $child_comment->user->name }}</h4>
                                                                     |
                                                                     <span class="comment-date">{{ $child_comment->updated_at }}</span>
+                                                                    @auth
                                                                     <a class="reply-link" data-id="{{ $comment->id }}"
                                                                        data-tagged="{{ $child_comment->user->id }}"
                                                                        data-child="{{ $child_comment->id }}"><i
-                                                                                class="fa fa-reply-all"></i> Reply </a>
+                                                                                class="fa fa-reply-all"></i> Trả lời </a>
+                                                                    @endauth
                                                                 </div>
                                                                 <p>{!! $child_comment->content !!} </p>
                                                             </div>
                                                         </div>
                                                     </li>
                                                     <br>
+                                                    @auth
                                                     <div class="reply-comment" style="display: none"
                                                          id="reply-comment-{{ $comment->id }}-from-{{ $child_comment->id }}">
                                                         <form>
                                                             <div class="row">
                                                                 @csrf
                                                                 <input type="hidden" name="user_id"
-                                                                       value="{{ Auth::user()->id }}">
+                                                                       value="{{ Auth::id() }}">
                                                                 <div class="row">
                                                                     <div class=" col-md-12 pull-right">
                                                                         <div class="form-group">
-                        <textarea id="content-{{ $child_comment->id }}" class="form-control content-reply" name="content" cols="30"
-                                  rows="1"
-                                  placeholder="Write a reply...">@if($child_comment->user->name !== \Auth::user()->name) {{ $child_comment->user->name }} @endif</textarea>
+                                    <textarea id="content-{{ $child_comment->id }}" class="form-control content-reply" name="content" cols="30"
+                                              rows="1"
+                                              placeholder="Viết phản hồi...">@if(Auth::check() && $child_comment->user->name !== \Auth::user()->name) {{ $child_comment->user->name }} @endif</textarea>
                                                                         </div>
                                                                         <input type="hidden" name="taggedUser"
                                                                                id="tagged-user-{{ $child_comment->user->id }}">
@@ -347,42 +357,47 @@
                                                                                 class="btn btn-sm btn-common submit-reply-child-comment"
                                                                                 data-child="{{ $child_comment->id }}"
                                                                                 data-parent="{{ $comment->id }}">
-                                                                            Reply
+                                                                            Gửi trả lời
                                                                         </button>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </form>
                                                     </div>
+                                                    @endauth
+                                                    @endif
                                                 @endforeach
                                             </ul>
                                         </li>
+                                        @endif
                                     @endforeach
                                 </ol>
 
                                 <div id="respond">
-                                    <h2 class="respond-title">Write a comment for
-                                        course {{ $selectedCourse->title }}</h2>
+                                    <h2 class="respond-title">Bình luận về khóa học {{ $selectedCourse->title }}</h2>
+                                    @auth
                                     <form>
                                         <div class="row">
                                             <input type="hidden" id="comment-course-id"
                                                    value="{{ $selectedCourse->id }}">
-                                            <input type="hidden" id="comment-user-id" value="{{ Auth::user()->id }}">
+                                            <input type="hidden" id="comment-user-id" value="{{ Auth::id() }}">
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <div class="form-group">
                                                     <textarea id="comment-content" class="form-control" name="content"
                                                               cols="45"
-                                                              rows="2" placeholder="Comment..."></textarea>
+                                                              rows="2" placeholder="Viết bình luận của bạn..."></textarea>
                                                     </div>
                                                     <button type="submit" id="submit-comment" class="btn btn-common">
-                                                        Post
-                                                        Comment
+                                                        Gửi bình luận
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
                                     </form>
+                                    @else
+                                    <p class="text-muted"><a href="{{ route('login') }}" class="btn btn-common btn-sm">Đăng nhập để bình luận</a></p>
+                                    @endauth
                                 </div>
                             </div>
                         </div>
@@ -390,14 +405,14 @@
                             <br>
                             <div>
                                 <div class="inner-box">
-                                    <h3 style="font-size: 30px; font-weight: bold;">Appreciate Course
+                                    <h3 style="font-size: 30px; font-weight: bold;">Đánh giá khóa học
                                         <i> {{ $selectedCourse->title }}</i></h3>
                                     <hr>
                                     <form method="post"
-                                          action="{{ '/courses/' . $selectedCourse->id . '/postAppreciate' }}">
+                                           action="{{ '/courses/' . $selectedCourse->id . '/postAppreciate' }}">
                                         @csrf
                                         <div class="form-group">
-                                            <label class="control-label" for="star-rate">Your Rate</label>
+                                            <label class="control-label" for="star-rate">Đánh giá của bạn</label>
                                             <br>
                                             <div class="stars" id="star-rate">
                                                 <input class="star star-5" id="star-5" type="radio" name="star" value="5"/>
@@ -413,11 +428,11 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label" for="textarea">Your Appreciate</label>
+                                            <label class="control-label" for="textarea">Nhận xét của bạn</label>
                                             <textarea class="form-control" name="appreciate_content" rows="3"
-                                                      placeholder="Write your appreciate ..."></textarea>
+                                                      placeholder="Viết nhận xét của bạn về khóa học này..."></textarea>
                                         </div>
-                                        <input class="btn btn-common" type="submit" value="Submit">
+                                        <input class="btn btn-common" type="submit" value="Gửi đánh giá">
                                     </form>
                                 </div>
                             </div>
@@ -437,7 +452,7 @@
                         <p class="no-margin">
                             <i class="fa fa-th" id="share"></i> &ensp;
                             <strong> {{ __('titles.category') }} </strong> <a
-                                    href="/courses?sub_category_id={{ $selectedCourse->category->id }}"> {{ $selectedCourse->category->title }} </a>
+                                    href="/courses?sub_category_id={{ $selectedCourse->category ? $selectedCourse->category->id : '' }}"> {{ $selectedCourse->category ? ($selectedCourse->category->vi_title ?: $selectedCourse->category->title) : '' }} </a>
                         </p>
                         <p class="no-margin">
                             <i class="fa fa-window-maximize" id="share"></i> &ensp;
@@ -515,11 +530,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    Fraud Protection
+                                    Bảo vệ quyền lợi
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni
-                                    perferendis repellat rerum assumenda facere.
+                                    Đảm bảo quyền lợi học viên tối đa khi thanh toán trực tuyến, bảo mật thông tin tuyệt đối.
                                 </p>
                             </div>
                         </div>
@@ -531,11 +545,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    No Extra Fees
+                                    Không phát sinh chi phí
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni
-                                    perferendis repellat rerum assumenda facere.
+                                    Học viên chỉ thanh toán một lần duy nhất, sở hữu khóa học trọn đời và cập nhật bài giảng miễn phí.
                                 </p>
                             </div>
                         </div>
@@ -547,11 +560,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    Verified Data
+                                    Kiểm duyệt chất lượng
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni
-                                    perferendis repellat rerum assumenda facere.
+                                    Tất cả nội dung khóa học và tài liệu đính kèm đều được đội ngũ chuyên gia kiểm duyệt kỹ lưỡng.
                                 </p>
                             </div>
                         </div>
@@ -563,11 +575,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    Friendly Return Policy
+                                    Chính sách hỗ trợ 24/7
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni
-                                    perferendis repellat rerum assumenda facere.
+                                    Đội ngũ hỗ trợ và giảng viên luôn sẵn sàng giải đáp thắc mắc và hỗ trợ hoàn tiền linh hoạt.
                                 </p>
                             </div>
                         </div>
@@ -595,9 +606,9 @@
                                         </div>
                                     </div>
                                     <a href="ads-details.html" class="item-name"> {{ $course->title }} </a>
-                                    <span class="price">@if(isset($course->promotion_price))<b
-                                                style="color:red">{{ $course->promotion_price }}$ </b><strike> {{ $course->origin_price }}$</strike>@else {{ $course->origin_price }}
-                                        $@endif</span>
+                                    <span class="price">@if(isset($course->promotion_price) && $course->promotion_price < $course->origin_price)<b
+                                                style="color:red">{{ format_price($course->promotion_price) }} </b><strike> {{ format_price($course->origin_price) }}</strike>@else {{ format_price($course->origin_price) }}
+                                        @endif</span>
                                 </div>
                             </div>
                         @endforeach
@@ -715,7 +726,7 @@
                 userAvatar = userAvatar.replace("images/", "http://127.0.0.1:8000/images/");
                 var createdComment = jQuery.parseJSON(data.createdComment);
                 var replyUser = '';
-                var currentUserId = '{{ \Auth::user()->id }}';
+                var currentUserId = '{{ \Auth::id() }}';
                 if (commentedUser.id != currentUserId) {
                     replyUser = commentedUser.name;
                 }

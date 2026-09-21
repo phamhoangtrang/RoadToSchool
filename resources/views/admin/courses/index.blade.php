@@ -22,7 +22,7 @@
                         <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item">
                             <i class="ti-home p-r-5"></i>{{ __('titles.r2s_dashboard') }}
                             <a href="{{ route('admin.courses.index') }}" class="breadcrumb-item">
-                                Courses
+                                {{ __('titles.courses') }}
                             </a>
                             <a class="breadcrumb-item active">{{ __('titles.all_courses') }}</a>
                         </a>
@@ -70,10 +70,10 @@
                                     <td class="text-center font-size-18">
                                         @if ($course->is_accepted == 0)
                                             <a href="#" id="button-accept-course-{{ $course->id }}"
-                                               class="text-gray m-r-15 button-accept-course" data-id="{{ $course->id }}" title="Accept Course"><i class="ti-check-box"></i></a>
+                                               class="text-gray m-r-15 button-accept-course" data-id="{{ $course->id }}" title="Duyệt khóa học"><i class="ti-check-box"></i></a>
                                         @endif
                                         <a class="text-gray" data-toggle="modal"
-                                           data-target="#delete-modal" title="Delete Course"
+                                           data-target="#delete-modal" title="Xóa khóa học"
                                            data-url="{{ route('admin.courses.destroy', $course->id) }}">
                                             <i class="ti-trash"></i>
                                         </a>
@@ -120,7 +120,7 @@
                         $('#label-status-course-' + responseData.id).text(acceptedLabel);
                         $.notify({
                             // options
-                            message: 'Couse <b>' + responseData.title + '</b> is accepted',
+                            message: 'Khóa học <b>' + responseData.title + '</b> đã được duyệt',
                             url: '/courses/' + responseData.id,
                         }, {
                             // settings

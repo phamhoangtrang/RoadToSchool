@@ -20,25 +20,25 @@
                 <h2 class="header-title">{{ __('titles.permission_management') }}</h2>
                 <div class="header-sub-title">
                     <nav class="breadcrumb breadcrumb-dash">
-                        <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item"><i class="ti-home p-r-5"></i>Home</a>
-                        <span class="breadcrumb-item active">Permission Management</span>
+                        <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item"><i class="ti-home p-r-5"></i>{{ __('titles.r2s_dashboard') }}</a>
+                        <span class="breadcrumb-item active">Phân quyền người dùng</span>
                     </nav>
                 </div>
             </div>
             <div class="card" id="card-select-user">
                 <div class="card-header border bottom">
-                    <h4 class="card-title">Select User</h4>
+                    <h4 class="card-title">Chọn người dùng</h4>
                 </div>
                 <div class="card-body">
-                    <p style="color: red; display: none" id="error-submit"> Please select an user before submit ! </p>
+                    <p style="color: red; display: none" id="error-submit"> Vui lòng chọn người dùng trước khi thực hiện ! </p>
                     <div class="row m-t-25">
                         <div class="col-md-4">
-                            <h5>Select User Group</h5>
+                            <h5>Chọn nhóm người dùng</h5>
                             <div class="m-t-15">
                                 <div class="row">
                                     <div class="col-md-10">
                                         <select id="selectize-dropdown">
-                                            <option value="" disabled selected>Select a group...</option>
+                                            <option value="" disabled selected>Chọn nhóm...</option>
                                             @foreach($userGroupList as $key => $value)
                                                 <option value="{{ $key }}" {{ (array_key_exists('permissionGroup', $dataParamList) && $dataParamList['permissionGroup'] == $key) ? 'selected' : '' }}>{{ $value }}</option>
                                             @endforeach
@@ -48,12 +48,12 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <h5>Select User By Email</h5>
+                            <h5>Tìm người dùng theo Email</h5>
                             <div class="m-t-15">
                                 <div class="row">
                                     <div class="col-md-10">
                                         <select id="selectize-dropdown-2">
-                                            <option value="" disabled selected>Select a email...</option>
+                                            <option value="" disabled selected>Chọn email...</option>
                                             @foreach($emailUserList as $key => $value)
                                                 <option value="{{ $key }}" {{ (array_key_exists('userKey', $dataParamList) && $dataParamList['userKey'] == $key) ? 'selected' : '' }}>{{ $value }}</option>
                                             @endforeach
@@ -63,14 +63,14 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <h5>Select User By Name</h5>
+                            <h5>Tìm người dùng theo tên</h5>
                             <div class="m-t-15">
                                 <div class="row">
                                     <div class="col-md-10">
                                         <select id="selectize-group">
-                                            <option value="">Select user name...</option>
+                                            <option value="">Chọn tên người dùng...</option>
                                             @if(!array_key_exists('permissionGroup', $dataParamList) || (array_key_exists('permissionGroup', $dataParamList) && $dataParamList['permissionGroup'] == 2))
-                                                <optgroup label="Student" id="opt-student">
+                                                <optgroup label="Học viên" id="opt-student">
                                                     @foreach($studentList as $student)
                                                         <option value="{{ $student->id }}"
                                                                 {{ (array_key_exists('userKey', $dataParamList) && $dataParamList['userKey'] == $student->id) ? 'selected' : '' }} id="student-{{ $student->id }}">{{ $student->name }}</option>
@@ -78,14 +78,14 @@
                                                 </optgroup>
                                             @endif
                                             @if(!array_key_exists('permissionGroup', $dataParamList) || (array_key_exists('permissionGroup', $dataParamList) && $dataParamList['permissionGroup'] == 1))
-                                                <optgroup label="Instructor" id="opt-instructor">
+                                                <optgroup label="Giảng viên" id="opt-instructor">
                                                     @foreach($instructorList as $instructor)
                                                         <option value="{{ $instructor->id }}" {{ (array_key_exists('userKey', $dataParamList) && $dataParamList['userKey'] == $instructor->id) ? 'selected' : '' }}>{{ $instructor->name }}</option>
                                                     @endforeach
                                                 </optgroup>
                                             @endif
                                             @if(!array_key_exists('permissionGroup', $dataParamList) || (array_key_exists('permissionGroup', $dataParamList) && $dataParamList['permissionGroup'] == 0))
-                                                <optgroup label="Admin" id="opt-admin">
+                                                <optgroup label="Quản trị viên" id="opt-admin">
                                                     @foreach($adminList as $admin)
                                                         <option value="{{ $admin->id }}" {{ (array_key_exists('userKey', $dataParamList) && $dataParamList['userKey'] == $admin->id) ? 'selected' : '' }}>{{ $admin->name }}</option>
                                                     @endforeach
@@ -103,12 +103,12 @@
                         <div class="col-md-4">
                             <div class="m-t-15">
                                 <div class="col-md-6" style="float: right;">
-                                    <button class="btn btn-default" id="btn-reset" style="display: inline">Reset
+                                    <button class="btn btn-default" id="btn-reset" style="display: inline">Nhập lại
                                     </button>
                                 </div>
                                 <div class="col-md-6" style="float: right">
                                     <button class="btn btn-info" id="btn-get-permission" style="display: inline;">
-                                        Submit
+                                        Xem quyền
                                     </button>
                                 </div>
                             </div>
@@ -135,10 +135,9 @@
                                         <p id="user-email">Put toy mouse in food bowl run out of litter box at full
                                             speed drool but pee in the shoe purr when being pet but chew foot.</p>
                                         <div class="m-t-25">
-                                            <a href="#" class="btn btn-default btn-info" id="edit-permission-button">Edit
-                                                Permission</a>
+                                            <a href="#" class="btn btn-default btn-info" id="edit-permission-button">Chỉnh sửa phân quyền</a>
                                             <a href="#" class="btn btn-default btn-warning"
-                                               id="select-another-user-button">Select another user</a>
+                                               id="select-another-user-button">Chọn người dùng khác</a>
                                         </div>
                                     </div>
                                 </div>
@@ -156,9 +155,9 @@
             <div class="col-md-3"></div>
             <div class="col-md-3" style="display: none;float: right" id="permission-control">
                 <button class="btn btn-info" id="btn-update-permission">
-                    Submit
+                    Lưu phân quyền
                 </button>
-                <button class="btn btn-warning" id="btn-reset-permission">Reset
+                <button class="btn btn-warning" id="btn-reset-permission">Khôi phục
                 </button>
             </div>
 

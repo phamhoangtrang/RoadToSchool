@@ -25,7 +25,7 @@
                 </a>
             </li>
             <li class="search-input">
-                <input class="form-control" type="text" placeholder="Type to search...">
+                <input class="form-control" type="text" placeholder="Nhập để tìm kiếm...">
                 <div class="search-predict">
                     <div class="search-wrapper scrollable">
                         <div class="p-v-10">
@@ -296,7 +296,7 @@
                     <li>
                         <a href="{{ route('home') }}">
                             <i class="ti-home p-r-10"></i>
-                            <span>Back to R2S Home</span>
+                            <span>Quay về trang chủ RoadToSchool</span>
                         </a>
                     </li>
 

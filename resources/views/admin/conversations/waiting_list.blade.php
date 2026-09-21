@@ -17,11 +17,11 @@
                 <div class="chat-list">
                     <div class="chat-user-tool">
                         <i class="search-icon mdi mdi-magnify p-r-10 font-size-20"></i>
-                        <input placeholder="Search">
+                        <input placeholder="Tìm kiếm...">
                     </div>
                     <div class="chat-user-list scrollable">
                         <div class="m-b-30 m-t-20">
-                            <h6 class="p-h-20 text-uppercase text-semibold">In progress</h6>
+                            <h6 class="p-h-20 text-uppercase text-semibold">Đang xử lý</h6>
                             <ul class="list-media" id="side-bar-in-progress-conversation">
                                 @foreach($inProgressConversationList as $conversation)
                                     <li class="list-item" id="sidebar-conversation-{{ $conversation->id }}"
@@ -42,7 +42,7 @@
                             </ul>
                         </div>
                         <div class="m-b-30">
-                            <h6 class="p-h-20 text-uppercase text-semibold">Waiting</h6>
+                            <h6 class="p-h-20 text-uppercase text-semibold">Đang chờ</h6>
                             <ul class="list-media" id="waiting-area">
                                 @foreach($waitingConversationList as $conversation)
                                     <li class="list-item" id="sidebar-conversation-{{ $conversation->id }}"
@@ -63,7 +63,7 @@
                             </ul>
                         </div>
                         <div class="m-b-30">
-                            <h6 class="p-h-20 text-uppercase text-semibold">Done</h6>
+                            <h6 class="p-h-20 text-uppercase text-semibold">Đã xong</h6>
                             <ul class="list-media" id="side-bar-done-conversation">
                                 @foreach($waitingConversationList as $conversation)
                                     <li class="list-item" id="sidebar-conversation-{{ $conversation->id }}"
@@ -111,7 +111,7 @@
                                 <div class="conversation-body scrollable" id="conversation-body-{{ $conversation->id }}"
                                      style="overflow: auto!important">
                                     <div class="msg datetime">
-                                        <span>Today</span>
+                                        <span>Hôm nay</span>
                                     </div>
                                     @foreach(\App\Models\ConversationMessage::where('conversation_id', $conversation->id)->orderBy('created_at')->get() as $message)
                                         <div class="msg msg-{{ \App\Models\User::findOrFail($message->from_id)->is_admin ? 'sent' : 'recipient' }}">
@@ -134,7 +134,7 @@
                                         <i class="ti-face-smile"></i>
                                     </button>
                                     <input class="chat-input" id="message-content-{{ $conversation->id }}" type="text"
-                                           placeholder="Type a message...">
+                                           placeholder="Nhập tin nhắn...">
                                     <button class="sent-btn" data-id="{{ $conversation->id }}">
                                         <i class="fa fa-send-o"></i>
                                     </button>
@@ -169,7 +169,7 @@
                                 <div class="conversation-body scrollable" id="conversation-body-{{ $conversation->id }}"
                                      style="overflow: auto!important">
                                     <div class="msg datetime">
-                                        <span>Today</span>
+                                        <span>Hôm nay</span>
                                     </div>
                                     @foreach(\App\Models\ConversationMessage::where('conversation_id', $conversation->id)->orderBy('created_at')->get() as $message)
                                         <div class="msg msg-{{ \App\Models\User::findOrFail($message->from_id)->is_admin ? 'sent' : 'recipient' }}">
@@ -192,7 +192,7 @@
                                         <i class="ti-face-smile"></i>
                                     </button>
                                     <input class="chat-input" id="message-content-{{ $conversation->id }}" type="text"
-                                           placeholder="Type a message...">
+                                           placeholder="Nhập tin nhắn...">
                                     <button class="sent-btn" data-id="{{ $conversation->id }}">
                                         <i class="fa fa-send-o"></i>
                                     </button>
@@ -433,7 +433,7 @@
                                 '"\n' +
                                 '                                     style="overflow: auto!important">\n' +
                                 '                                    <div class="msg datetime">\n' +
-                                '                                        <span>Today</span>\n' +
+                                '                                        <span>Hôm nay</span>\n' +
                                 '                                    </div>\n' +
                                 '                                </div>\n' +
                                 '                                <div class="conversation-footer">\n' +
@@ -442,7 +442,7 @@
                                 '                                    </button>\n' +
                                 '                                    <input class="chat-input" id="message-content-' + data.message.conversation_id +
                                 '" type="text"\n' +
-                                '                                           placeholder="Type a message...">\n' +
+                                '                                           placeholder="Nhập tin nhắn...">\n' +
                                 '                                    <button class="sent-btn" data-id="' + data.message.conversation_id +
                                 '">\n' +
                                 '                                        <i class="fa fa-send-o"></i>\n' +

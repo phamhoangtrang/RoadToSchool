@@ -29,3 +29,8 @@ function setOpen($path)
 
     return Request::is($path . '*') ? ' open' : '';
 }
+
+function format_price($price)
+{
+    return number_format((float) $price, 0, ',', '.') . ' ₫';
+}

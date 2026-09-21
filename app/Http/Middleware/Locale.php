@@ -23,13 +23,9 @@ class Locale
 ////        dd($language);
 //
 //        return $next($request);
-        if (\Session::has('website_language')) :
-            $locale = \Session::get('website_language');
-        else :
-            $locale = config('app.fallback_locale');
-        endif;
-        config(['app.locale' => $locale]);
-        app()->setLocale($locale);
+        config(['app.locale' => 'vi']);
+        app()->setLocale('vi');
+        \Session::put('website_language', 'vi');
 
         return $next($request);
     }

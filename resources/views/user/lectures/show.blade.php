@@ -12,8 +12,7 @@
                     <h2 class="title-2">
                         <strong> {{ __('titles.lecture') . ': ' . \App\Models\Lecture::findOrFail($lectureId)->title }} </strong>
                         @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
-                            <b style="float: right; padding-right: 30px;">Your
-                                progress: {{ $learnedLectureCount }}/{{ $allLectureCount }}</b>
+                            <b style="float: right; padding-right: 30px;">Tiến độ học tập: {{ $learnedLectureCount }}/{{ $allLectureCount }}</b>
                         @endif
                     </h2>
                     <div class="progress" style="height: 20px">
@@ -32,8 +31,8 @@
                     {!! $embed->code !!}
                     @if (\App\Models\Lecture::find($lectureId + 1))
                     <div id="timer" style="display: none;">
-                        <p class="text-center" style="font-weight: bold">Redirect to next lecture
-                            <i>{{ \App\Models\Lecture::find($lectureId + 1)?->title }}</i> in <span
+                        <p class="text-center" style="font-weight: bold">Tự động chuyển sang bài tiếp theo
+                            <i>{{ \App\Models\Lecture::find($lectureId + 1)?->title }}</i> sau <span
                                     id="timer-text"></span>s</p>
                     </div>
                     @endif
@@ -65,7 +64,7 @@
                     <br>
                     <div id="comments">
                         <div class="inner-box">
-                            <h3>Comments ({{ $lectureComments->count() }})</h3>
+                            <h3 style="font-size: 30px; font-weight: bold;">Bình luận ({{ $lectureComments->count() }})</h3>
                             <ol class="comments-list" id="comment-list">
                                 @foreach($lectureComments as $comment)
                                     <li id="li-comment-{{ $comment->id }}">
@@ -132,7 +131,7 @@
                                                                 <a class="reply-link" data-id="{{ $comment->id }}"
                                                                    data-tagged="{{ $child_comment->user->id }}"
                                                                    data-child="{{ $child_comment->id }}"><i
-                                                                            class="fa fa-reply-all"></i> Reply </a>
+                                                                            class="fa fa-reply-all"></i> Trả lời </a>
                                                             </div>
                                                             <p>{!! $child_comment->content !!} </p>
                                                         </div>
@@ -151,7 +150,7 @@
                                                                     <div class="form-group">
                         <textarea id="content-{{ $child_comment->id }}" class="form-control" name="content" cols="30"
                                   rows="1"
-                                  placeholder="Write a reply...">@if($child_comment->user->name !== \Auth::user()->name) {{ $child_comment->user->name }} @endif</textarea>
+                                  placeholder="Viết phản hồi...">@if($child_comment->user->name !== \Auth::user()->name) {{ $child_comment->user->name }} @endif</textarea>
                                                                     </div>
                                                                     <input type="hidden" name="taggedUser"
                                                                            id="tagged-user-{{ $child_comment->user->id }}">
@@ -159,7 +158,7 @@
                                                                             class="btn btn-sm btn-common submit-reply-child-comment"
                                                                             data-child="{{ $child_comment->id }}"
                                                                             data-parent="{{ $comment->id }}">
-                                                                        Reply
+                                                                        Gửi trả lời
                                                                     </button>
                                                                 </div>
                                                             </div>
@@ -173,7 +172,7 @@
                             </ol>
 
                             <div id="respond">
-                                <h2 class="respond-title">Write a comment for lecture
+                                <h2 class="respond-title">Viết bình luận cho bài học
                                     <b> {{ \App\Models\Lecture::findOrFail($lectureId)->title }} </b></h2>
                                 <form>
                                     <div class="row">
@@ -184,11 +183,10 @@
                                                 <div class="form-group">
                                                     <textarea id="comment-content" class="form-control" name="content"
                                                               cols="45"
-                                                              rows="2" placeholder="Comment..."></textarea>
+                                                              rows="2" placeholder="Viết bình luận của bạn..."></textarea>
                                                 </div>
                                                 <button type="submit" id="submit-comment" class="btn btn-common">
-                                                    Post
-                                                    Comment
+                                                    Gửi bình luận
                                                 </button>
                                             </div>
                                         </div>
@@ -212,7 +210,7 @@
                             <div class="categories-list tab" id="all-lecture">
                                 @for($i = 0; $i < $maxWeek; $i++)
                                     <br>
-                                    <h4>Week {{ $i + 1 }}</h4>
+                                    <h4>{{ __('titles.week') . ' ' . ($i + 1) }}</h4>
                                     <ul>
                                         @foreach($lectureOutline[$i] as $lecture)
                                             <li>

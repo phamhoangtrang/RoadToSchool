@@ -16,9 +16,9 @@ class User extends Authenticatable implements MustVerifyEmail
     const ROLE_STUDENT = 2;
 
     public static $roles = [
-        self::ROLE_ADMIN => 'Admin',
-        self::ROLE_TEACHER => 'Teacher',
-        self::ROLE_STUDENT => 'Student',
+        self::ROLE_ADMIN => 'Quản trị viên',
+        self::ROLE_TEACHER => 'Giảng viên',
+        self::ROLE_STUDENT => 'Học viên',
     ];
 
     protected $table = 'users';
@@ -58,21 +58,21 @@ class User extends Authenticatable implements MustVerifyEmail
     const GRADE_14 = 14;
 
     public static $grades = [
-        self::GRADE_0 => 'Children',
-        self::GRADE_1 => 'Grade 1',
-        self::GRADE_2 => 'Grade 2',
-        self::GRADE_3 => 'Grade 3',
-        self::GRADE_4 => 'Grade 4',
-        self::GRADE_5 => 'Grade 5',
-        self::GRADE_6 => 'Grade 6',
-        self::GRADE_7 => 'Grade 7',
-        self::GRADE_8 => 'Grade 8',
-        self::GRADE_9 => 'Grade 9',
-        self::GRADE_10 => 'Grade 10',
-        self::GRADE_11 => 'Grade 11',
-        self::GRADE_12 => 'Grade 12',
-        self::GRADE_13 => 'University and College',
-        self::GRADE_14 => 'Out of grade',
+        self::GRADE_0 => 'Mầm non',
+        self::GRADE_1 => 'Lớp 1',
+        self::GRADE_2 => 'Lớp 2',
+        self::GRADE_3 => 'Lớp 3',
+        self::GRADE_4 => 'Lớp 4',
+        self::GRADE_5 => 'Lớp 5',
+        self::GRADE_6 => 'Lớp 6',
+        self::GRADE_7 => 'Lớp 7',
+        self::GRADE_8 => 'Lớp 8',
+        self::GRADE_9 => 'Lớp 9',
+        self::GRADE_10 => 'Lớp 10',
+        self::GRADE_11 => 'Lớp 11',
+        self::GRADE_12 => 'Lớp 12',
+        self::GRADE_13 => 'Đại học & Cao đẳng',
+        self::GRADE_14 => 'Đã đi làm / Khác',
     ];
     /**
      * The attributes that should be hidden for arrays.

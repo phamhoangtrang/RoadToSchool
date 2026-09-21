@@ -28,7 +28,7 @@
             </div>
             <div class="modal-footer">
                 <div class="text-sm-right">
-                    {{ Form::submit(__('add new'), ['class' => 'btn btn-primary', 'id' => 'create-btn']) }}
+                    {{ Form::submit('Thêm mới', ['class' => 'btn btn-primary', 'id' => 'create-btn']) }}
                 </div>
             </div>
             {{ Form::close() }}

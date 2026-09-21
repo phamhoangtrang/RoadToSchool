@@ -29,11 +29,11 @@
                         <table id="dt-opt" class="table table-hover table-xl">
                             <thead>
                             <tr>
-                                <th>Course</th>
-                                <th>Lecture Title</th>
-                                <th>Type</th>
-                                <th>Created At</th>
-                                <th>Action</th>
+                                <th>{{ __('titles.course') }}</th>
+                                <th>Tiêu đề bài học</th>
+                                <th>Loại</th>
+                                <th>Ngày tạo</th>
+                                <th>{{ __('titles.action') }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -46,16 +46,16 @@
                                     </td>
                                     <td>
                                         @if($lecture->is_lecture)
-                                            <i>Lecture</i>
+                                            <span class="badge badge-pill badge-info">Bài giảng</span>
                                         @elseif($lecture->is_quiz)
-                                            <i>Quiz</i>
+                                            <span class="badge badge-pill badge-primary">Trắc nghiệm</span>
                                         @endif
                                     </td>
                                     <td> {{ $lecture->updated_at }} </td>
                                     <td class="text-center font-size-18">
-                                        <a href="#" data-lecture="{{ $lecture->id }}"
+                                        <a href="#" data-lecture="{{ $lecture->id }}" title="Duyệt bài học"
                                            class="text-gray m-r-15 accept-lecture-request"><i class="ti-check"></i></a>
-                                        <a href="#" class="text-gray"><i class="ti-trash"></i></a>
+                                        <a href="#" class="text-gray" title="Xóa"><i class="ti-trash"></i></a>
                                     </td>
                                 </tr>
                             @endforeach

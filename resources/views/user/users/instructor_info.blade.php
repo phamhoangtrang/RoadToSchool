@@ -101,9 +101,9 @@
                                             </div>
                                         </div>
                                         <a href="ads-details.html" class="item-name"> {{ $course->title }} </a>
-                                        <span class="price">@if(isset($course->promotion_price))<b
-                                                    style="color:red">{{ $course->promotion_price }}$ </b><strike> {{ $course->origin_price }}$</strike>@else {{ $course->origin_price }}
-                                            $@endif</span>
+                                        <span class="price">@if(isset($course->promotion_price) && $course->promotion_price < $course->origin_price)<b
+                                                    style="color:red">{{ format_price($course->promotion_price) }} </b><strike> {{ format_price($course->origin_price) }}</strike>@else {{ format_price($course->origin_price) }}
+                                            @endif</span>
                                     </div>
                                 </div>
                             @endforeach

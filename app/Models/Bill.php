@@ -25,8 +25,8 @@ class Bill extends Model
     const CASH_ON_DELIVERY = 2;
 
     public static $roles = [
-        self::PAYMENT_BY_CARD => 'Payment via card',
-        self::CASH_ON_DELIVERY => 'Cash on delivery (COD)',
+        self::PAYMENT_BY_CARD => 'Thanh toán qua thẻ',
+        self::CASH_ON_DELIVERY => 'Thanh toán khi nhận hàng (COD)',
     ];
 
     const PENDING = 0;
@@ -36,11 +36,11 @@ class Bill extends Model
     const CANCELED = 4;
 
     public static $status = [
-        self::PENDING => 'Pending',
-        self::IN_TRANSPORT => 'Transporting',
-        self::ALREADY_PAID => 'Already Paid',
-        self::ACTIVATED => 'Activated',
-        self::CANCELED => 'Canceled',
+        self::PENDING => 'Chờ xử lý',
+        self::IN_TRANSPORT => 'Đang giao hàng',
+        self::ALREADY_PAID => 'Đã thanh toán',
+        self::ACTIVATED => 'Đã kích hoạt',
+        self::CANCELED => 'Đã hủy',
     ];
 
     public function addBill($data)

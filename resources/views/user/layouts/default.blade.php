@@ -30,7 +30,7 @@
             @endphp
             @if(isset($messageList))
                 <div class="chat-box-single-line">
-                    <abbr class="timestamp">Today</abbr>
+                    <abbr class="timestamp">Hôm nay</abbr>
                 </div>
                 @foreach($messageList as $message)
                     <div class="direct-chat-msg doted-border">
@@ -38,7 +38,7 @@
                             <span class="direct-chat-name pull-left">{{ \App\Models\User::findOrFail($message->from_id)->name }}</span>
                         </div>
                         <!-- /.direct-chat-info -->
-                        <img alt="iamgurdeeposahan"
+                        <img alt="avatar"
                              src="{{ str_replace("public/", "", asset(\App\Models\User::findOrFail($message->from_id)->avatar)) }}"
                              class="direct-chat-img"><!-- /.direct-chat-img -->
                         <div class="direct-chat-text">
@@ -50,12 +50,12 @@
                     </div>
                 @endforeach
                 @else
-                <p class="text-center"> Start Conversation with Admin</p>
+                <p class="text-center"> Bắt đầu trò chuyện với Quản trị viên</p>
             @endif
         </div>
     </div>
     <div class="popup-messages-footer">
-        <textarea id="status_message" placeholder="Type a message..." rows="2" cols="40" name="message"></textarea>
+        <textarea id="status_message" placeholder="Nhập tin nhắn..." rows="2" cols="40" name="message"></textarea>
         <input type="hidden" value="{{ \Auth::user()->id }}" id="sender-id">
         {{--        <input type="submit"--}}
         {{--               style="position: absolute; left: -9999px; width: 1px; height: 1px;"--}}

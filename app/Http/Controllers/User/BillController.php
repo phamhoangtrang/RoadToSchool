@@ -49,11 +49,15 @@ class BillController extends Controller
     {
         $request->validate([
             'customer_name' => 'required|string|max:191',
-            'customer_email' => 'required|email|max:191',
-            'customer_phone' => 'required|string|max:191',
+            'customer_email' => ['required', 'string', 'email:filter', 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', 'max:191'],
+            'customer_phone' => ['required', 'regex:/^(0|\+84)?[0-9]{9,11}$/'],
             'customer_address' => 'required|string|max:191',
             'course_id' => 'required|array|min:1',
             'price' => 'required|array|min:1',
+        ], [
+            'customer_email.regex' => 'Email address must be in a valid format (e.g., example@domain.com).',
+            'customer_email.email' => 'Email address must be a valid email.',
+            'customer_phone.regex' => 'Phone number must be a valid format (e.g., 0912345678, 9-11 digits).',
         ]);
 
         $data = $request->all();

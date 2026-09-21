@@ -131,11 +131,12 @@ class CourseController extends Controller
             $comment->child_comments = $this->modelComment->where('parent_comment', $comment->id)->orderBy('updated_at', 'asc')->get();
         }
         // Check current user has liked course
-        $checkResult = $this->modelCourseLike->where('course_id', $id)->where('user_id', \Auth::user()->id)->first();
-        if ($checkResult) {
-            $liked = 1;
-        } else {
-            $liked = 0;
+        $liked = 0;
+        if (Auth::check()) {
+            $checkResult = $this->modelCourseLike->where('course_id', $id)->where('user_id', \Auth::id())->first();
+            if ($checkResult) {
+                $liked = 1;
+            }
         }
 
 //        dd($allLectures);

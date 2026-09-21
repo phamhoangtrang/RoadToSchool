@@ -39,7 +39,7 @@
                             </div>
                         </div>
                         <div class="col-md-3 col-sm-6 search-col">
-                            <input class="btn btn-common btn-search btn-block" type="submit" value="submit">
+                            <input class="btn btn-common btn-search btn-block" type="submit" value="{{ __('titles.submit') }}">
                         </div>
                     </form>
                 </div>
@@ -61,13 +61,13 @@
     @endphp
     <div class="row" style="padding-top:50px">
         <div class="col-md-12" style="margin-left: 62px">
-            <h3 class="section-title">Browse Courses in {{ $parentCategory->title }} Category</h3>
+            <h3 class="section-title">Các khóa học thuộc danh mục {{ $parentCategory->vi_title ?: $parentCategory->title }}</h3>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
             <div class="list-group list-group-horizontal">
                 @foreach($categoryList as $category)
                     <a href="{{ route('courses.index', ['sub_category_id' => $category->id]) }}"
-                       class="list-group-item {{ (isset($activeCategoryId) && (int)$activeCategoryId === $category->id) ? 'active' : '' }}"><strong>{{ $category->title . ' (' . App\Models\Course::where('is_accepted', 1)->where('category_id', $category->id)->count() . ')' }}</strong></a>
+                       class="list-group-item {{ (isset($activeCategoryId) && (int)$activeCategoryId === $category->id) ? 'active' : '' }}"><strong>{{ ($category->vi_title ?: $category->title) . ' (' . App\Models\Course::where('is_accepted', 1)->where('category_id', $category->id)->count() . ')' }}</strong></a>
                 @endforeach
             </div>
         </div>

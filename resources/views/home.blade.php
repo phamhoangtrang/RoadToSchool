@@ -76,19 +76,18 @@
                                     <i class="{{$category->css_classes}}"></i>
                                 </div>
                                 <div class="category-header">
-                                    <h4> {{ $category->title }} </h4>
+                                    <h4> {{ $category->vi_title ?: $category->title }} </h4>
                                 </div>
                                 <div class="category-content">
                                     <ul>
                                         @foreach(\App\Models\Category::where('parent_id', $category->id)->limit(6)->get() as $subCategory)
                                             <li>
-                                                <a href="{{ route('courses.index', ['sub_category_id' => $subCategory->id]) }}">{{ config('app.locale') == 'en' ? $subCategory->title : $subCategory->vi_title }}</a>
+                                                <a href="{{ route('courses.index', ['sub_category_id' => $subCategory->id]) }}">{{ $subCategory->vi_title ?: $subCategory->title }}</a>
                                                 <span class="category-counter"> {{ \App\Models\Course::where('is_accepted', 1)->where('category_id', $subCategory->id)->count() }} </span>
                                             </li>
                                         @endforeach
                                         <li>
-                                            <a href="{{ route('courses.index', ['category_id' => $category->id]) }}">View
-                                                all subcategories →</a>
+                                            <a href="{{ route('courses.index', ['category_id' => $category->id]) }}">Xem tất cả danh mục con →</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -119,11 +118,14 @@
                                         </div>
                                         <a href="{{ route('courses.show', $trendCourse->id) }}"
                                            class="item-name"> {{ $trendCourse->title }} </a>
-                                        <span class="price">@if($trendCourse->promotion_price === $trendCourse->origin_price)
-                                                <b
-                                                        style="color:red">{{ $trendCourse->promotion_price }}$ </b>
-                                                <strike> {{ $trendCourse->origin_price }}$</strike>@else {{ $trendCourse->origin_price }}
-                                                $@endif</span>
+                                        <span class="price">
+                                            @if($trendCourse->promotion_price && $trendCourse->promotion_price < $trendCourse->origin_price)
+                                                <b style="color:red">{{ format_price($trendCourse->promotion_price) }} </b>
+                                                <strike>{{ format_price($trendCourse->origin_price) }}</strike>
+                                            @else
+                                                <b>{{ format_price($trendCourse->origin_price) }}</b>
+                                            @endif
+                                        </span>
                                     </div>
                                 </div>
                             @endforeach
@@ -153,11 +155,14 @@
                                         </div>
                                         <a href="{{ route('courses.show', $trendCourse->id) }}"
                                            class="item-name"> {{ $trendCourse->title }} </a>
-                                        <span class="price">@if($trendCourse->promotion_price === $trendCourse->origin_price)
-                                                <b
-                                                        style="color:red">{{ $trendCourse->promotion_price }}$ </b>
-                                                <strike> {{ $trendCourse->origin_price }}$</strike>@else {{ $trendCourse->origin_price }}
-                                                $@endif</span>
+                                        <span class="price">
+                                            @if($trendCourse->promotion_price && $trendCourse->promotion_price < $trendCourse->origin_price)
+                                                <b style="color:red">{{ format_price($trendCourse->promotion_price) }} </b>
+                                                <strike>{{ format_price($trendCourse->origin_price) }}</strike>
+                                            @else
+                                                <b>{{ format_price($trendCourse->origin_price) }}</b>
+                                            @endif
+                                        </span>
                                     </div>
                                 </div>
                             @endforeach
@@ -178,11 +183,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    Full Documented
+                                    Tài liệu chi tiết & Đầy đủ
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni perferendis
-                                    repellat rerum assumenda facere.
+                                    Cung cấp trọn bộ giáo trình, slide bài giảng, mã nguồn mẫu và bài tập thực hành theo chuẩn dự án thực tế.
                                 </p>
                             </div>
                         </div>
@@ -194,11 +198,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    Clean & Modern Design
+                                    Giao diện hiện đại & Trực quan
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni perferendis
-                                    repellat rerum assumenda facere.
+                                    Trải nghiệm học tập mượt mà với giao diện trực quan, dễ thao tác và tối ưu hóa tối đa cho người học.
                                 </p>
                             </div>
                         </div>
@@ -210,11 +213,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    Great Features
+                                    Lộ trình học tập rõ ràng
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni perferendis
-                                    repellat rerum assumenda facere.
+                                    Lộ trình bài bản từ cơ bản đến nâng cao, giúp bạn nắm vững kiến thức và tự tin áp dụng vào công việc.
                                 </p>
                             </div>
                         </div>
@@ -226,11 +228,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    Completely Customizable
+                                    Học tập chủ động & Linh hoạt
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni perferendis
-                                    repellat rerum assumenda facere.
+                                    Chủ động sắp xếp thời gian và tốc độ học tập phù hợp với lịch trình bận rộn của riêng bạn.
                                 </p>
                             </div>
                         </div>
@@ -242,11 +243,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    100% Responsive Layout
+                                    Tương thích đa nền tảng
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni perferendis
-                                    repellat rerum assumenda facere.
+                                    Truy cập và theo dõi bài học mọi lúc mọi nơi trên điện thoại, máy tính bảng và máy tính bàn.
                                 </p>
                             </div>
                         </div>
@@ -258,11 +258,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    User Friendly
+                                    Thân thiện & Dễ sử dụng
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni perferendis
-                                    repellat rerum assumenda facere.
+                                    Hệ thống trắc nghiệm, đánh giá kết quả và phản hồi nhanh chóng từ giảng viên chỉ với vài cú nhấp chuột.
                                 </p>
                             </div>
                         </div>
@@ -274,11 +273,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    Awesome Layout
+                                    Kho khóa học đa dạng
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni perferendis
-                                    repellat rerum assumenda facere.
+                                    Hàng trăm khóa học chất lượng cao trải rộng khắp các lĩnh vực CNTT, Kinh doanh, Thiết kế và Đời sống.
                                 </p>
                             </div>
                         </div>
@@ -290,11 +288,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    High Quality
+                                    Giảng viên chất lượng cao
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni perferendis
-                                    repellat rerum assumenda facere.
+                                    Được hướng dẫn bởi các chuyên gia đầu ngành có nhiều năm kinh nghiệm giảng dạy và thực chiến.
                                 </p>
                             </div>
                         </div>
@@ -306,11 +303,10 @@
                             </div>
                             <div class="features-content">
                                 <h4>
-                                    Free Google Fonts Use
+                                    Hỗ trợ & Đồng hành 24/7
                                 </h4>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quo aut magni perferendis
-                                    repellat rerum assumenda facere.
+                                    Cộng đồng học viên sôi nổi cùng đội ngũ trợ giảng sẵn sàng giải đáp thắc mắc của bạn bất kỳ lúc nào.
                                 </p>
                             </div>
                         </div>
@@ -323,42 +319,41 @@
             <div class="container">
                 <div class="row localtion-list">
                     <div class="col-md-6 col-sm-6 col-xs-12 wow fadeInLeft" data-wow-delay="0.5s">
-                        <h3 class="title-2"><i class="fa fa-envelope"></i> Subscribe for updates</h3>
+                        <h3 class="title-2"><i class="fa fa-envelope"></i> Đăng ký nhận thông báo</h3>
                         <form id="subscribe" action="#">
-                            <p>Join our 10,000+ subscribers and get access to the latest templates, freebies,
-                                announcements and resources!</p>
+                            <p>Tham gia cùng hơn 10.000+ học viên để cập nhật những khóa học mới nhất, mã giảm giá và tài nguyên miễn phí hữu ích!</p>
                             <div class="subscribe">
-                                <input class="form-control" name="EMAIL" placeholder="Your email here" required=""
+                                <input class="form-control" name="EMAIL" placeholder="Nhập địa chỉ email của bạn..." required=""
                                        type="email">
-                                <button class="btn btn-common" type="submit">Subscribe</button>
+                                <button class="btn btn-common" type="submit">Đăng ký</button>
                             </div>
                         </form>
                     </div>
                     <div class="col-md-6 col-sm-6 col-xs-12 wow fadeInRight" data-wow-delay="1s">
-                        <h3 class="title-2"><i class="fa fa-search"></i> Popular Searches</h3>
+                        <h3 class="title-2"><i class="fa fa-search"></i> Tìm kiếm phổ biến</h3>
                         <ul class="cat-list col-sm-4">
-                            <li><a href="account-saved-search.html">puppies</a></li>
-                            <li><a href="account-saved-search.html">puppies for sale</a></li>
-                            <li><a href="account-saved-search.html">bed</a></li>
-                            <li><a href="account-saved-search.html">household</a></li>
-                            <li><a href="account-saved-search.html">chair</a></li>
-                            <li><a href="account-saved-search.html">materials</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Lập trình Web']) }}">Lập trình Web</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Python']) }}">Python cơ bản</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Laravel']) }}">Laravel Framework</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'ReactJS']) }}">ReactJS & Redux</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Node.js']) }}">Node.js Backend</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Cơ sở dữ liệu']) }}">Cơ sở dữ liệu MySQL</a></li>
                         </ul>
                         <ul class="cat-list col-sm-4">
-                            <li><a href="account-saved-search.html">sofa</a></li>
-                            <li><a href="account-saved-search.html">wanted</a></li>
-                            <li><a href="account-saved-search.html">furniture</a></li>
-                            <li><a href="account-saved-search.html">van</a></li>
-                            <li><a href="account-saved-search.html">wardrobe</a></li>
-                            <li><a href="account-saved-search.html">caravan</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Khởi nghiệp']) }}">Khởi nghiệp kinh doanh</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Tài chính']) }}">Đầu tư tài chính</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Marketing']) }}">Digital Marketing</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'SEO']) }}">SEO Website</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Giao tiếp']) }}">Kỹ năng giao tiếp</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Quản trị']) }}">Quản trị doanh nghiệp</a></li>
                         </ul>
                         <ul class="cat-list col-sm-4">
-                            <li><a href="account-saved-search.html">for sale</a></li>
-                            <li><a href="account-saved-search.html">free</a></li>
-                            <li><a href="account-saved-search.html">1 bedroom flat</a></li>
-                            <li><a href="account-saved-search.html">photo+video</a></li>
-                            <li><a href="account-saved-search.html">bmw</a></li>
-                            <li><a href="account-saved-search.html">Land </a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Thiết kế Web']) }}">Thiết kế UI/UX</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Photoshop']) }}">Photoshop & Illustrator</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Quay dựng']) }}">Quay dựng Video</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Nhiếp ảnh']) }}">Nhiếp ảnh chuyên nghiệp</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Gym']) }}">Thể hình & Sức khỏe</a></li>
+                            <li><a href="{{ route('courses.index', ['keyword' => 'Dinh dưỡng']) }}">Dinh dưỡng khoa học</a></li>
                         </ul>
                     </div>
                 </div>
@@ -379,7 +374,7 @@
                         </div>
                         <div class="desc">
                             <h3 class="counter">23453</h3>
-                            <p>Students</p>
+                            <p>Học viên</p>
                         </div>
                     </div>
                 </div>
@@ -391,8 +386,8 @@
                         </span>
                         </div>
                         <div class="desc">
-                            <h3 class="counter">4053</h3>
-                            <p>Courses</p>
+                            <h3 class="counter">{{ \App\Models\Course::where('is_accepted', 1)->count() > 0 ? \App\Models\Course::where('is_accepted', 1)->count() : 4053 }}</h3>
+                            <p>Khóa học</p>
                         </div>
                     </div>
                 </div>
@@ -405,7 +400,7 @@
                         </div>
                         <div class="desc">
                             <h3 class="counter">350</h3>
-                            <p>Instructors</p>
+                            <p>Giảng viên</p>
                         </div>
                     </div>
                 </div>
@@ -418,7 +413,7 @@
                         </div>
                         <div class="desc">
                             <h3 class="counter">12090</h3>
-                            <p>Minutes of video</p>
+                            <p>Phút bài giảng</p>
                         </div>
                     </div>
                 </div>
