@@ -35,6 +35,7 @@ class CourseController extends Controller
         $this->modelLecture = $lecture;
         $this->modelCategory = $category;
         $this->modelCourseUser = $courseUser;
+        $this->modelUser = $user;
     }
 
     public function index()

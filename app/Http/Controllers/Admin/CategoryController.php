@@ -52,6 +52,6 @@ class CategoryController extends Controller
             flash(__('something wrong'))->error();
         }
 
-        return redirect(route('admins.categories.index'));
+        return redirect(route('admin.categories.index'));
     }
 }

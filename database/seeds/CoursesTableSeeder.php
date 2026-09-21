@@ -113,9 +113,9 @@ class CoursesTableSeeder extends Seeder
 
                Course::create([
                    'title' => $value . ' - Rand Course: ' . $faker->text($maxNbChars = 50),
-                   'course_avatar' => $faker->image($dir = 'public/images/course_avatar', $width = 690, $height = 450),
-                   'course_avatar_2' => $faker->image($dir = 'public/images/course_avatar', $width = 690, $height = 450),
-                   'course_avatar_3' => $faker->image($dir = 'public/images/course_avatar', $width = 690, $height = 450),
+                   'course_avatar' => 'images/default_course_avatar/web_development_1.jpeg',
+                   'course_avatar_2' => 'images/default_course_avatar/web_development_2.png',
+                   'course_avatar_3' => 'images/default_course_avatar/web_development_3.jpg',
                    'description' => $faker->realText($maxNbChars = 200, $indexSize = 2),
                    'lecture_numbers' => rand(5, 50),
                    // duration minutes

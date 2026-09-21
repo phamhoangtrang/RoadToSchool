@@ -20,10 +20,10 @@
                 <h2 class="header-title">{{ __('information') }}</h2>
                 <div class="header-sub-title">
                     <nav class="breadcrumb breadcrumb-dash">
-                        <a href="{{ route('admins.adminDashboard') }}" class="breadcrumb-item">
+                        <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item">
                             <i class="ti-home p-r-5"></i>{{ __('admin dashboard') }}
                         </a>
-                        <a href="{{ route('admins.courses.index') }}" class="breadcrumb-item">{{ __('courses') }}</a>
+                        <a href="{{ route('admin.courses.index') }}" class="breadcrumb-item">{{ __('courses') }}</a>
                         <span class="breadcrumb-item active">{{ $course->title }}</span>
                     </nav>
                 </div>
@@ -33,7 +33,7 @@
                     <h4 class="card-title">{{ $course->title }}</h4>
                 </div>
                 <div class="card-body">
-                    {{ Form::model($course, ['route' => ['admins.courses.update', $course->id], 'method' => 'put', 'class' => 'm-t-15']) }}
+                    {{ Form::model($course, ['route' => ['admin.courses.update', $course->id], 'method' => 'put', 'class' => 'm-t-15']) }}
                     <div class="row m-t-30">
                         <div class="col-md-4">
                             <div class="p-h-10">
@@ -48,7 +48,7 @@
                             <div class="p-h-10">
                                 <div class="form-group">
                                     {{ Form::label('user', __('created by'), ['class' => 'control-label']) }}
-                                    <a href="{{ route('admins.users.show', $course->user->id) }}"
+                                    <a href="{{ route('admin.users.show', $course->user->id) }}"
                                        class="form-control">{{ $course->user->name }}</a>
                                 </div>
                             </div>
@@ -194,7 +194,7 @@
                                 <tr id="person{{ $person->id }}">
                                     <td>{{ $person->id }}</td>
                                     <td>
-                                        <a href="{{ route('admins.users.show', $person->id) }}">{{ $person->name }}</a>
+                                        <a href="{{ route('admin.users.show', $person->id) }}">{{ $person->name }}</a>
                                     </td>
                                     <td>{{ \App\Models\User::$roles[$person->role] }}</td>
                                 </tr>

@@ -14,6 +14,7 @@
 Route::get('/', 'HomeController@index')->middleware(['locale']);
 
 Auth::routes(['verify' => true]);
+Route::get('email/resend', 'Auth\VerificationController@resend')->middleware(['auth', 'throttle:6,1']);
 
 Route::get('/home', 'HomeController@index')->middleware(['locale'])->name('home');
 
@@ -64,7 +65,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'mi
     Route::get('/users/create_instructor', 'UserController@createNewInstructor')->name('users.create_instructor');
     Route::resource('users', 'UserController')->except('create', 'store', 'update');
     Route::post('users/{id}/updateUser', 'UserController@updateUser')->name('users.update');
-    Route::resource('specializes', 'SpecializeController')->except('create', 'show');
+    // Route::resource('specializes', 'SpecializeController')->except('create', 'show');
     Route::resource('categories', 'CategoryController')->except('create');
     Route::resource('courses', 'CourseController')->except('create', 'store');
     Route::post('courses/{id}/active', 'CourseController@acceptCourse')->name('active-course');

@@ -55,6 +55,9 @@ class Bill extends Model
         if (\Auth::check()) {
             $data['user_id'] = Auth::user()->id;
         }
+        if (empty($data['total_amount']) && isset($data['price']) && is_array($data['price'])) {
+            $data['total_amount'] = array_sum($data['price']);
+        }
 
         $createBillResult = Bill::create($data);
         if (!$createBillResult) {

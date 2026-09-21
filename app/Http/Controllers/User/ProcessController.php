@@ -23,27 +23,21 @@ class ProcessController extends Controller
 
     public function changeProcessStatus(Request $request, $lectureId, $userId)
     {
-        $selectedProcess = $this->modelProcess->where('lecture_id', $lectureId)->where('user_id', $userId)->first();
+        $selectedProcess = $this->modelProcess->firstOrCreate(
+            ['lecture_id' => $lectureId, 'user_id' => $userId],
+            ['status' => 1]
+        );
         if ($selectedProcess->status == 0) {
-            $selectedProcess->update(
-                [
-                    'status' => 1,
-                ]
-            );
+            $selectedProcess->update(['status' => 1]);
         }
 
         $inCourseId = $this->modelLecture->findOrFail($lectureId)->course->id;
-        $lastLecture = $this->modelCourse->findOrFail($inCourseId)->lectures->last()->id;
-        $responseData['isLastLecture'] = 0;
-        if ($lectureId == $lastLecture) {
-            $responseData['isLastLecture'] = 1;
-        }
-        $responseData['nextLecture'] = $this->modelLecture->findOrFail($lectureId + 1);
+        $courseLectures = $this->modelCourse->findOrFail($inCourseId)->lectures()->where('is_accepted', 1)->orderBy('week')->orderBy('index')->get();
+        $lastLectureId = $courseLectures->last()?->id;
+        $responseData['isLastLecture'] = ($lectureId == $lastLectureId) ? 1 : 0;
+        $responseData['nextLecture'] = $this->modelLecture->find($lectureId + 1);
         $responseData['inCourseId'] = $inCourseId;
 
-//        $currentLectureId = $lectureId + 1;
-//        if($lectureId)
-//
-        return json_encode($responseData);
+        return response()->json($responseData);
     }
 }

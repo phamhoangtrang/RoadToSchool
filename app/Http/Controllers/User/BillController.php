@@ -14,7 +14,7 @@ class BillController extends Controller
      * The user model instance.
      */
     protected $modelBill;
-    protected $cartItem;
+    protected $modelCartItem;
 
     /**
      * Create a new controller instance.
@@ -47,15 +47,37 @@ class BillController extends Controller
 
     public function postCheckout(Request $request)
     {
-        if (!$request->course_id) {
-            abort(404);  //404 page
-        }
+        $request->validate([
+            'customer_name' => 'required|string|max:191',
+            'customer_email' => 'required|email|max:191',
+            'customer_phone' => 'required|string|max:191',
+            'customer_address' => 'required|string|max:191',
+            'course_id' => 'required|array|min:1',
+            'price' => 'required|array|min:1',
+        ]);
+
         $data = $request->all();
+
+        // Also update user profile with phone and address if empty
+        $user = Auth::user();
+        if ($user) {
+            $userUpdates = [];
+            if (empty($user->phone) && !empty($data['customer_phone'])) {
+                $userUpdates['phone'] = $data['customer_phone'];
+            }
+            if (empty($user->address) && !empty($data['customer_address'])) {
+                $userUpdates['address'] = $data['customer_address'];
+            }
+            if (!empty($userUpdates)) {
+                $user->update($userUpdates);
+            }
+        }
+
         $result = $this->modelBill->addBill($data);
 
-        CartItem::where('cart_item_type', CartItem::IN_CART_TYPE)->delete();
+        CartItem::where('user_id', Auth::id())->where('cart_item_type', CartItem::IN_CART_TYPE)->delete();
         if (!$result) {
-            abort(404);  //404 page
+            return redirect()->back()->with('error', 'Checkout failed, please try again.');
         }
 
         return view('user.cart_items.checkout_success');

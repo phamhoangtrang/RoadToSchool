@@ -67,11 +67,22 @@ class LectureController extends Controller
                 'allQuestion'
             ));
         } else {
-            $link = Lecture::find($lectureId)->video_link;
-            $description = Lecture::find($lectureId)->description;
-            $teacher = Course::find($id)->user;
-            $embed = Embed::create($link);
-            $lectures = Course::find($id)->lectures()->where('is_accepted', 1)->get();
+            $currentLecture = $this->modelLecture->findOrFail($lectureId);
+            $link = $currentLecture->video_link;
+            $description = $currentLecture->description;
+            $course = Course::findOrFail($id);
+            $teacher = $course->user;
+            $lectures = $this->modelLecture->where('course_id', $id)->where('is_accepted', 1)->orderBy('week')->orderBy('index')->get();
+            try {
+                $embedObj = (new \Embed\Embed())->get($link);
+                $embed = (object)[
+                    'code' => $embedObj->code ? (string)$embedObj->code : ''
+                ];
+            } catch (\Throwable $e) {
+                $embed = (object)[
+                    'code' => '<iframe src="' . e($link) . '" frameborder="0" allowfullscreen></iframe>'
+                ];
+            }
             $lectureComments = $this->modelLectureComment->where('lecture_id', $lectureId)->get();
 
             // Get lecture follow week and index
@@ -86,26 +97,22 @@ class LectureController extends Controller
             for ($i = 0; $i < $maxWeek; $i++) {
                 $result = $this->modelLecture->where('course_id', $id)->where('is_accepted', 1)->where('week', ($i + 1))->orderBy('index')->get();
                 if (!(\Auth::user()->is_admin || \Auth::user()->role == 1)) {
-                    foreach ($result as $lecture) {
-                        $lecture->status = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first()->status;
+                    foreach ($result as $lec) {
+                        $p = $this->modelProcess->where('lecture_id', $lec->id)->where('user_id', \Auth::user()->id)->first();
+                        $lec->status = $p ? $p->status : 0;
                     }
                 }
                 $lectureOutline[$i] = $result;
-
             }
-            // dd($lectureOutline);
 
-            // if (!(\Auth::user()->is_admin || \Auth::user()->role == 1)) {
-            // Get process
             $allLectureCount = $lectures->count();
             $learnedLectureCount = 0;
-            foreach ($lectures as $lecture) {
-                $learnStatus = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first()->status;
-                if ($learnStatus) {
+            foreach ($lectures as $lec) {
+                $proc = $this->modelProcess->where('lecture_id', $lec->id)->where('user_id', \Auth::user()->id)->first();
+                if ($proc && $proc->status) {
                     $learnedLectureCount++;
                 }
             }
-            // }
 
             // Get all discussions in lecture
             $discussionsList = $this->modelDiscussion->where('lecture_id', $lectureId)->orderBy('created_at')->get();

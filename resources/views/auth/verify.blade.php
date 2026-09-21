@@ -48,8 +48,13 @@
                             @endif
                             <div class="text-center">
                                 {{ __('Before proceeding, please check your email for a verification link.') }}
-                                {{ __('If you did not receive the email') }}, <a
-                                        href="{{ route('verification.resend') }}">{{ __('click here to request another') }}</a>.
+                                {{ __('If you did not receive the email') }},
+                                <form class="d-inline" method="POST" action="{{ route('verification.resend') }}" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-link p-0 m-0 align-baseline" style="color: #fff; text-decoration: underline; background: none; border: none; padding: 0; font-weight: bold; cursor: pointer;">
+                                        {{ __('click here to request another') }}
+                                    </button>.
+                                </form>
                             </div>
                         </div>
                     </div>

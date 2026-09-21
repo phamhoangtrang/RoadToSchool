@@ -26,7 +26,7 @@ class EditLikeFromCoursesTable extends Migration
     public function down()
     {
         Schema::table('courses', function (Blueprint $table) {
-            $table->integer('like') > after('seller')->change();
+            $table->integer('like')->after('seller')->change();
         });
     }
 }

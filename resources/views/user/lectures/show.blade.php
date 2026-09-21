@@ -11,18 +11,21 @@
                 <div class="col-md-8">
                     <h2 class="title-2">
                         <strong> {{ __('titles.lecture') . ': ' . \App\Models\Lecture::findOrFail($lectureId)->title }} </strong>
-                        @if(!(\Auth::user()->is_admin || \Auth::user()->role == 1))
+                        @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
                             <b style="float: right; padding-right: 30px;">Your
                                 progress: {{ $learnedLectureCount }}/{{ $allLectureCount }}</b>
                         @endif
                     </h2>
                     <div class="progress" style="height: 20px">
-                        @if(!(\Auth::user()->is_admin || \Auth::user()->role == 1))
+                        @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
+                            @php
+                                $percent = $allLectureCount > 0 ? round(($learnedLectureCount / $allLectureCount) * 100, 2) : 0;
+                            @endphp
                             <div class="progress-bar progress-bar-info" role="progressbar"
-                                 aria-valuenow="{{ $learnedLectureCount/$allLectureCount*100 }}"
+                                 aria-valuenow="{{ $percent }}"
                                  aria-valuemin="0" aria-valuemax="100"
-                                 style="width:{{ $learnedLectureCount/$allLectureCount*100 }}%">
-                                {{ round($learnedLectureCount/$allLectureCount*100, 2) }}%
+                                 style="width:{{ $percent }}%">
+                                {{ $percent }}%
                             </div>
                         @endif
                     </div>
@@ -30,7 +33,7 @@
                     @if (\App\Models\Lecture::find($lectureId + 1))
                     <div id="timer" style="display: none;">
                         <p class="text-center" style="font-weight: bold">Redirect to next lecture
-                            <i>{{ \App\Models\Lecture::findOrFirst($lectureId + 1)->title }}</i> in <span
+                            <i>{{ \App\Models\Lecture::find($lectureId + 1)?->title }}</i> in <span
                                     id="timer-text"></span>s</p>
                     </div>
                     @endif

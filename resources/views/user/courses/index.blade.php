@@ -15,7 +15,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <h3 class="section-title">Browse {{ $courses->total() }} Courses</h3>
+                    <h3 class="section-title">Danh sách {{ $courses->total() }} khóa học</h3>
                 </div>
                 <div class="col-sm-12 page-content">
                     <div class="product-filter">
@@ -41,7 +41,7 @@
                                                     href="{{ route('courses.show', $selectedCourse->id) }}"> {{ $selectedCourse->title }} </a>
                                         </h5>
                                         <div class="info">
-                                            {{ __('titles.category') . ': ' . $selectedCourse->category->title }}
+                                            {{ __('titles.category') . ': ' . ($selectedCourse->category ? ($selectedCourse->category->vi_title ?: $selectedCourse->category->title) : '') }}
                                             <br>
                                             {{ __('titles.rate') }} &emsp;
                                             @for ($temp = 0; $temp < $selectedCourse->course_rate; $temp++)
@@ -51,12 +51,11 @@
                                             <span class="category"> {{ __('titles.level') . $selectedCourse->level }}  </span>
                                             -
                                             <span class="item-location"><i class="fa fa-map-book"></i> {{ $selectedCourse->lecture_numbers . ' ' . __('titles.lectures') . ' ' . __('titles.in') . ' ' . $selectedCourse->duration . ' ' . __('titles.hours') }} </span>
-                                            <h3 class="price">@if($selectedCourse->promotion_price !== $selectedCourse->origin_price)
+                                            <h3 class="price">@if(isset($selectedCourse->promotion_price) && $selectedCourse->promotion_price < $selectedCourse->origin_price)
                                                     <b
-                                                            style="color:red">{{ $selectedCourse->promotion_price }}
-                                                        $ </b><strike> {{ $selectedCourse->origin_price }}
-                                                        $</strike>@else {{ $selectedCourse->origin_price }}
-                                                    $@endif</h3>
+                                                            style="color:red">{{ format_price($selectedCourse->promotion_price) }}
+                                                    </b><strike> {{ format_price($selectedCourse->origin_price) }}</strike>@else {{ format_price($selectedCourse->origin_price) }}
+                                                    @endif</h3>
                                         </div>
                                     </div>
                                 </div>

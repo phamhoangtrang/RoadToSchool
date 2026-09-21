@@ -17,8 +17,7 @@
                         <div class="alert alert-success alert-lg" role="alert">
                             <h2 class="postin-title">✔ {{ __('messages.order_successfully') }}</h2>
                             <p>{{ __('messages.will_contact') }}</p>
-                            <p>{{ __('messages.back_to_home_p1') }}<a href="{{route('home')}} "><strong>home
-                                        page</strong></a>{{ __('messages.back_to_home_p2') }}</p>
+                            <p>{{ __('messages.back_to_home_p1') }}<a href="{{route('home')}} "><strong>trang chủ</strong></a>{{ __('messages.back_to_home_p2') }}</p>
                         </div>
                     </div>
                 </div>

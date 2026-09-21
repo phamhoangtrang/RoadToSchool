@@ -29,11 +29,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'avatar',
         'address',
+        'phone',
+        'birthday',
+        'personal_info',
+        'working_place',
         'role',
         'is_admin',
         'grade',
         'instructor_rate',
-        'working_place'
+        'email_verified_at',
+        'last_login',
     ];
 
     const GRADE_0 = 0;
@@ -92,6 +97,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function permission_users()
     {
         return $this->hasMany('App\Models\PermissionUser');
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany('App\Models\Permission', 'permission_user', 'user_id', 'permission_id');
     }
 
     public function comments()

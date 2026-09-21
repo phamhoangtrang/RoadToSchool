@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Models\Permission;
 use App\Models\PermissionUser;
-use Route;
+use Illuminate\Support\Facades\Route;
 
 class CheckPermissionToAccessPage
 {
@@ -18,6 +18,16 @@ class CheckPermissionToAccessPage
      */
     public function handle($request, Closure $next)
     {
+        $user = $request->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Super admin has all access
+        if ($user->is_admin == 1) {
+            return $next($request);
+        }
+
         $permissionDefine = [
             'admin.dashboard' => 'Access admin dashboard',
             'admin.bills.index' => 'Show all bill',
@@ -44,20 +54,23 @@ class CheckPermissionToAccessPage
             'instructor.courses.lectures.store' => 'Create a lecture in course',
             'instructor.courses.create' => 'Create a course',
             'instructor.courses.store' => 'Create a course',
-            'admin.active-course' => 'Active a course'
         ];
 
-        foreach ($permissionDefine as $key => $value) {
-            $permissionId = Permission::where('content', $value)->first()['id'];
-            $permissionDefine[$key] = $permissionId;
-        }
-
         $routeName = Route::currentRouteName();
-        $requestPermissionId = $permissionDefine[$routeName];
-        $availablePermission = PermissionUser::where('user_id', $request->user()->id)->pluck('permission_id')->toArray();
 
-        if (!in_array($requestPermissionId, $availablePermission)) {
-            return abort(403, "Sorry ! No permissions here");
+        if (isset($permissionDefine[$routeName])) {
+            $permissionContent = $permissionDefine[$routeName];
+            $permission = Permission::where('content', $permissionContent)->first();
+
+            if ($permission) {
+                $hasPermission = PermissionUser::where('user_id', $user->id)
+                    ->where('permission_id', $permission->id)
+                    ->exists();
+
+                if (!$hasPermission) {
+                    return abort(403, "Sorry ! No permissions here");
+                }
+            }
         }
 
         return $next($request);

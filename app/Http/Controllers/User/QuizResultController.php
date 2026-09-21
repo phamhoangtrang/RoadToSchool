@@ -38,10 +38,10 @@ class QuizResultController extends Controller
         $rightAnswer = 0;
 
         foreach ($quizElementArray as $quizElement) {
-            $selected = $this->modelQuizElementQuizResult
-                ->where('quiz_element_id', $quizElement->id)
-                ->where('quiz_result_id', $quizResultId)
-                ->first();
+            $selected = $this->modelQuizElementQuizResult->firstOrCreate([
+                'quiz_element_id' => $quizElement->id,
+                'quiz_result_id' => $quizResultId,
+            ]);
 
             $answerList = $this->modelQuizElement
                 ->where('is_answer', 1)
@@ -59,10 +59,11 @@ class QuizResultController extends Controller
 
             if ($quizElement->is_multiple_choice == 0) {
                 $key = $this->modelQuizElement->where('lecture_id', $quizResult->lecture_id)
+                    ->where('question_parent_id', $quizElement->id)
                     ->where('is_answer', 1)
                     ->where('is_right_answer', 1)
                     ->first();
-                if (array_key_exists('answer-' . $key->id, $data)) {
+                if ($key && array_key_exists('answer-' . $key->id, $data)) {
                     $rightAnswer++;
                 }
             } else if ($quizElement->is_multiple_choice == 1) {

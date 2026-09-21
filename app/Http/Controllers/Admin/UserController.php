@@ -14,7 +14,7 @@ class UserController extends Controller
     /**
      * The user repository instance.
      */
-    protected $user;
+    protected $modelUser;
 
     /**
      * Create a new controller instance.
@@ -34,7 +34,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all()->where('isAdmin', 0);
+        $users = User::all();
 
         return view('admin.users.index', compact('users'));
     }
@@ -69,22 +69,13 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
-
-        $specializes = $this->modelUser->findSpecializesFollowUser($id);
-
-        if ($specializes->count() > 0) {
-            foreach ($specializes as $specialize) {
-                $specializesNameArray[] = $specialize->name;
-            }
-
-            $specializesName = implode(', ', $specializesNameArray);
-        } else {
-            $specializesName = 'None';
-        }
+        $specializesName = 'None';
 
         $countStudent = 0;
-        foreach ($user->courses as $course) {
-            $countStudent += $course->users->count();
+        if ($user->courses) {
+            foreach ($user->courses as $course) {
+                $countStudent += $course->users ? $course->users->count() : 0;
+            }
         }
 
         return view('admin.users.show', compact('user', 'countStudent', 'specializesName'));
@@ -131,7 +122,7 @@ class UserController extends Controller
             flash(__('something wrong'))->error();
         }
 
-        return redirect(route('admins.users.index'));
+        return redirect(route('admin.users.index'));
     }
 
     public function getInstructorRanking()

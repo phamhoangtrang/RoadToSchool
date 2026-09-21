@@ -67,6 +67,7 @@ class CourseController extends Controller
     {
         $params = $request->all();
         $courses = $this->modelCourse->getAllCourse($params);
+        $categoryId = null;
         if (isset($params['sub_category_id']) && $params['sub_category_id']) {
             $categoryId = $request->sub_category_id;
         }
@@ -115,8 +116,8 @@ class CourseController extends Controller
         $learnedLectureCount = 0;
         if ($availableCourse) {
             foreach ($allLectures as $lecture) {
-                $learnStatus = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first()->status;
-                if ($learnStatus) {
+                $process = $this->modelProcess->where('lecture_id', $lecture->id)->where('user_id', \Auth::user()->id)->first();
+                if ($process && $process->status) {
                     $learnedLectureCount++;
                 }
             }
@@ -281,16 +282,20 @@ class CourseController extends Controller
     {
         $courseIdList = $this->modelCourseUser->where('user_id', $userId)->pluck('course_id')->toArray();
         $courseList = $this->modelCourse->whereIn('id', $courseIdList)->get();
-        foreach($courseList as $course) {
-            $processList = \App\Models\Process::whereIn('lecture_id', $course->lectures()->pluck('id')->toArray())->where('user_id', \Auth::user()->id);
-            $learnedLectureCount = $processList->where('status', 1)->count();
-            $allLectureCount = \App\Models\Process::whereIn('lecture_id', $course->lectures()->pluck('id')->toArray())->where('user_id', \Auth::user()->id)->count();
-            if($allLectureCount == 0) {
+        foreach ($courseList as $course) {
+            $lectureIds = $course->lectures()->where('is_accepted', 1)->pluck('id')->toArray();
+            $allLectureCount = count($lectureIds);
+
+            if ($allLectureCount == 0) {
                 $course->process = 0;
                 $course->learnedCount = 0;
                 $course->totalLecture = 0;
             } else {
-                $course->process = round($learnedLectureCount/$allLectureCount*100, 2);
+                $learnedLectureCount = \App\Models\Process::whereIn('lecture_id', $lectureIds)
+                    ->where('user_id', $userId)
+                    ->where('status', 1)
+                    ->count();
+                $course->process = round(($learnedLectureCount / $allLectureCount) * 100, 2);
                 $course->learnedCount = $learnedLectureCount;
                 $course->totalLecture = $allLectureCount;
             }

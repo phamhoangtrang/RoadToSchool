@@ -61,11 +61,27 @@ class LectureController extends Controller
     {
         $data = $request->all();
 
-        $embedUrl = Embed::create($data['url']);
-        $youtubeTimeFormat = $embedUrl->getProviders()['html']->getBag()->getAll()['duration'];
-        $responseData['duration'] = self::covtime($youtubeTimeFormat);
-        $responseData['title'] = $embedUrl->title;
-        $responseData['description'] = $embedUrl->description;
+        $responseData = [
+            'duration' => '00:00:00',
+            'title' => '',
+            'description' => ''
+        ];
+
+        try {
+            $embed = new \Embed\Embed();
+            $embedUrl = $embed->get($data['url']);
+            $responseData['title'] = (string)$embedUrl->title;
+            $responseData['description'] = (string)$embedUrl->description;
+            $oembed = $embedUrl->getOEmbed();
+            if ($oembed) {
+                $all = $oembed->all();
+                if (!empty($all['duration'])) {
+                    $responseData['duration'] = self::covtime((string)$all['duration']);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fallback
+        }
 
         return json_encode($responseData);
     }
@@ -92,7 +108,7 @@ class LectureController extends Controller
                 // At last
                 $data['index'] = 0;
                 $data['is_accepted'] = 0;
-                $data['week'] = $data['week']++;
+                $data['week'] = intval($data['week']) + 1;
                 $data['course_id'] = $courseId;
                 $data['is_lecture'] = 1;
                 $data['is_quiz'] = 0;
@@ -100,7 +116,7 @@ class LectureController extends Controller
                 $result = $this->modelLecture->create($data);
             } else {
                 $previousLecture = $this->modelLecture->findOrFail($data['positionValue']);
-                $data['index'] = $previousLecture->index++;
+                $data['index'] = intval($previousLecture->index) + 1;
                 $data['is_accepted'] = 0;
                 $data['week'] = $previousLecture->week;
                 $data['course_id'] = $courseId;
@@ -125,16 +141,12 @@ class LectureController extends Controller
                 $data['course_id'] = $courseId;
                 $data['is_lecture'] = 0;
                 $data['is_quiz'] = 1;
-//            $lectureWeek1List = $this->modelLecture->where('course_id', $courseId)->where('week', 1)->get();
-//            foreach($lectureWeek1List as $lecture) {
-//                $lecture->update(['index' => ($lecture->index++)]);
-//            }
                 $createdLecture = $this->modelLecture->create($data);
             } else if ($data['quizPositionValue'] == -1) {
                 // At last
                 $data['index'] = 0;
                 $data['is_accepted'] = 0;
-                $data['week'] = $data['week']++;
+                $data['week'] = intval($data['week']) + 1;
                 $data['course_id'] = $courseId;
                 $data['is_lecture'] = 0;
                 $data['is_quiz'] = 1;
@@ -142,7 +154,7 @@ class LectureController extends Controller
                 $createdLecture = $this->modelLecture->create($data);
             } else {
                 $previousLecture = $this->modelLecture->findOrFail($data['quizPositionValue']);
-                $data['index'] = $previousLecture->index++;
+                $data['index'] = intval($previousLecture->index) + 1;
                 $data['is_accepted'] = 0;
                 $data['week'] = $previousLecture->week;
                 $data['course_id'] = $courseId;

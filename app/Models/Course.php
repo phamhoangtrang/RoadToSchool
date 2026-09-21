@@ -103,7 +103,7 @@ class Course extends Model
             $builder->where('user_id', $params['user_id']);
         }
 
-        return $builder->paginate(8)->appends(request()->except('page'));
+        return $builder->paginate(8)->withQueryString();
     }
 
     public function findCourse($id)

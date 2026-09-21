@@ -6,8 +6,11 @@
  * Time: 11:15
  */
 
+use Diglactic\Breadcrumbs\Breadcrumbs;
+use Diglactic\Breadcrumbs\Generator as Trail;
+
 // Home
-Breadcrumbs::for('home', function ($trail) {
+Breadcrumbs::for('home', function (Trail $trail) {
     $trail->push('Home', route('home'));
 });
 

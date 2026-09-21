@@ -50,39 +50,54 @@ class BillController extends Controller
 
     public function updateStatus(Request $requestAjax)
     {
-        $currentStatusId = Bill::findOrFail($requestAjax->billId)->status;
-        $courseIdList = BillCourse::where('bill_id', $requestAjax->billId)->pluck('course_id');
-        Bill::find($requestAjax->billId)->update(['status' => $requestAjax->statusId]);
-        $userId = Bill::find($requestAjax->billId)->user_id;
+        $bill = Bill::findOrFail($requestAjax->billId);
+        $oldStatus = $bill->status;
+        $newStatus = (int)$requestAjax->statusId;
+        $userId = $bill->user_id;
 
-        // if course is already activated
-        if ($currentStatusId == Bill::ACTIVATED) {
+        $bill->update(['status' => $newStatus]);
+        $courseIdList = BillCourse::where('bill_id', $bill->id)->pluck('course_id');
+
+        $isOldActive = in_array($oldStatus, [Bill::ALREADY_PAID, Bill::ACTIVATED]);
+        $isNewActive = in_array($newStatus, [Bill::ALREADY_PAID, Bill::ACTIVATED]);
+
+        if (!$isOldActive && $isNewActive && $userId) {
+            // Activate courses for student
             foreach ($courseIdList as $courseId) {
-                $checkExistCourseUser = $this->modelCourseUser->where('course_id', $courseId)->where('user_id', $userId)->orderBy('updated_at', 'desc')->first();
-                if ($checkExistCourseUser) {
-                    $checkExistCourseUser->delete();
+                $checkExist = $this->modelCourseUser->where('course_id', $courseId)->where('user_id', $userId)->first();
+                if (!$checkExist) {
+                    $this->modelCourseUser->create(['user_id' => $userId, 'course_id' => $courseId]);
+                    $course = $this->modelCourse->find($courseId);
+                    if ($course) {
+                        $course->update(['seller' => $course->seller + 1]);
+                        // Generate process progress for all accepted lectures
+                        $allLectures = $course->lectures()->where('is_accepted', 1)->get();
+                        foreach ($allLectures as $lecture) {
+                            $this->modelProcess->firstOrCreate([
+                                'lecture_id' => $lecture->id,
+                                'user_id' => $userId,
+                            ], [
+                                'status' => 0,
+                            ]);
+                        }
+                    }
                 }
-                $currentCourse = $this->modelCourse->findOrFail($courseId);
-                $currentCourse->update(['seller' => $currentCourse->seller - 1]);
+            }
+        } elseif ($isOldActive && !$isNewActive && $userId) {
+            // Deactivate courses if cancelled or pending
+            foreach ($courseIdList as $courseId) {
+                $checkExist = $this->modelCourseUser->where('course_id', $courseId)->where('user_id', $userId)->first();
+                if ($checkExist) {
+                    $checkExist->delete();
+                    $course = $this->modelCourse->find($courseId);
+                    if ($course && $course->seller > 0) {
+                        $course->update(['seller' => $course->seller - 1]);
+                    }
+                }
             }
         }
-        // if course request is activate
-        if ($requestAjax->statusId == Bill::ACTIVATED && $userId) {
-            foreach ($courseIdList as $courseId) {
-                $this->modelCourseUser->create(['user_id' => $userId, 'course_id' => $courseId]);
-                $currentCourse = $this->modelCourse->findOrFail($courseId);
-                $currentCourse->update(['seller' => $currentCourse->seller + 1]);
 
-
-                // Generate data in progress
-                $allLecture = $this->modelCourse->findOrFail($courseId)->lectures()->where('is_accepted', 1)->get();
-                foreach($allLecture as $lecture) {
-                    $this->modelProcess->create(['status' => 0, 'lecture_id' => $lecture->id, 'user_id' => $userId]);
-                }
-            }
-        }
-
-        return json_encode($courseIdList);
+        return response()->json($courseIdList);
     }
 
     public function show($id)

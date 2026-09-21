@@ -139,21 +139,24 @@
                         <div class="box">
                             <h2 class="title-2" id="course-{{ $selectedCourse->id }}-outline">
                                 <strong> {{ __('titles.all_lectures') }} </strong>
-                                @if(!(\Auth::user()->is_admin || \Auth::user()->role == 1))
+                                @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
                                     @if($availableCourse)
                                         <b style="float: right; padding-right: 30px;">Your
                                             progress: {{ $learnedLectureCount }}/{{ $allLectureCount }}</b>
                                     @endif
                                 @endif
                             </h2>
-                            @if(!(\Auth::user()->is_admin || \Auth::user()->role == 1))
+                            @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
                                 @if($availableCourse)
+                                    @php
+                                        $percent = $allLectureCount > 0 ? round(($learnedLectureCount / $allLectureCount) * 100, 2) : 0;
+                                    @endphp
                                     <div class="progress" style="height: 20px">
                                         <div class="progress-bar progress-bar-info" role="progressbar"
-                                             aria-valuenow="{{ $learnedLectureCount/$allLectureCount*100 }}"
+                                             aria-valuenow="{{ $percent }}"
                                              aria-valuemin="0" aria-valuemax="100"
-                                             style="width:{{ $learnedLectureCount/$allLectureCount*100 }}%">
-                                            {{ round($learnedLectureCount/$allLectureCount*100, 2) }}%
+                                             style="width:{{ $percent }}%">
+                                            {{ $percent }}%
                                         </div>
                                     </div>
                                 @endif

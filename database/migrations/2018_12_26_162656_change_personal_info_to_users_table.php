@@ -14,7 +14,7 @@ class ChangePersonalInfoToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->longText('personal_info', 50000)->change();
+            $table->longText('personal_info')->nullable()->change();
         });
     }
 
@@ -26,7 +26,7 @@ class ChangePersonalInfoToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('personal_info')->change();
+            $table->string('personal_info')->nullable()->change();
         });
     }
 }

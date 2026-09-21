@@ -72,12 +72,11 @@
                                 </td>
                                 <td class="price-td">
                                     <strong>
-                                        @if(isset($courseRelation->course->promotion_price))
-                                            <p><b style="color:red">{{ $courseRelation->course->promotion_price }}
-                                                    $ </b><br><strike> {{ $courseRelation->course->origin_price }}
-                                                    $</strike></p>
+                                        @if(isset($courseRelation->course->promotion_price) && $courseRelation->course->promotion_price < $courseRelation->course->origin_price)
+                                            <p><b style="color:red">{{ format_price($courseRelation->course->promotion_price) }}
+                                                    </b><br><strike> {{ format_price($courseRelation->course->origin_price) }}</strike></p>
                                         @else
-                                            <b>{{ $courseRelation->course->origin_price }}$</b>
+                                            <b>{{ format_price($courseRelation->course->origin_price) }}</b>
                                         @endif
                                     </strong>
                                 </td>
@@ -103,12 +102,12 @@
                 <div class="col-sm-3">
                     <h3> {{ __('titles.total') }}:</h3>
                     @if($totalOriginPriceInCart !== $totalPromotionPriceInCart)
-                        <h2 style="color:red"> {{ $totalPromotionPriceInCart }}$ </h2>
-                        <h3><strike> {{ $totalOriginPriceInCart }}$ </strike></h3>
+                        <h2 style="color:red"> {{ format_price($totalPromotionPriceInCart) }} </h2>
+                        <h3><strike> {{ format_price($totalOriginPriceInCart) }} </strike></h3>
                         <h4> @if($totalOriginPriceInCart !== 0) {{ number_format((float)(1 - $totalPromotionPriceInCart/$totalOriginPriceInCart)*100, 2, '.', '') }} @else
                                 0 @endif % {{ __('titles.off') }}</h4>
                     @else
-                        <h3>{{ $totalOriginPriceInCart }}$</h3>
+                        <h3>{{ format_price($totalOriginPriceInCart) }}</h3>
                     @endif
                 </div>
                 <div class="col-sm-5">
@@ -200,12 +199,11 @@
                                 </td>
                                 <td class="price-td">
                                     <strong>
-                                        @if(isset($courseRelation->course->promotion_price))
-                                            <p><b style="color:red">{{ $courseRelation->course->promotion_price }}
-                                                    $ </b><br><strike> {{ $courseRelation->course->origin_price }}
-                                                    $</strike></p>
+                                        @if(isset($courseRelation->course->promotion_price) && $courseRelation->course->promotion_price < $courseRelation->course->origin_price)
+                                            <p><b style="color:red">{{ format_price($courseRelation->course->promotion_price) }}
+                                                    </b><br><strike> {{ format_price($courseRelation->course->origin_price) }}</strike></p>
                                         @else
-                                            <b>{{ $courseRelation->course->origin_price }}$</b>
+                                            <b>{{ format_price($courseRelation->course->origin_price) }}</b>
                                         @endif
                                     </strong>
                                 </td>
@@ -297,12 +295,11 @@
                                 </td>
                                 <td class="price-td">
                                     <strong>
-                                        @if(isset($courseRelation->course->promotion_price))
-                                            <p><b style="color:red">{{ $courseRelation->course->promotion_price }}
-                                                    $ </b><br><strike> {{ $courseRelation->course->origin_price }}
-                                                    $</strike></p>
+                                        @if(isset($courseRelation->course->promotion_price) && $courseRelation->course->promotion_price < $courseRelation->course->origin_price)
+                                            <p><b style="color:red">{{ format_price($courseRelation->course->promotion_price) }}
+                                                    </b><br><strike> {{ format_price($courseRelation->course->origin_price) }}</strike></p>
                                         @else
-                                            <b>{{ $courseRelation->course->origin_price }}$</b>
+                                            <b>{{ format_price($courseRelation->course->origin_price) }}</b>
                                         @endif
                                     </strong>
                                 </td>

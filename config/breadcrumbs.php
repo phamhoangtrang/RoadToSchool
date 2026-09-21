@@ -10,6 +10,7 @@ return [
     | Choose a view to display when Breadcrumbs::render() is called.
     | Built in templates are:
     |
+    | - 'breadcrumbs::bootstrap5'  - Bootstrap 5
     | - 'breadcrumbs::bootstrap4'  - Bootstrap 4
     | - 'breadcrumbs::bootstrap3'  - Bootstrap 3
     | - 'breadcrumbs::bootstrap2'  - Bootstrap 2
@@ -23,7 +24,7 @@ return [
     |
     */
 
-    'view' => 'breadcrumbs::bootstrap3',
+    'view' => 'breadcrumbs::bootstrap4',
 
     /*
     |--------------------------------------------------------------------------
@@ -67,9 +68,9 @@ return [
     */
 
     // Manager
-    'manager-class' => DaveJamesMiller\Breadcrumbs\BreadcrumbsManager::class,
+    'manager-class' => Diglactic\Breadcrumbs\Manager::class,
 
     // Generator
-    'generator-class' => DaveJamesMiller\Breadcrumbs\BreadcrumbsGenerator::class,
+    'generator-class' => Diglactic\Breadcrumbs\Generator::class,
 
 ];

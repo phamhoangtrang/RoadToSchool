@@ -23,6 +23,9 @@ class NotificationController extends Controller
     {
         $result = Notification::findOrFail($id)->update(['status' => Notification::SEEN]);
         $data = $request->all();
+        $parentCommentId = null;
+        $typeComment = null;
+        $lectureInCourseId = '';
         if (Arr::exists($data, 'courseId')) {
             $parentCommentId = Comment::findOrFail($data['commentId'])->parent_comment;
             $typeComment = 'course';
@@ -35,7 +38,7 @@ class NotificationController extends Controller
         if ($parentCommentId) {
             $data['parentCommentId'] = $parentCommentId;
         }
-        $data['$typeComment'] = $typeComment;
+        $data['typeComment'] = $typeComment;
         $data['lectureInCourseId'] = $lectureInCourseId;
 
         if ($result) {

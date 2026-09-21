@@ -14,7 +14,7 @@ class ChangeRoleToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->smallInteger('role')->tinyInteger('role')->nullable()->change();
+            $table->tinyInteger('role')->nullable()->change();
         });
     }
 
@@ -26,7 +26,7 @@ class ChangeRoleToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->smallInteger('role')->tinyInteger('role')->change();
+            $table->tinyInteger('role')->change();
         });
     }
 }
