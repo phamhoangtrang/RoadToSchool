@@ -101,14 +101,41 @@ class CourseController extends Controller
 
     public function store(Request $request)
     {
-        $result = $this->modelCourse->createNewCourse($request);
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'category_id' => 'required',
+            'origin_price' => 'nullable|numeric|min:0',
+            'promotion_price' => 'nullable|numeric|min:0',
+            'course_avatar' => 'nullable|image|max:10240',
+            'course_avatar_2' => 'nullable|image|max:10240',
+            'course_avatar_3' => 'nullable|image|max:10240',
+        ], [
+            'title.required' => 'Vui lòng nhập tiêu đề khóa học.',
+            'category_id.required' => 'Vui lòng chọn danh mục khóa học hợp lệ.',
+            'origin_price.numeric' => 'Giá gốc phải là số hợp lệ.',
+            'origin_price.min' => 'Giá gốc không được là số âm.',
+            'promotion_price.numeric' => 'Giá khuyến mãi phải là số hợp lệ.',
+            'promotion_price.min' => 'Giá khuyến mãi không được là số âm.',
+            'course_avatar.image' => 'Ảnh bìa khóa học phải là định dạng hình ảnh hợp lệ (jpg, png, jpeg, webp).',
+            'course_avatar.max' => 'Dung lượng ảnh bìa không được vượt quá 10MB.',
+            'course_avatar_2.image' => 'Ảnh phụ 2 phải là định dạng hình ảnh hợp lệ.',
+            'course_avatar_3.image' => 'Ảnh phụ 3 phải là định dạng hình ảnh hợp lệ.',
+        ]);
 
-        if ($result) {
-            flash(__('messages.create_course_successfully'))->success();
-        } else {
-            flash(__('messages.create_course_failed'))->error();
+        try {
+            $result = $this->modelCourse->createNewCourse($request);
+
+            if ($result) {
+                flash('Tạo khóa học mới thành công. Khóa học đã được gửi tới Quản trị viên để chờ phê duyệt.')->success();
+            } else {
+                flash('Tạo khóa học không thành công, vui lòng thử lại.')->error();
+            }
+        } catch (\Exception $e) {
+            flash('Đã xảy ra lỗi khi tạo khóa học: ' . $e->getMessage())->error();
+            return redirect()->back()->withInput();
         }
 
         return redirect()->route('instructor.courses.index');
     }
 }
+

@@ -1,7 +1,7 @@
 @extends('admin.layouts.default')
 
 @section('title')
-    Create a lecture
+    Thêm bài học mới
 @endsection
 
 @section('inline_styles')
@@ -15,85 +15,84 @@
     <div class="main-content">
         <div class="container-fluid">
             <div class="page-header">
-                <h2 class="header-title">Create a lecture</h2>
+                <h2 class="header-title">Thêm bài học mới</h2>
                 <div class="header-sub-title">
                     <nav class="breadcrumb breadcrumb-dash">
                         <a href="{{ route('instructor.dashboard') }}" class="breadcrumb-item"><i
-                                    class="ti-home p-r-5"></i>Home</a>
+                                    class="ti-home p-r-5"></i>{{ __('titles.r2s_dashboard') }}</a>
                         <a class="breadcrumb-item"
                            href="{{ route('instructor.courses.show', $selectedCourse->id) }}">{{ $selectedCourse->title }}</a>
-                        <span class="breadcrumb-item active">Create a lecture</span>
+                        <span class="breadcrumb-item active">Thêm bài học mới</span>
                     </nav>
                 </div>
             </div>
             <div class="card">
                 <div class="card-header border bottom">
-                    <h4 class="card-title">Create a lecture in course {{ $selectedCourse->title }}</h4>
+                    <h4 class="card-title">Thêm bài học trong khóa học: {{ $selectedCourse->title }}</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-12">
-                            <p style="color: red; display: none" id="error-url">Error: Video URL is valid. Please try
-                                another !</p>
+                            <p style="color: red; display: none" id="error-url">Lỗi: Đường dẫn Video Youtube không hợp lệ. Vui lòng kiểm tra lại!</p>
                             <div class="form-group">
                                 <div class="m-b-10">
-                                    <label class="control-label">Choose a lecture type</label>
+                                    <label class="control-label text-semibold">Chọn hình thức bài học *</label>
                                 </div>
                                 <div class="radio d-inline m-r-15">
                                     <input id="basicFormRadio1" name="lecture_type" type="radio">
-                                    <label for="basicFormRadio1">Video Lecture</label>
+                                    <label for="basicFormRadio1">Bài học Video (Youtube)</label>
                                 </div>
                                 <div class="radio d-inline m-r-15">
                                     <input id="basicFormRadio2" name="lecture_type" type="radio">
-                                    <label for="basicFormRadio2">Quiz</label>
+                                    <label for="basicFormRadio2">Bài trắc nghiệm (Quiz)</label>
                                 </div>
                             </div>
                             <form role="form" style="display: none" id="lecture-form" method="post"
                                   action="{{ route('instructor.courses.lectures.store', $selectedCourse->id) }}">
                                 @csrf
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Video URL *</label>
+                                    <label class="col-sm-3 col-form-label control-label">Đường dẫn Video Youtube *</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" id="input-youtube-url"
                                                name="video_link"
-                                               placeholder="Youtube video URL ...">
+                                               placeholder="Ví dụ: https://www.youtube.com/watch?v=...">
                                         <br>
                                         <button class="btn btn-gradient-success pull-right" id="button-get-duration"
-                                                style="display: none;">Apply Youtube URL and Get Information
+                                                style="display: none;">Lấy thông tin và thời lượng Video tự động
                                         </button>
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Title *</label>
+                                    <label class="col-sm-3 col-form-label control-label">Tiêu đề bài học *</label>
                                     <div class="col-sm-9">
                                         <input type="text" id="input-video-title" class="form-control"
                                                name="title"
-                                               placeholder="Type lecture title ...">
+                                               placeholder="Nhập tiêu đề bài học...">
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Description</label>
+                                    <label class="col-sm-3 col-form-label control-label">Mô tả bài học</label>
                                     <div class="col-sm-9">
                                         <textarea class="form-control" id="input-video-description" rows="4"
                                                   name="description"
-                                                  placeholder="Type lecture description ..."></textarea>
+                                                  placeholder="Nhập nội dung mô tả bài học..."></textarea>
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Duration *</label>
+                                    <label class="col-sm-3 col-form-label control-label">Thời lượng *</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" id="input-video-duration"
-                                               name="duration" placeholder="Auto get video duration" readonly>
+                                               name="duration" placeholder="Tự động lấy thời lượng video từ Youtube" readonly>
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Week *</label>
+                                    <label class="col-sm-3 col-form-label control-label">Tuần học *</label>
                                     <select class="form-control col-sm-4" id="select-week" name="week">
-                                        <option value="" disabled selected>Select a week...</option>
-                                        <option value="0"> Add lecture at first</option>
+                                        <option value="" disabled selected>-- Chọn tuần học --</option>
+                                        <option value="0">Thêm bài học vào đầu tuần</option>
                                         @for($j = 1; $j <= $maxWeek + 1; $j++)
                                             <option value="{{ $j }}">
-                                                Week {{ $j }} {{ $j == $maxWeek + 1 ? '(Add new)' : '' }}</option>
+                                                Tuần {{ $j }} {{ $j == $maxWeek + 1 ? '(Thêm tuần mới)' : '' }}</option>
                                         @endfor
                                     </select>
                                     <button class="btn btn-gradient-success col-sm-4" id="button-get-week-outline"
@@ -101,17 +100,17 @@
                                     </button>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Lecture Position *</label>
+                                    <label class="col-sm-3 col-form-label control-label">Vị trí bài học *</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" id="input-lecture-position"
                                                name="inputMaxValue"
-                                               placeholder="Auto get lecture position" disabled="">
+                                               placeholder="Vị trí tự động trong tuần" disabled="">
                                     </div>
                                 </div>
                                 @for($i = 0; $i < $maxWeek; $i++)
                                     <div class="table-overflow" id="table-outline-week-{{ $i + 1 }}"
                                          style="display: none">
-                                        <h3>Week {{ $i + 1 }}</h3>
+                                        <h3>Tuần {{ $i + 1 }}</h3>
                                         @php
                                             $tempLectureCount = 1;
                                             $tempQuizCount = 1;
@@ -119,16 +118,16 @@
                                         <table class="table table-bordered">
                                             <thead class="thead-light">
                                             <tr>
-                                                <th scope="col" class="text-center" style="width: 15%">Outline</th>
-                                                <th scope="col" style="width: 55%">Title</th>
-                                                <th scope="col" class="text-center" style="width: 15%">Time</th>
-                                                <th scope="col" class="text-center" style="width: 15%">Action</th>
+                                                <th scope="col" class="text-center" style="width: 15%">Cấu trúc</th>
+                                                <th scope="col" style="width: 55%">Tiêu đề</th>
+                                                <th scope="col" class="text-center" style="width: 15%">Thời lượng</th>
+                                                <th scope="col" class="text-center" style="width: 15%">Chọn vị trí</th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             @if($i == $maxWeek)
                                                 <tr>
-                                                    <td> Add new lecture here</td>
+                                                    <td colspan="4" class="text-center">Thêm bài học mới tại đây</td>
                                                 </tr>
                                             @endif
                                             @foreach($lectureOutline[$i] as $lecture)
@@ -152,8 +151,8 @@
                                                     <td class="text-center">{{ $lecture->duration }}</td>
                                                     <td class="text-center">
                                                         <a href="#" class="text-gray m-r-15 button-select-selection"
-                                                           data-week="{{ $i + 1 }}" data-lecture="{{ $lecture->id }}"><i
-                                                                    class="ti-arrow-down"></i></a>
+                                                           data-week="{{ $i + 1 }}" data-lecture="{{ $lecture->id }}" title="Chèn sau bài này"><i
+                                                                    class="ti-arrow-down font-size-16"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -162,43 +161,42 @@
                                     </div>
                                 @endfor
                                 <input type="hidden" id="input-position-value" name="positionValue">
-                                <button class="btn btn-gradient-success" type="submit">Submit</button>
+                                <button class="btn btn-gradient-success" type="submit">Lưu bài học</button>
                             </form>
-                            <form role="form" style="display: none" id="quiz-form" role="form" style="display: none"
-                                  id="lecture-form" method="post"
+                            <form role="form" style="display: none" id="quiz-form" method="post"
                                   action="{{ route('instructor.courses.lectures.store', $selectedCourse->id) }}">
                                 @csrf
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Title *</label>
+                                    <label class="col-sm-3 col-form-label control-label">Tiêu đề bài trắc nghiệm *</label>
                                     <div class="col-sm-9">
                                         <input type="text" id="quiz-input-video-title" class="form-control"
                                                name="title"
-                                               placeholder="Type quiz title ...">
+                                               placeholder="Nhập tiêu đề bài trắc nghiệm...">
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Description</label>
+                                    <label class="col-sm-3 col-form-label control-label">Mô tả bài trắc nghiệm</label>
                                     <div class="col-sm-9">
                                         <textarea class="form-control" id="quiz-input-video-description" rows="4"
                                                   name="description"
-                                                  placeholder="Type quiz description ..."></textarea>
+                                                  placeholder="Nhập mô tả nội dung trắc nghiệm..."></textarea>
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Time(HH:MM:SS) *</label>
+                                    <label class="col-sm-3 col-form-label control-label">Thời gian làm bài (Giờ:Phút:Giây) *</label>
                                     <div class="col-sm-2">
                                         <input class="form-control" type='time' name="duration" min='00:00:00'
                                                max='02:30:00' step="1">
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Week *</label>
+                                    <label class="col-sm-3 col-form-label control-label">Tuần học *</label>
                                     <select class="form-control col-sm-4" id="quiz-select-week" name="week">
-                                        <option value="" disabled selected>Select a week...</option>
-                                        <option value="0"> Add quiz at first</option>
+                                        <option value="" disabled selected>-- Chọn tuần học --</option>
+                                        <option value="0">Thêm bài trắc nghiệm vào đầu tuần</option>
                                         @for($j = 1; $j <= $maxWeek + 1; $j++)
                                             <option value="{{ $j }}">
-                                                Week {{ $j }} {{ $j == $maxWeek + 1 ? '(Add new)' : '' }}</option>
+                                                Tuần {{ $j }} {{ $j == $maxWeek + 1 ? '(Thêm tuần mới)' : '' }}</option>
                                         @endfor
                                     </select>
                                     <button class="btn btn-gradient-success col-sm-4" id="quiz-button-get-week-outline"
@@ -206,17 +204,17 @@
                                     </button>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Lecture Position *</label>
+                                    <label class="col-sm-3 col-form-label control-label">Vị trí bài trắc nghiệm *</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" id="quiz-input-lecture-position"
                                                name="position_value"
-                                               placeholder="Auto get quiz position" disabled="">
+                                               placeholder="Vị trí tự động trong tuần" disabled="">
                                     </div>
                                 </div>
                                 @for($i = 0; $i < $maxWeek; $i++)
                                     <div class="table-overflow" id="quiz-table-outline-week-{{ $i + 1 }}"
                                          style="display: none">
-                                        <h3>Week {{ $i + 1 }}</h3>
+                                        <h3>Tuần {{ $i + 1 }}</h3>
                                         @php
                                             $tempLectureCount = 1;
                                             $tempQuizCount = 1;
@@ -224,16 +222,16 @@
                                         <table class="table table-bordered">
                                             <thead class="thead-light">
                                             <tr>
-                                                <th scope="col" class="text-center" style="width: 15%">Outline</th>
-                                                <th scope="col" style="width: 55%">Title</th>
-                                                <th scope="col" class="text-center" style="width: 15%">Time</th>
-                                                <th scope="col" class="text-center" style="width: 15%">Action</th>
+                                                <th scope="col" class="text-center" style="width: 15%">Cấu trúc</th>
+                                                <th scope="col" style="width: 55%">Tiêu đề</th>
+                                                <th scope="col" class="text-center" style="width: 15%">Thời lượng</th>
+                                                <th scope="col" class="text-center" style="width: 15%">Chọn vị trí</th>
                                             </tr>
                                             </thead>
                                             <tbody>
                                             @if($i == $maxWeek)
                                                 <tr>
-                                                    <td> Add new lecture here</td>
+                                                    <td colspan="4" class="text-center">Thêm bài trắc nghiệm mới tại đây</td>
                                                 </tr>
                                             @endif
                                             @foreach($lectureOutline[$i] as $lecture)
@@ -259,8 +257,8 @@
                                                         <a href="#"
                                                            class="text-gray m-r-15 quiz-button-select-selection"
                                                            data-week="{{ $i + 1 }}"
-                                                           data-lecture="{{ $lecture->id }}"><i
-                                                                    class="ti-arrow-down"></i></a>
+                                                           data-lecture="{{ $lecture->id }}" title="Chèn sau bài này"><i
+                                                                    class="ti-arrow-down font-size-16"></i></a>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -269,49 +267,47 @@
                                     </div>
                                 @endfor
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label control-label">Question Count *</label>
-                                    <select class="form-control col-sm-1" id="quiz-input-question-count">
+                                    <label class="col-sm-3 col-form-label control-label">Số lượng câu hỏi *</label>
+                                    <select class="form-control col-sm-2" id="quiz-input-question-count">
                                         @for($j = 1; $j <= 10; $j++)
-                                            <option value="{{ $j }}"> {{ $j }} </option>
+                                            <option value="{{ $j }}"> {{ $j }} câu hỏi</option>
                                         @endfor
                                     </select>
                                     <button class="btn btn-gradient-success col-sm-4" id="quiz-button-get-question-form"
-                                            style="display: none; margin-left: 30px"> Get Form Question
+                                            style="display: none; margin-left: 30px"> Tạo biểu mẫu câu hỏi
                                     </button>
                                 </div>
                                 @for($temp=1;$temp<=10;$temp++)
                                     <div class="form-group row" id="select-question-{{ $temp }}-type"
                                          style="display: none;">
-                                        <label class="col-sm-3 col-form-label control-label">Question {{ $temp }} Type
-                                            *</label>
+                                        <label class="col-sm-3 col-form-label control-label">Loại câu hỏi {{ $temp }} *</label>
                                         <div class="col-sm-9">
-                                            <div class="radio">
+                                            <div class="radio d-inline m-r-15">
                                                 <input class="radio-single-choice radio-check-multi" id="radio-single-choice-{{ $temp }}"
                                                        name="is_single_choice_question_{{ $temp }}" type="radio"
                                                        data-question="{{ $temp }}">
-                                                <label for="radio-single-choice-{{ $temp }}">Single Choice</label>
+                                                <label for="radio-single-choice-{{ $temp }}">Một đáp án đúng (Single Choice)</label>
                                             </div>
-                                            <div class="radio">
+                                            <div class="radio d-inline m-r-15">
                                                 <input class="radio-multi-choice radio-check-multi" id="radio-multi-choice-{{ $temp }}"
                                                        name="is_multiple_choice_question_{{ $temp }}" type="radio"
                                                        data-question="{{ $temp }}">
-                                                <label for="radio-multi-choice-{{ $temp }}">Multiple Choice</label>
+                                                <label for="radio-multi-choice-{{ $temp }}">Nhiều đáp án đúng (Multiple Choice)</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="form-group row" id="input-question-{{ $temp }}-content"
                                          style="display: none;">
-                                        <label class="col-sm-3 col-form-label control-label">Question {{ $temp }}
-                                            Content *</label>
+                                        <label class="col-sm-3 col-form-label control-label">Nội dung câu hỏi {{ $temp }} *</label>
                                         <div class="col-sm-9">
                                             <textarea type="text" rows=2 class="form-control"
                                                       name="question[]"
-                                                      placeholder="Type the question ..."></textarea>
+                                                      placeholder="Nhập nội dung câu hỏi..."></textarea>
                                         </div>
                                     </div>
                                     @for($k=1; $k<=4; $k++)
                                         <div class="form-group row answer-question-{{ $temp }}" style="display: none;">
-                                            <label class="col-sm-3 col-form-label control-label">Answer {{ $k }}</label>
+                                            <label class="col-sm-3 col-form-label control-label">Đáp án {{ $k }}</label>
                                             <div class="col-sm-9 input-group">
                                                 <div class="input-group-prepend">
                                                     <div class="input-group-text">
@@ -327,13 +323,13 @@
                                                     </div>
                                                 </div>
                                                 <textarea type="text" rows="2" name="question_{{ $temp }}_answer_{{ $k }}" class="form-control"
-                                                          placeholder="Write answer content and check to right answer ..."></textarea>
+                                                          placeholder="Nhập nội dung đáp án và tích chọn ô bên cạnh nếu là đáp án đúng..."></textarea>
                                             </div>
                                         </div>
                                     @endfor
                                 @endfor
                                 <input type="hidden" id="quiz-input-position-value" name="quizPositionValue">
-                                <button class="btn btn-gradient-success" type="submit">Submit</button>
+                                <button class="btn btn-gradient-success" type="submit">Lưu bài trắc nghiệm</button>
                             </form>
                         </div>
                     </div>
@@ -399,11 +395,11 @@
                 $('#select-week').on('change', function () {
                     var maxWeek = '{{ $maxWeek }}';
                     if ($(this).val() == 0) {
-                        $('#button-get-week-outline').text('Apply and Add New Lecture at First');
+                        $('#button-get-week-outline').text('Áp dụng và thêm bài học vào đầu tiên');
                     } else if ($(this).val() == parseInt(maxWeek) + 1) {
-                        $('#button-get-week-outline').text('Apply and Add New Lecture to Week ' + $(this).val());
+                        $('#button-get-week-outline').text('Áp dụng và thêm bài học vào Tuần ' + $(this).val());
                     } else {
-                        $('#button-get-week-outline').text('Apply and Get Week ' + $(this).val() + ' Outline');
+                        $('#button-get-week-outline').text('Xem cấu trúc bài học Tuần ' + $(this).val());
                     }
                     $('#button-get-week-outline').fadeIn(300);
                 })
@@ -415,10 +411,10 @@
                     $('#table-outline-week-' + $('#select-week').val()).fadeIn(300);
                     var selectedValue = $('#select-week').val();
                     if (selectedValue == 0) {
-                        $('#input-lecture-position').val('Before lecture 1 of week 1');
+                        $('#input-lecture-position').val('Đứng trước bài học 1 của Tuần 1');
                         $('#input-position-value').val(0);
                     } else if (selectedValue == parseInt(maxWeek) + 1) {
-                        $('#input-lecture-position').val('Add new to week ' + (parseInt(maxWeek) + 1));
+                        $('#input-lecture-position').val('Thêm mới vào Tuần ' + (parseInt(maxWeek) + 1));
                         $('#input-position-value').val(-1);
                     }
                     $('#button-get-week-outline').fadeOut(300);
@@ -427,11 +423,11 @@
                 $('#quiz-select-week').on('change', function () {
                     var maxWeek = '{{ $maxWeek }}';
                     if ($(this).val() == 0) {
-                        $('#quiz-button-get-week-outline').text('Apply and Add New Lecture at First');
+                        $('#quiz-button-get-week-outline').text('Áp dụng và thêm bài trắc nghiệm vào đầu tiên');
                     } else if ($(this).val() == parseInt(maxWeek) + 1) {
-                        $('#quiz-button-get-week-outline').text('Apply and Add New Lecture to Week ' + $(this).val());
+                        $('#quiz-button-get-week-outline').text('Áp dụng và thêm bài trắc nghiệm vào Tuần ' + $(this).val());
                     } else {
-                        $('#quiz-button-get-week-outline').text('Apply and Get Week ' + $(this).val() + ' Outline');
+                        $('#quiz-button-get-week-outline').text('Xem cấu trúc bài học Tuần ' + $(this).val());
                     }
                     $('#quiz-button-get-week-outline').fadeIn(300);
                 })
@@ -443,10 +439,10 @@
                     $('#quiz-table-outline-week-' + $('#quiz-select-week').val()).fadeIn(300);
                     var selectedValue = $('#quiz-select-week').val();
                     if (selectedValue == 0) {
-                        $('#quiz-input-lecture-position').val('Before lecture 1 of week 1');
+                        $('#quiz-input-lecture-position').val('Đứng trước bài trắc nghiệm 1 của Tuần 1');
                         $('#quiz-input-position-value').val(0);
                     } else if (selectedValue == parseInt(maxWeek) + 1) {
-                        $('#quiz-input-lecture-position').val('Add new to week ' + (parseInt(maxWeek) + 1));
+                        $('#quiz-input-lecture-position').val('Thêm mới vào Tuần ' + (parseInt(maxWeek) + 1));
                         $('#quiz-input-position-value').val(-1);
                     }
                     $('#quiz-button-get-week-outline').fadeOut(300);
@@ -454,15 +450,15 @@
 
                 $('.button-select-selection').on('click', function (event) {
                     event.preventDefault();
-                    var position = $(this).parent().parent().children().first().text().trim().toLowerCase();
-                    $('#input-lecture-position').val('Add new to week ' + $(this).data('week') + ' after ' + position);
+                    var position = $(this).parent().parent().children().first().text().trim();
+                    $('#input-lecture-position').val('Thêm vào Tuần ' + $(this).data('week') + ' (Sau ' + position + ')');
                     $('#input-position-value').val($(this).data('lecture'));
                 })
 
                 $('.quiz-button-select-selection').on('click', function (event) {
                     event.preventDefault();
-                    var position = $(this).parent().parent().children().first().text().trim().toLowerCase();
-                    $('#quiz-input-lecture-position').val('Add new to week ' + $(this).data('week') + ' after ' + position);
+                    var position = $(this).parent().parent().children().first().text().trim();
+                    $('#quiz-input-lecture-position').val('Thêm vào Tuần ' + $(this).data('week') + ' (Sau ' + position + ')');
                     $('#quiz-input-position-value').val($(this).data('lecture'));
                 })
 

@@ -57,4 +57,30 @@ class LectureController extends Controller
 
         return 201;
     }
+
+    public function deleteLectureRequest(Request $request)
+    {
+        try {
+            $lectureId = $request->input('lectureId');
+            $selectedLecture = $this->modelLecture->findOrFail($lectureId);
+
+            // Xóa dọn dẹp tiến trình, bình luận, câu hỏi quiz con
+            \App\Models\Process::where('lecture_id', $lectureId)->delete();
+            \App\Models\LectureComment::where('lecture_id', $lectureId)->delete();
+            \App\Models\QuizElement::where('lecture_id', $lectureId)->delete();
+
+            $selectedLecture->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Đã từ chối và xóa nội dung bài học thành công.',
+                'id' => $lectureId
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Lỗi khi xóa bài học: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

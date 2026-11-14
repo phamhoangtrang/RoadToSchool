@@ -55,19 +55,31 @@
                         </li>
                     </ul>
                 </li>
+                @php
+                    $pendingCoursesSide = \App\Models\Course::where('is_accepted', 0)->count();
+                    $pendingLecturesSide = \App\Models\Lecture::where('is_accepted', 0)->count();
+                @endphp
                 <li class="nav-item dropdown {{ setOpen('admin/courses') }}">
                     <a class="dropdown-toggle" href="javascript:void(0);">
                 <span class="icon-holder">
                 <i class="mdi mdi-book-multiple"></i>
                 </span>
                         <span class="title">Khóa học</span>
+                        @if($pendingCoursesSide > 0)
+                            <span class="badge badge-warning" style="margin-left: 6px; font-size: 11px; padding: 2px 7px; border-radius: 10px;">{{ $pendingCoursesSide }}</span>
+                        @endif
                         <span class="arrow">
                 <i class="mdi mdi-chevron-right"></i>
                 </span>
                     </a>
                     <ul class="dropdown-menu">
                         <li {{ setActive('admin/courses') }}>
-                            <a href="{{ route('admin.courses.index') }}">Tất cả khóa học</a>
+                            <a href="{{ route('admin.courses.index') }}">
+                                Tất cả khóa học
+                                @if($pendingCoursesSide > 0)
+                                    <span class="badge badge-warning" style="float: right; margin-top: 3px; font-size: 10px; padding: 2px 6px;">{{ $pendingCoursesSide }} chờ</span>
+                                @endif
+                            </a>
                         </li>
                     </ul>
                 </li>
@@ -77,13 +89,21 @@
                 <i class="mdi mdi-arrange-send-to-back"></i>
                 </span>
                         <span class="title">Yêu cầu bài giảng</span>
+                        @if($pendingLecturesSide > 0)
+                            <span class="badge badge-warning" style="margin-left: 6px; font-size: 11px; padding: 2px 7px; border-radius: 10px;">{{ $pendingLecturesSide }}</span>
+                        @endif
                         <span class="arrow">
                 <i class="mdi mdi-chevron-right"></i>
                 </span>
                     </a>
                     <ul class="dropdown-menu">
                         <li {{ setActive('admin/lectures/requests') }}>
-                            <a href="{{ route('admin.lectures.requests.index') }}">Tất cả yêu cầu</a>
+                            <a href="{{ route('admin.lectures.requests.index') }}">
+                                Tất cả yêu cầu
+                                @if($pendingLecturesSide > 0)
+                                    <span class="badge badge-warning" style="float: right; margin-top: 3px; font-size: 10px; padding: 2px 6px;">{{ $pendingLecturesSide }} chờ</span>
+                                @endif
+                            </a>
                         </li>
                     </ul>
                 </li>

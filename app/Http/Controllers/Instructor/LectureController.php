@@ -133,7 +133,8 @@ class LectureController extends Controller
             }
         } else {
             // Create quiz
-            if ($data['quizPositionValue'] == 0) {
+            $createdLecture = null;
+            if (isset($data['quizPositionValue']) && $data['quizPositionValue'] == 0) {
                 // At first
                 $data['index'] = 0;
                 $data['is_accepted'] = 0;
@@ -142,17 +143,18 @@ class LectureController extends Controller
                 $data['is_lecture'] = 0;
                 $data['is_quiz'] = 1;
                 $createdLecture = $this->modelLecture->create($data);
-            } else if ($data['quizPositionValue'] == -1) {
+            } else if (isset($data['quizPositionValue']) && $data['quizPositionValue'] == -1) {
                 // At last
                 $data['index'] = 0;
                 $data['is_accepted'] = 0;
-                $data['week'] = intval($data['week']) + 1;
+                $currentMaxWeek = $this->modelLecture->where('course_id', $courseId)->max('week') ?: 0;
+                $data['week'] = $currentMaxWeek + 1;
                 $data['course_id'] = $courseId;
                 $data['is_lecture'] = 0;
                 $data['is_quiz'] = 1;
 
                 $createdLecture = $this->modelLecture->create($data);
-            } else {
+            } else if (!empty($data['quizPositionValue'])) {
                 $previousLecture = $this->modelLecture->findOrFail($data['quizPositionValue']);
                 $data['index'] = intval($previousLecture->index) + 1;
                 $data['is_accepted'] = 0;
@@ -162,44 +164,59 @@ class LectureController extends Controller
                 $data['is_quiz'] = 1;
 
                 $createdLecture = $this->modelLecture->create($data);
+            } else {
+                // Vị trí mặc định nếu chưa chọn
+                $currentMaxWeek = $this->modelLecture->where('course_id', $courseId)->max('week') ?: 0;
+                $data['index'] = 0;
+                $data['is_accepted'] = 0;
+                $data['week'] = $currentMaxWeek > 0 ? $currentMaxWeek : 1;
+                $data['course_id'] = $courseId;
+                $data['is_lecture'] = 0;
+                $data['is_quiz'] = 1;
+
+                $createdLecture = $this->modelLecture->create($data);
             }
 
-            $questionList = $data['question'];
-            foreach ($questionList as $key => $question) {
-                if (!is_null($question)) {
-                    $dataElement = [];
-                    $dataElement['content'] = $question;
-                    $dataElement['is_question'] = 1;
-                    if (array_key_exists('is_multiple_choice_question_' . ($key + 1), $data)) {
-                        $dataElement['is_multiple_choice'] = 1;
-                    } else if (array_key_exists('is_single_choice_question_' . ($key + 1), $data) != null) {
-                        $dataElement['is_multiple_choice'] = 0;
-                    }
-                    $dataElement['is_answer'] = 0;
-                    $dataElement['lecture_id'] = $createdLecture->id;
-                    $createdQuestion = $this->modelQuizElement->create($dataElement);
-                    $questionIndex = $key + 1;
-                    for ($temp = 1; $temp <= 4; $temp++) {
+            $result = !empty($createdLecture);
+
+            if ($createdLecture && !empty($data['question']) && is_array($data['question'])) {
+                $questionList = $data['question'];
+                foreach ($questionList as $key => $question) {
+                    if (!is_null($question) && trim($question) !== '') {
                         $dataElement = [];
-                        $dataElement['content'] = $data['question_' . $questionIndex . '_answer_' . $temp];
-                        $dataElement['is_question'] = 0;
-                        $dataElement['is_answer'] = 1;
-                        $dataElement['question_parent_id'] = $createdQuestion->id;
-                        if (array_key_exists('checkbox_question_' . $questionIndex . '_answer_' . $temp, $data)) {
-                            $dataElement['is_right_answer'] = 1;
+                        $dataElement['content'] = trim($question);
+                        $dataElement['is_question'] = 1;
+                        if (array_key_exists('is_multiple_choice_question_' . ($key + 1), $data)) {
+                            $dataElement['is_multiple_choice'] = 1;
                         } else {
-                            $dataElement['is_right_answer'] = 0;
+                            $dataElement['is_multiple_choice'] = 0;
                         }
+                        $dataElement['is_answer'] = 0;
                         $dataElement['lecture_id'] = $createdLecture->id;
-                        $result = $this->modelQuizElement->create($dataElement);
+                        $createdQuestion = $this->modelQuizElement->create($dataElement);
+                        $questionIndex = $key + 1;
+                        for ($temp = 1; $temp <= 4; $temp++) {
+                            $answerKey = 'question_' . $questionIndex . '_answer_' . $temp;
+                            if (isset($data[$answerKey]) && trim($data[$answerKey]) !== '') {
+                                $dataAnswer = [];
+                                $dataAnswer['content'] = trim($data[$answerKey]);
+                                $dataAnswer['is_question'] = 0;
+                                $dataAnswer['is_answer'] = 1;
+                                $dataAnswer['question_parent_id'] = $createdQuestion->id;
+                                $checkboxKey = 'checkbox_question_' . $questionIndex . '_answer_' . $temp;
+                                $dataAnswer['is_right_answer'] = array_key_exists($checkboxKey, $data) ? 1 : 0;
+                                $dataAnswer['lecture_id'] = $createdLecture->id;
+                                $this->modelQuizElement->create($dataAnswer);
+                            }
+                        }
                     }
                 }
             }
 
             if ($result) {
-                flash(__('messages.create_quiz_successfully'))->success();
+                flash('Tạo bài trắc nghiệm thành công. Đang chờ phê duyệt từ Quản trị viên.')->success();
             } else {
-                flash(__('messages.create_quiz_failed'))->error();
+                flash('Tạo bài trắc nghiệm không thành công, vui lòng thử lại.')->error();
             }
         }
 

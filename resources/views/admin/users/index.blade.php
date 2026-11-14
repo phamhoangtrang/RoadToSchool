@@ -9,6 +9,75 @@
           href="{{ asset('assets/admin/vendor/datatables/media/css/dataTables.bootstrap4.min.css') }}"/>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css"/>
+    <style>
+        .user-stat-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .user-stat-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+        }
+        .user-stat-num {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .user-avatar-img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e2e8f0;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .action-btn-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            transition: all 0.2s ease;
+            text-decoration: none !important;
+            margin: 0 3px;
+            font-size: 13px;
+        }
+        .action-btn-circle:hover {
+            transform: translateY(-2px);
+        }
+        .action-btn-circle.view:hover { background: #eff6ff; color: #2563eb; border-color: #93c5fd; }
+        .action-btn-circle.edit:hover { background: #fefce8; color: #ca8a04; border-color: #fde047; }
+        .action-btn-circle.delete:hover { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .role-badge.admin { background: #fee2e2; color: #b91c1c; }
+        .role-badge.instructor { background: #eff6ff; color: #1d4ed8; }
+        .role-badge.student { background: #e0f2fe; color: #0369a1; }
+    </style>
 @endsection
 
 @section('content')
@@ -17,62 +86,127 @@
     </div>
     <div class="main-content">
         <div class="container-fluid">
-            <div class="page-header">
-                <h2 class="header-title">{{ __('titles.all_users') }}</h2>
-                <div class="header-sub-title">
-                    <nav class="breadcrumb breadcrumb-dash">
-                        <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item">
-                            <i class="ti-home p-r-5"></i>{{ __('titles.r2s_dashboard') }}
-                        </a>
-                        <a class="breadcrumb-item active">{{ __('titles.users') }}</a>
-                        <span class="breadcrumb-item active">{{ __('titles.all_users') }}</span>
-                    </nav>
+            <!-- Page Header -->
+            <div class="page-header m-b-20" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h2 class="header-title" style="margin-bottom: 4px;">{{ __('titles.all_users') }}</h2>
+                    <div class="header-sub-title">
+                        <nav class="breadcrumb breadcrumb-dash">
+                            <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item">
+                                <i class="ti-home p-r-5"></i>{{ __('titles.r2s_dashboard') }}
+                            </a>
+                            <a class="breadcrumb-item active">{{ __('titles.users') }}</a>
+                            <span class="breadcrumb-item active">{{ __('titles.all_users') }}</span>
+                        </nav>
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ route('admin.users.create_instructor') }}" class="btn btn-primary btn-sm" style="border-radius: 8px; font-weight: 600; padding: 8px 16px;">
+                        <i class="fa fa-user-plus m-r-5"></i> Thêm giảng viên mới
+                    </a>
                 </div>
             </div>
-            <div class="card">
+
+            <!-- 4 Quick Stat Counters -->
+            <div class="row">
+                <div class="col-md-3 col-sm-6">
+                    <div class="user-stat-card">
+                        <div>
+                            <div class="user-stat-label">Tổng người dùng</div>
+                            <div class="user-stat-num">{{ $users->count() }}</div>
+                        </div>
+                        <div style="font-size: 24px; color: #2563eb;"><i class="fa fa-users"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="user-stat-card">
+                        <div>
+                            <div class="user-stat-label">Quản trị viên</div>
+                            <div class="user-stat-num text-danger">{{ $users->where('is_admin', 1)->count() }}</div>
+                        </div>
+                        <div style="font-size: 24px; color: #dc2626;"><i class="fa fa-shield"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="user-stat-card">
+                        <div>
+                            <div class="user-stat-label">Giảng viên</div>
+                            <div class="user-stat-num text-primary">{{ $users->where('role', 1)->count() }}</div>
+                        </div>
+                        <div style="font-size: 24px; color: #1d4ed8;"><i class="fa fa-graduation-cap"></i></div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="user-stat-card">
+                        <div>
+                            <div class="user-stat-label">Học viên</div>
+                            <div class="user-stat-num text-info">{{ $users->where('role', 2)->count() }}</div>
+                        </div>
+                        <div style="font-size: 24px; color: #0284c7;"><i class="fa fa-book"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="card" style="border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);">
                 <div class="card-body">
                     <div class="table-overflow">
                         <table id="dt-opt" class="table table-hover table-xl">
                             <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>{{ __('titles.name') }}</th>
-                                <th>{{ __('titles.email') }}</th>
-                                <th>{{ __('titles.role') }}</th>
-                                <th>{{ __('titles.action') }}</th>
+                                <th style="width: 8%;">ID</th>
+                                <th style="width: 32%;">{{ __('titles.name') }}</th>
+                                <th style="width: 28%;">{{ __('titles.email') }}</th>
+                                <th style="width: 18%;">{{ __('titles.role') }}</th>
+                                <th style="width: 14%; text-align: center;">{{ __('titles.action') }}</th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach ($users as $user)
                                 <tr id="user{{ $user->id }}">
-                                    <td>{{ $user->id }}</td>
-                                    <td><a href="{{ route('admin.users.show', $user->id) }}">
-                                            {{ $user->name }}
-                                        </a></td>
-                                    <td>{{ $user->email }}</td>
+                                    <td><b class="text-muted">#{{ $user->id }}</b></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @php
+                                                $avatar = $user->avatar
+                                                    ? (strpos($user->avatar, 'http') === 0 ? $user->avatar : asset(str_replace('public/', '', $user->avatar)))
+                                                    : asset('images/avatar/basic-avatar.png');
+                                            @endphp
+                                            <img class="user-avatar-img" src="{{ $avatar }}" alt="" onerror="this.src='{{ asset('images/avatar/basic-avatar.png') }}'">
+                                            <div>
+                                                <a href="{{ route('admin.users.show', $user->id) }}" class="font-weight-bold text-dark d-block">
+                                                    {{ $user->name }}
+                                                </a>
+                                                <small class="text-muted">{{ $user->phone ?: 'Chưa cập nhật SĐT' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark">{{ $user->email }}</span>
+                                    </td>
                                     <td>
                                         @if($user->is_admin == 1)
-                                            <span class="badge badge-pill badge-danger">Quản trị viên</span>
+                                            <span class="role-badge admin"><i class="fa fa-shield"></i> Quản trị viên</span>
                                         @else
                                             @if($user->role === 1)
-                                                <span class="badge badge-pill badge-primary">Giảng viên</span>
+                                                <span class="role-badge instructor"><i class="fa fa-graduation-cap"></i> Giảng viên</span>
                                             @elseif ($user->role === 2)
-                                                <span class="badge badge-pill badge-info">Học viên</span>
+                                                <span class="role-badge student"><i class="fa fa-user"></i> Học viên</span>
                                             @endif
                                         @endif
                                     </td>
-                                    <td class="text-center font-size-18">
-                                        <a class="text-gray" data-toggle="modal" title="Xem chi tiết"
+                                    <td class="text-center font-size-16" style="white-space: nowrap;">
+                                        <a class="action-btn-circle view" data-toggle="modal" title="Xem chi tiết"
                                            data-target="#detail-modal"
                                            data-url="{{ route('admin.users.show', $user->id) }}">
-                                            <i class="ti-info"></i>
-                                        </a>&ensp;
-                                        <a class="text-gray edit-user" data-user="{{ $user }}" data-toggle="modal" title="Chỉnh sửa"
+                                            <i class="ti-eye"></i>
+                                        </a>
+                                        <a class="action-btn-circle edit edit-user" data-user="{{ $user }}" data-toggle="modal" title="Chỉnh sửa"
                                            data-target="#edit-modal">
                                             <i class="ti-pencil"></i>
-                                        </a>&ensp;
+                                        </a>
                                         @if(Auth::user()->id !== $user->id)
-                                            <a class="text-gray" data-toggle="modal" title="Xóa người dùng"
+                                            <a class="action-btn-circle delete" data-toggle="modal" title="Xóa người dùng"
                                                data-target="#delete-modal"
                                                data-url="{{ route('admin.users.destroy', $user->id) }}">
                                                 <i class="ti-trash"></i>
