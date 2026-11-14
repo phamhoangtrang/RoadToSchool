@@ -18,4 +18,9 @@ class ConversationMessage extends Model
     {
         return $this->belongsTo('App\Models\Conversation');
     }
+
+    public function sender()
+    {
+        return $this->belongsTo('App\Models\User', 'from_id');
+    }
 }

@@ -557,117 +557,164 @@ function getNotificationId(currentUserId, createNotificationIdArray) {
     return false;
 }
 
-$(function () {
-    $("#open-chat-with-admin").click(function (event) {
-        event.preventDefault();
-        $('#qnimate').addClass('popup-box-on');
-        $(this).fadeOut(200);
-    });
+$(document).on('click', '#open-chat-with-admin', function (event) {
+    event.preventDefault();
+    $('#qnimate').addClass('popup-box-on');
+    $(this).hide();
+    var popupMessages = document.getElementById('popup-messages');
+    if (popupMessages) popupMessages.scrollTop = popupMessages.scrollHeight;
+    setTimeout(function () {
+        $('#status_message').focus();
+    }, 150);
+});
 
-    $("#removeClass").click(function () {
-        $('#qnimate').removeClass('popup-box-on');
-        $("#open-chat-with-admin").fadeIn(300);
-    });
-})
+$(document).on('click', '#removeClass', function () {
+    $('#qnimate').removeClass('popup-box-on');
+    $("#open-chat-with-admin").show();
+});
 
-$(document).on('keypress', function (e) {
-    if (e.which == 13) {
+var isSendingUserMessage = false;
+
+$(document).on('keypress', '#status_message', function (e) {
+    if (e.which == 13 && !e.shiftKey) {
+        e.preventDefault();
+        if (isSendingUserMessage) return;
+
+        var textarea = $(this);
+        var messageText = $.trim(textarea.val());
+        if (!messageText) return;
+
+        isSendingUserMessage = true;
+        textarea.prop('disabled', true).attr('placeholder', 'Trợ lý AI đang soạn câu trả lời, vui lòng chờ...');
+
         var senderId = $('#sender-id').val();
+        var conversationList = $('#conversation-list');
+        var popupMessages = document.getElementById('popup-messages');
+
+        // 1. Hiển thị ngay tin nhắn của người dùng lên giao diện
+        var userHtml = '<div class="direct-chat-msg doted-border text-right" style="margin-bottom: 15px;">' +
+            '<div class="direct-chat-info clearfix">' +
+            '<span class="direct-chat-name pull-right" style="font-weight: 600; color: #34495e;">Bạn</span>' +
+            '</div>' +
+            '<div class="direct-chat-text" style="background-color: #3498db; color: #fff; border-color: #2980b9; display: inline-block; text-align: left; max-width: 85%; border-radius: 12px 12px 2px 12px; margin: 4px 0;">' +
+            $('<div/>').text(messageText).html().replace(/\n/g, '<br>') +
+            '</div>' +
+            '<div class="direct-chat-info clearfix">' +
+            '<span class="direct-chat-timestamp pull-right" style="font-size: 11px; color: #95a5a6;">Vừa xong</span>' +
+            '</div>' +
+            '</div>';
+        
+        // Xóa thông báo trống nếu có
+        conversationList.find('p.text-center').remove();
+        conversationList.append(userHtml);
+        textarea.val('');
+        if (popupMessages) popupMessages.scrollTop = popupMessages.scrollHeight;
+
+        // 2. Hiệu ứng đang gõ tin nhắn của Trợ lý AI (typing indicator)
+        var typingId = 'typing-indicator-' + Date.now();
+        var typingHtml = '<div class="direct-chat-msg doted-border" id="' + typingId + '" style="margin-bottom: 12px;">' +
+            '<div class="direct-chat-info clearfix">' +
+            '<span class="direct-chat-name pull-left" style="font-weight: 600; color: #e67e22;"><i class="fa fa-android"></i> Trợ lý AI</span>' +
+            '</div>' +
+            '<div class="direct-chat-text" style="background-color: #f8f9fa; color: #7f8c8d; font-style: italic; display: inline-block; border-radius: 12px 12px 12px 2px;">' +
+            '<i class="fa fa-spinner fa-spin"></i> Trợ lý đang soạn câu trả lời...' +
+            '</div>' +
+            '</div>';
+        conversationList.append(typingHtml);
+        if (popupMessages) popupMessages.scrollTop = popupMessages.scrollHeight;
+
         $.ajaxSetup({
             headers: {
                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
             }
         });
+
         $.ajax({
             url: "/conversations/store",
             type: "post",
             data: {
                 user_sender_id: senderId,
-                content: $('#status_message').val(),
+                content: messageText,
             },
             success: function (responseData) {
-                // var response = jQuery.parseJSON(responseData);
-                // var createdConversation = response.createdConversation;
-                // var createdMessage = response.message;
-                // var sender = response.sender;
-                // var senderAvatar = sender.avatar;
-                // var createdTime = response.created_time;
-                // senderAvatar = senderAvatar.replace(
-                //     "images/",
-                //     "http://127.0.0.1:8000/images/"
-                // );
-                $('#status_message').val('');
-                // var conversationList = $('#conversation-list');
-                // var newConversationHtml = '            <!-- Message. Default to the left -->\n' +
-                //     '            <div class="direct-chat-msg doted-border">\n' +
-                //     '                <div class="direct-chat-info clearfix">\n' +
-                //     '                    <span class="direct-chat-name pull-left">'
-                //     + sender.name +
-                //     '</span>\n' +
-                //     '                </div>\n' +
-                //     '                <!-- /.direct-chat-info -->\n' +
-                //     '                <img alt="iamgurdeeposahan"\n' +
-                //     '                     src="' +
-                //     senderAvatar +
-                //     '"\n' +
-                //     '                     class="direct-chat-img"><!-- /.direct-chat-img -->\n' +
-                //     '                <div class="direct-chat-text">\n' +
-                //     createdMessage.content +
-                //     '                </div>\n' +
-                //     '                <div class="direct-chat-info clearfix">\n' +
-                //     '                    <span class="direct-chat-timestamp pull-right">' +
-                //     createdTime +
-                //     '</span>\n' +
-                //     '                </div>';
-                // conversationList.append(newConversationHtml)
+                var res = (typeof responseData === 'string') ? JSON.parse(responseData) : responseData;
+
+                // Nếu có tin nhắn AI trả về
+                if (res && res.ai_reply) {
+                    var ai = res.ai_reply;
+                    var contentFormatted = $('<div/>').text(ai.content).html()
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+                    var aiHtml = '<div class="direct-chat-msg doted-border" style="margin-bottom: 15px;">' +
+                        '<div class="direct-chat-info clearfix">' +
+                        '<span class="direct-chat-name pull-left" style="font-weight: 600; color: #e67e22;"><i class="fa fa-android"></i> ' + ai.sender_name + '</span>' +
+                        '</div>' +
+                        '<img alt="avatar" src="' + ai.sender_avatar + '" class="direct-chat-img" style="border-radius: 50%; width: 34px; height: 34px;">' +
+                        '<div class="direct-chat-text" style="background-color: #f1f8fe; color: #2c3e50; border-color: #d6eaf8; display: inline-block; max-width: 85%; border-radius: 12px 12px 12px 2px; margin: 4px 0; line-height: 1.5;">' +
+                        contentFormatted +
+                        '</div>' +
+                        '<div class="direct-chat-info clearfix">' +
+                        '<span class="direct-chat-timestamp pull-left" style="font-size: 11px; color: #95a5a6; margin-left: 45px;">' + (ai.created_time || 'Vừa xong') + '</span>' +
+                        '</div>' +
+                        '</div>';
+
+                    conversationList.append(aiHtml);
+                    if (popupMessages) popupMessages.scrollTop = popupMessages.scrollHeight;
+                }
+            },
+            complete: function () {
+                $('#' + typingId).remove();
+                isSendingUserMessage = false;
+                textarea.prop('disabled', false).attr('placeholder', 'Hỏi về khóa học, học phí, thanh toán... (Nhấn Enter để gửi)').focus();
             }
         });
     }
 });
 
-// Conversation area
-document.getElementById('popup-messages').scrollTop = 9999999;
-// custom notification
-var pusher = new Pusher("f2b354d9cdae3999c31d", {
-    encrypted: true,
-    cluster: "ap1"
-});
+// Conversation area: cuộn xuống đáy
+var popupMessagesEl = document.getElementById('popup-messages');
+if (popupMessagesEl) popupMessagesEl.scrollTop = 9999999;
 
-var conversationMessageChannel = pusher.subscribe("conversation-message");
+// Real-time chat qua Pusher
+try {
+    var pusher = new Pusher("f2b354d9cdae3999c31d", {
+        encrypted: true,
+        cluster: "ap1"
+    });
 
-conversationMessageChannel.bind(
-    "App\\Events\\GetConversationMessageFromPusherEvent",
-    function (data) {
-        var currentUserId = $("#current-user").val();
-        if (data.toUser.id == currentUserId) {
-            var userAvatar = data.fromUser.avatar;
-            userAvatar = userAvatar.replace(
-                "images/",
-                "http://127.0.0.1:8000/images/"
-            );
-            var newMessageHtml = '<div class="direct-chat-msg doted-border">\n' +
-                '                        <div class="direct-chat-info clearfix">\n' +
-                '                            <span class="direct-chat-name pull-left">' + data.fromUser.name +
-                '</span>\n' +
-                '                        </div>\n' +
-                '                        <!-- /.direct-chat-info -->\n' +
-                '                        <img alt="' + data.fromUser.name +
-                '"\n' +
-                '                             src="' + userAvatar +
-                '"\n' +
-                '                             class="direct-chat-img"><!-- /.direct-chat-img -->\n' +
-                '                        <div class="direct-chat-text">\n' + data.message.content +
-                '                            \n' +
-                '                        </div>\n' +
-                '                        <div class="direct-chat-info clearfix">\n' +
-                '                            <span class="direct-chat-timestamp pull-right">' + data.createdTime +
-                '</span>\n' +
-                '                        </div>\n' +
-                '                    </div>';
-            var conversationList = $('#conversation-list');
-            conversationList.append(newMessageHtml);
-            document.getElementById('popup-messages').scrollTop = 9999999;
+    var conversationMessageChannel = pusher.subscribe("conversation-message");
+
+    conversationMessageChannel.bind(
+        "App\\Events\\GetConversationMessageFromPusherEvent",
+        function (data) {
+            var currentUserId = $("#current-user").val() || $("#sender-id").val();
+            if (data && data.toUser && data.toUser.id == currentUserId && data.fromUser.id != currentUserId) {
+                var userAvatar = data.fromUser.avatar || '';
+                if (!userAvatar || !userAvatar.startsWith('http')) {
+                    userAvatar = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(data.fromUser.name) + '&background=2563eb&color=fff';
+                }
+                var contentHtml = $('<div/>').text(data.message.content).html().replace(/\n/g, '<br>');
+                var newMessageHtml = '<div class="direct-chat-msg doted-border" style="margin-bottom: 14px;">\n' +
+                    '    <div class="direct-chat-info clearfix">\n' +
+                    '        <span class="direct-chat-name pull-left" style="font-weight: 600; color: #e67e22;">' + data.fromUser.name + '</span>\n' +
+                    '    </div>\n' +
+                    '    <img alt="' + data.fromUser.name + '" src="' + userAvatar + '" class="direct-chat-img" style="border-radius: 50%; width: 32px; height: 32px;">\n' +
+                    '    <div class="direct-chat-text" style="background-color: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; display: inline-block; max-width: 85%; border-radius: 12px 12px 12px 2px; margin: 4px 0; line-height: 1.5;">\n' +
+                    contentHtml +
+                    '    </div>\n' +
+                    '    <div class="direct-chat-info clearfix">\n' +
+                    '        <span class="direct-chat-timestamp pull-left" style="font-size: 11px; color: #95a5a6; margin-left: 42px;">' + (data.createdTime || 'Vừa xong') + '</span>\n' +
+                    '    </div>\n' +
+                    '</div>';
+                var conversationList = $('#conversation-list');
+                conversationList.append(newMessageHtml);
+                var popupMessages = document.getElementById('popup-messages');
+                if (popupMessages) popupMessages.scrollTop = popupMessages.scrollHeight;
+            }
         }
-    }
-);
+    );
+} catch (e) {
+    // Ignore pusher init error
+}
 

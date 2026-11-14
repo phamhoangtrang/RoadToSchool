@@ -19,13 +19,23 @@ class Conversation extends Model
     const DONE = 2;
 
     public static $status = [
-        self::WAITING => 'Waiting answer',
-        self::IN_PROGRESS => 'In progress',
-        self::DONE => 'Done',
+        self::WAITING => 'Đang chờ',
+        self::IN_PROGRESS => 'Đang xử lý',
+        self::DONE => 'Đã xong',
     ];
 
     public function conversation_messages()
     {
         return $this->hasMany('App\Models\ConversationMessage');
+    }
+
+    public function sender()
+    {
+        return $this->belongsTo('App\Models\User', 'user_sender_id');
+    }
+
+    public function receiver()
+    {
+        return $this->belongsTo('App\Models\User', 'admin_receiver_id');
     }
 }
