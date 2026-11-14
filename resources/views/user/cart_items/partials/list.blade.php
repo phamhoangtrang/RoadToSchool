@@ -12,19 +12,19 @@
             <div class="table-responsive">
                 <div class="table-action">
                     <div class="checkbox">
-                        <label for="checkAll">
-                            <input id="checkAll" type="checkbox">
-                            Select: All | <a href="#" class="btn btn-xs btn-danger"><i
-                                        class=" fa fa-trash"></i>Delete</a>
+                        <label for="checkAllInCart" style="font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                            <input id="checkAllInCart" type="checkbox" checked style="margin: 0; position: static;">
+                            <span>Chọn tất cả</span>
+                            <button type="button" id="btn-delete-selected-cart" class="btn btn-xs btn-danger" style="margin-left: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fa fa-trash"></i> Xóa mục đã chọn
+                            </button>
                         </label>
                     </div>
                     <div class="table-search pull-right col-xs-7">
-                        <div class="form-group">
-                            <label class="col-xs-5 control-label text-right">Search <br>
-                                <a title="clear filter" class="clear-filter" href="#clear">[clear]</a>
-                            </label>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="col-xs-5 control-label text-right" style="line-height: 34px; margin-bottom: 0;">Tìm kiếm</label>
                             <div class="col-xs-7 searchpan">
-                                <input class="form-control" id="filter" type="text">
+                                <input class="form-control" id="filter" type="text" placeholder="Tìm kiếm...">
                             </div>
                         </div>
                     </div>
@@ -46,7 +46,10 @@
                                 <td class="add-img-selector" id="checkbox-{{$courseRelation->id}}">
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox">
+                                            <input type="checkbox" class="cart-item-checkbox" value="{{ $courseRelation->id }}"
+                                                   data-origin-price="{{ (float)$courseRelation->course->origin_price }}"
+                                                   data-promotion-price="{{ (float)((!empty($courseRelation->course->promotion_price) && $courseRelation->course->promotion_price < $courseRelation->course->origin_price) ? $courseRelation->course->promotion_price : $courseRelation->course->origin_price) }}"
+                                                   checked>
                                         </label>
                                     </div>
                                 </td>
@@ -54,7 +57,9 @@
                                     <a href="{{ route('courses.show', $courseRelation->course->id) }}">
                                         <img class="img-responsive"
                                              src="{{ str_replace('public/', '', asset($courseRelation->course->course_avatar)) }}"
-                                             alt="img">
+                                             onerror="this.onerror=null; this.src='{{ asset('images/default_course_avatar/web_development_1.jpeg') }}';"
+                                             style="border-radius: 4px; object-fit: cover;"
+                                             alt="{{ $courseRelation->course->title }}">
                                     </a>
                                 </td>
                                 <td class="ads-details-td">
@@ -70,15 +75,19 @@
                                             : </strong> {{ $courseRelation->course->lecture_numbers . ' ' . __('titles.lectures') . ' ' . __('titles.in') . ' ' . $courseRelation->course->duration . ' ' . __('titles.minutes') }}
                                     </p>
                                 </td>
-                                <td class="price-td">
-                                    <strong>
-                                        @if(isset($courseRelation->course->promotion_price) && $courseRelation->course->promotion_price < $courseRelation->course->origin_price)
-                                            <p><b style="color:red">{{ format_price($courseRelation->course->promotion_price) }}
-                                                    </b><br><strike> {{ format_price($courseRelation->course->origin_price) }}</strike></p>
-                                        @else
-                                            <b>{{ format_price($courseRelation->course->origin_price) }}</b>
-                                        @endif
-                                    </strong>
+                                <td class="price-td" style="vertical-align: middle; white-space: nowrap;">
+                                    @if(isset($courseRelation->course->promotion_price) && $courseRelation->course->promotion_price < $courseRelation->course->origin_price)
+                                        <div style="font-size: 16px; font-weight: 700; color: #dc2626; line-height: 1.3;">
+                                            {{ format_price($courseRelation->course->promotion_price) }}
+                                        </div>
+                                        <div style="font-size: 13px; color: #94a3b8; text-decoration: line-through; margin-top: 2px;">
+                                            {{ format_price($courseRelation->course->origin_price) }}
+                                        </div>
+                                    @else
+                                        <div style="font-size: 16px; font-weight: 700; color: #334155;">
+                                            {{ format_price($courseRelation->course->origin_price) }}
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="action-td">
                                     <p><a class="btn btn-danger btn-xs remove" data-id="{{ $courseRelation->id }}"> <i
@@ -99,31 +108,28 @@
                     @endforeach
                     </tbody>
                 </table>
-                <div class="col-sm-3">
-                    <h3> {{ __('titles.total') }}:</h3>
-                    @if($totalOriginPriceInCart !== $totalPromotionPriceInCart)
-                        <h2 style="color:red"> {{ format_price($totalPromotionPriceInCart) }} </h2>
-                        <h3><strike> {{ format_price($totalOriginPriceInCart) }} </strike></h3>
-                        <h4> @if($totalOriginPriceInCart !== 0) {{ number_format((float)(1 - $totalPromotionPriceInCart/$totalOriginPriceInCart)*100, 2, '.', '') }} @else
-                                0 @endif % {{ __('titles.off') }}</h4>
-                    @else
-                        <h3>{{ format_price($totalOriginPriceInCart) }}</h3>
-                    @endif
-                </div>
-                <div class="col-sm-5">
-                    <div class="col-xs-9 searchpan">
-                        <input class="form-control" id="filter" type="text"
-                               placeholder="{{ __('titles.apply_coupon_code') }}">
+                <div class="cart-summary-box" style="margin-top: 25px; padding: 22px 26px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                    <div class="cart-summary-price" style="display: flex; flex-direction: column; gap: 6px;">
+                        <span style="font-size: 14px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">{{ __('titles.total') }}:</span>
+                        <div id="cart-summary-price-container" style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;">
+                            <span id="cart-total-pay" style="font-size: 30px; font-weight: 800; color: {{ ($totalOriginPriceInCart !== $totalPromotionPriceInCart) ? '#dc2626' : '#1e293b' }}; line-height: 1; white-space: nowrap;">
+                                {{ format_price($totalPromotionPriceInCart) }}
+                            </span>
+                            <span id="cart-total-origin" style="font-size: 16px; color: #94a3b8; text-decoration: line-through; white-space: nowrap; {{ ($totalOriginPriceInCart !== $totalPromotionPriceInCart) ? '' : 'display: none;' }}">
+                                {{ format_price($totalOriginPriceInCart) }}
+                            </span>
+                            <span id="cart-total-discount" style="background: #fee2e2; color: #dc2626; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 4px; white-space: nowrap; {{ ($totalOriginPriceInCart !== $totalPromotionPriceInCart && $totalOriginPriceInCart !== 0) ? '' : 'display: none;' }}">
+                                @if($totalOriginPriceInCart !== 0 && $totalOriginPriceInCart !== $totalPromotionPriceInCart)
+                                    Tiết kiệm {{ number_format((float)(1 - $totalPromotionPriceInCart/$totalOriginPriceInCart)*100, 1, '.', '') }}%
+                                @endif
+                            </span>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-xs pull-right" style="background-color:#3498db">Apply</button>
-                    <br><br>
-                    <p><i class="fa fa-check-circle"></i> 1811CYBERMONDAYEXTENSION is applied </p>
-                </div>
-                <div class="col-sm-4">
-                    <a href="{{ route('cart_items.checkout.get') }}">
-                        <button class="col-sm-9 btn"
-                                style="float:right; background-color:#3498db"> {{ __('titles.checkout') }} </button>
-                    </a>
+                    <div class="cart-summary-btn">
+                        <a href="{{ route('cart_items.checkout.get') }}" id="btn-cart-checkout" class="btn btn-common" style="padding: 13px 36px; font-size: 16px; font-weight: 700; border-radius: 6px; background-color: #3498db; color: #fff; display: inline-flex; align-items: center; gap: 10px; text-transform: uppercase; box-shadow: 0 4px 14px rgba(52, 152, 219, 0.35); text-decoration: none;">
+                            <i class="fa fa-credit-card"></i> {{ __('titles.checkout') }}
+                        </a>
+                    </div>
                 </div>
             </div>
         @endif
@@ -140,19 +146,19 @@
             <div class="table-responsive">
                 <div class="table-action">
                     <div class="checkbox">
-                        <label for="checkAll">
-                            <input id="checkAll" type="checkbox">
-                            Select: All | <a href="#" class="btn btn-xs btn-danger"><i
-                                        class=" fa fa-trash"></i>Delete</a>
+                        <label for="checkAllInLater" style="font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                            <input id="checkAllInLater" type="checkbox" style="margin: 0; position: static;">
+                            <span>Chọn tất cả</span>
+                            <button type="button" id="btn-delete-selected-later" class="btn btn-xs btn-danger" style="margin-left: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fa fa-trash"></i> Xóa mục đã chọn
+                            </button>
                         </label>
                     </div>
                     <div class="table-search pull-right col-xs-7">
-                        <div class="form-group">
-                            <label class="col-xs-5 control-label text-right">Search <br>
-                                <a title="clear filter" class="clear-filter" href="#clear">[clear]</a>
-                            </label>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="col-xs-5 control-label text-right" style="line-height: 34px; margin-bottom: 0;">Tìm kiếm</label>
                             <div class="col-xs-7 searchpan">
-                                <input class="form-control" id="filter" type="text">
+                                <input class="form-control" id="filter" type="text" placeholder="Tìm kiếm...">
                             </div>
                         </div>
                     </div>
@@ -174,7 +180,7 @@
                                 <td class="add-img-selector">
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox">
+                                            <input type="checkbox" class="later-item-checkbox" value="{{ $courseRelation->id }}">
                                         </label>
                                     </div>
                                 </td>
@@ -182,7 +188,9 @@
                                     <a href="{{ route('courses.show', $courseRelation->course->id) }}">
                                         <img class="img-responsive"
                                              src="{{ str_replace('public/', '', asset($courseRelation->course->course_avatar)) }}"
-                                             alt="img">
+                                             onerror="this.onerror=null; this.src='{{ asset('images/default_course_avatar/web_development_1.jpeg') }}';"
+                                             style="border-radius: 4px; object-fit: cover;"
+                                             alt="{{ $courseRelation->course->title }}">
                                     </a>
                                 </td>
                                 <td class="ads-details-td">
@@ -236,19 +244,19 @@
             <div class="table-responsive">
                 <div class="table-action">
                     <div class="checkbox">
-                        <label for="checkAll">
-                            <input id="checkAll" type="checkbox">
-                            Select: All | <a href="#" class="btn btn-xs btn-danger"><i
-                                        class=" fa fa-trash"></i>Delete</a>
+                        <label for="checkAllInWishlist" style="font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                            <input id="checkAllInWishlist" type="checkbox" style="margin: 0; position: static;">
+                            <span>Chọn tất cả</span>
+                            <button type="button" id="btn-delete-selected-wishlist" class="btn btn-xs btn-danger" style="margin-left: 10px; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="fa fa-trash"></i> Xóa mục đã chọn
+                            </button>
                         </label>
                     </div>
                     <div class="table-search pull-right col-xs-7">
-                        <div class="form-group">
-                            <label class="col-xs-5 control-label text-right">Search <br>
-                                <a title="clear filter" class="clear-filter" href="#clear">[clear]</a>
-                            </label>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="col-xs-5 control-label text-right" style="line-height: 34px; margin-bottom: 0;">Tìm kiếm</label>
                             <div class="col-xs-7 searchpan">
-                                <input class="form-control" id="filter" type="text">
+                                <input class="form-control" id="filter" type="text" placeholder="Tìm kiếm...">
                             </div>
                         </div>
                     </div>
@@ -270,7 +278,7 @@
                                 <td class="add-img-selector">
                                     <div class="checkbox">
                                         <label>
-                                            <input type="checkbox">
+                                            <input type="checkbox" class="wishlist-item-checkbox" value="{{ $courseRelation->id }}">
                                         </label>
                                     </div>
                                 </td>
@@ -278,7 +286,9 @@
                                     <a href="{{ route('courses.show', $courseRelation->course->id) }}">
                                         <img class="img-responsive"
                                              src="{{ str_replace('public/', '', asset($courseRelation->course->course_avatar)) }}"
-                                             alt="img">
+                                             onerror="this.onerror=null; this.src='{{ asset('images/default_course_avatar/web_development_1.jpeg') }}';"
+                                             style="border-radius: 4px; object-fit: cover;"
+                                             alt="{{ $courseRelation->course->title }}">
                                     </a>
                                 </td>
                                 <td class="ads-details-td">

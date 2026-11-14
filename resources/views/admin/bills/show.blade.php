@@ -13,8 +13,14 @@
         <div class="container-fluid">
             <div class="container">
                 <div class="card">
-                    <div class="p-v-5 p-h-10 border bottom print-invisible">
-                        <ul class="list-unstyle list-inline text-right">
+                    <div class="p-v-5 p-h-10 border bottom print-invisible d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ route('admin.bills.index') }}" class="btn text-gray text-hover display-block p-10 m-b-0">
+                                <i class="fa fa-arrow-left p-r-5"></i>
+                                <b>Danh sách đơn hàng</b>
+                            </a>
+                        </div>
+                        <ul class="list-unstyle list-inline text-right m-b-0">
                             <li class="list-inline-item">
                                 <a href="#" class="btn text-gray text-hover display-block p-10 m-b-0"
                                     onclick="window.print();">
@@ -31,15 +37,6 @@
                         </ul>
                     </div>
                     <div class="card-body">
-                        <ul class="nav wizard wizard-gradient-info">
-                            @foreach(\App\Models\Bill::$status as $key => $value)
-                                <li class="nav-item">
-                                    <a class="nav-link status-map @if($key < $bill->status) completed @elseif($key == $bill->status) active @endif"
-                                       href="#" id="status-map-{{ $key }}"></a>
-                                    <div class="nav-title">{{ $value }}</div>
-                                </li>
-                            @endforeach
-                        </ul>
                         <div class="p-h-30">
                             <div class="m-t-15">
                                 <div class="inline-block">
@@ -53,11 +50,46 @@
                                         <span>(+84) 965 818 552</span>
                                     </address>
                                 </div>
-                                <div class="pull-right">
+                                <div class="pull-right text-right">
                                     <h2>CHI TIẾT ĐƠN HÀNG #{{ $bill->id }}</h2>
-                                    <h3 id="bill-status">Trạng thái: {{ \App\Models\Bill::$status[$bill->status] }}</h3>
-                                    <a href="#" id="edit-status" data-id="{{ $bill->id }}"
-                                       data-status="{{ $bill->status }}">Đổi trạng thái đơn hàng</a>
+                                    <div class="m-t-10 m-b-10">
+                                        <span class="text-muted m-r-5">Trạng thái:</span>
+                                        @if($bill->status === \App\Models\Bill::PENDING)
+                                            <span class="badge badge-warning" style="font-size: 13px; padding: 6px 14px;">
+                                                <i class="fa fa-clock-o"></i> Chờ thanh toán
+                                            </span>
+                                        @elseif(in_array($bill->status, [\App\Models\Bill::ALREADY_PAID, \App\Models\Bill::ACTIVATED]))
+                                            <span class="badge badge-success" style="font-size: 13px; padding: 6px 14px;">
+                                                <i class="fa fa-check-circle"></i> Đã thanh toán (Đã kích hoạt)
+                                            </span>
+                                        @elseif($bill->status === \App\Models\Bill::CANCELED)
+                                            <span class="badge badge-secondary" style="font-size: 13px; padding: 6px 14px;">
+                                                <i class="fa fa-ban"></i> Đã hủy
+                                            </span>
+                                        @else
+                                            <span class="badge badge-info" style="font-size: 13px; padding: 6px 14px;">
+                                                {{ \App\Models\Bill::$status[$bill->status] ?? 'Đang xử lý' }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="m-t-10">
+                                        @if($bill->status === \App\Models\Bill::PENDING)
+                                            <button type="button" class="btn btn-sm btn-success btn-manual-activate" data-id="{{ $bill->id }}" title="Duyệt đơn thủ công nếu học viên chuyển khoản thành công">
+                                                <i class="fa fa-check"></i> Duyệt đơn thủ công
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger btn-cancel-bill" data-id="{{ $bill->id }}" title="Hủy đơn hàng">
+                                                <i class="fa fa-times"></i> Hủy đơn
+                                            </button>
+                                        @elseif(in_array($bill->status, [\App\Models\Bill::ALREADY_PAID, \App\Models\Bill::ACTIVATED]))
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-cancel-bill" data-id="{{ $bill->id }}" title="Hoàn tiền và thu hồi quyền học">
+                                                <i class="fa fa-undo"></i> Hoàn tiền / Thu hồi khóa học
+                                            </button>
+                                        @elseif($bill->status === \App\Models\Bill::CANCELED)
+                                            <button type="button" class="btn btn-sm btn-outline-success btn-manual-activate" data-id="{{ $bill->id }}" title="Kích hoạt lại khóa học cho đơn này">
+                                                <i class="fa fa-refresh"></i> Kích hoạt lại đơn hàng
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                             <div class="row m-t-20">
@@ -66,7 +98,9 @@
                                     <address class="p-l-10 m-t-10">
                                         <b class="text-dark">Họ tên: </b><span> {{ $bill->customer_name }} </span><br>
                                         <b class="text-dark">Số điện thoại: </b><span> {{ $bill->customer_phone }} </span><br>
-                                        <b class="text-dark">Địa chỉ: </b><span> {{ $bill->customer_address }} </span><br>
+                                        @if(!empty($bill->customer_address))
+                                            <b class="text-dark">Địa chỉ: </b><span> {{ $bill->customer_address }} </span><br>
+                                        @endif
                                         <b class="text-dark">Ghi chú: </b><span> {{ $bill->customer_note ?? 'Không có ghi chú' }} </span><br>
                                     </address>
                                 </div>
@@ -143,93 +177,62 @@
     <!-- Content Wrapper END -->
 @endsection
 
-@include('admin.bills.partials.edit_status_modal')
-
 @section('inline_scripts')
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/jquery.dataTables.js') }}"></script>
-    <script src="{{ asset('assets/admin/vendor/datatables/media/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/tables/data-table.js') }}"></script>
-
     <script>
         $(document).ready(function () {
-            var billId;
-
-            $('#edit-status').on('click', function (event) {
-                event.preventDefault();
-                $('#edit-status-modal').modal('show');
-                billId = $(this).data('id');
-
-                $('#change-status-select').val($(this).data('status'))
-            })
-
-            $('#update-status').click(function (event) {
-                event.preventDefault();
-
-                var statusId = $('#change-status-select').val();
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                $.ajax({
-                    type: 'POST',
-                    url: '/admin/bills/status/update',
-                    data: {
-                        billId: billId,
-                        statusId: statusId,
-                    },
-                    success: function () {
-                        $('#edit-status-modal').modal('hide');
-                        $('#edit-status').data('status', statusId);
-                        console.log(statusId);
-                        var statusBillElement = $('#bill-status');
-                        statusBillElement.html();
-                        $('.status-map').removeClass();
-                        $('#status-map-' + statusId).addClass('nav-link status-map active');
-                        for (var i = 0; i < 5; i++) {
-                            if (i < statusId) {
-                                $('#status-map-' + i).addClass('nav-link status-map completed');
-                            } else if (i > statusId) {
-                                $('#status-map-' + i).addClass('nav-link status-map');
-                            }
+            // Duyệt đơn thủ công
+            $(document).on('click', '.btn-manual-activate', function (e) {
+                e.preventDefault();
+                var billId = $(this).data('id');
+                if (confirm('Xác nhận học viên đã thanh toán đơn hàng #' + billId + '?\nHệ thống sẽ chuyển trạng thái "Đã thanh toán" và tự động cấp quyền truy cập khóa học cho học viên.')) {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         }
-                        switch (statusId) {
-                            case '0': {
-                                statusBillElement.html('Bill Status: Pending');
-                                break;
-                            }
-                            case '1': {
-                                statusBillElement.html('Bill Status: Transporting');
-                                break;
-                            }
-                            case '2': {
-                                statusBillElement.html('Bill Status: Already Paid');
-                                break;
-                            }
-                            case '3': {
-                                statusBillElement.html('Bill Status: Activated');
-                                break;
-                            }
-                            case '4': {
-                                console.log('44444444');
-                                statusBillElement.html('Bill Status: Canceled');
-                                break;
-                            }
+                    });
+                    $.ajax({
+                        type: 'POST',
+                        url: '/admin/bills/status/update',
+                        data: {
+                            billId: billId,
+                            statusId: 2, // ALREADY_PAID
+                        },
+                        success: function () {
+                            location.reload();
+                        },
+                        error: function () {
+                            alert('Có lỗi xảy ra, vui lòng thử lại.');
                         }
-                        $.notify({
-                            // options
-                            message: ' {{ __('messages.update_bill_status_success') }} '
-                        }, {
-                            // settings
-                            type: 'success',
-                            placement: {
-                                from: "bottom",
-                                align: "right"
-                            },
-                        });
-                    }
-                }, 'json');
+                    });
+                }
             });
-        })
+
+            // Hủy đơn hàng / Hoàn tiền
+            $(document).on('click', '.btn-cancel-bill', function (e) {
+                e.preventDefault();
+                var billId = $(this).data('id');
+                if (confirm('Bạn có chắc chắn muốn HỦY đơn hàng #' + billId + '?\nNếu đơn hàng đã kích hoạt, hệ thống sẽ tự động THU HỒI khóa học của học viên.')) {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                    $.ajax({
+                        type: 'POST',
+                        url: '/admin/bills/status/update',
+                        data: {
+                            billId: billId,
+                            statusId: 4, // CANCELED
+                        },
+                        success: function () {
+                            location.reload();
+                        },
+                        error: function () {
+                            alert('Có lỗi xảy ra, vui lòng thử lại.');
+                        }
+                    });
+                }
+            });
+        });
     </script>
 @endsection

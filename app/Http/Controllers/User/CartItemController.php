@@ -55,6 +55,12 @@ class CartItemController extends Controller
 
     public function changeStatus(Request $requestAjax, $action)
     {
+        if ($action === 'remove_multiple') {
+            $ids = (array) $requestAjax->input('cartItemIds', []);
+            $result = CartItem::whereIn('id', $ids)->where('user_id', Auth::id())->delete();
+            return response()->json(['success' => (bool)$result]);
+        }
+
         $result = $this->modelCartItem->changeStatusCartItem($requestAjax->cartItemId, $action);
 
         return response()->json($result);
@@ -62,7 +68,10 @@ class CartItemController extends Controller
 
     public function createNewItem(Request $requestAjax)
     {
-        $billIds = $this->modelBill->where('user_id', Auth::user()->id)->select('id')->get();
+        $billIds = $this->modelBill->where('user_id', Auth::user()->id)
+            ->whereIn('status', [Bill::ALREADY_PAID, Bill::ACTIVATED])
+            ->select('id')
+            ->get();
         $courseIds = $this->modelBillCourse->whereIn('bill_id', $billIds)->pluck('course_id')->toArray();
 
         if ($this->modelCartItem->where('course_id', $requestAjax->courseId)->where('user_id', Auth::user()->id)->first()) {

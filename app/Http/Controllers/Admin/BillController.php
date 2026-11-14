@@ -7,6 +7,7 @@ use App\Models\BillCourse;
 use App\Models\Course;
 use App\Models\CourseUser;
 use App\Models\Process;
+use App\Models\CartItem;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -83,6 +84,8 @@ class BillController extends Controller
                     }
                 }
             }
+            // Xóa các khóa học đã được kích hoạt khỏi giỏ hàng của học viên
+            CartItem::where('user_id', $userId)->whereIn('course_id', $courseIdList)->delete();
         } elseif ($isOldActive && !$isNewActive && $userId) {
             // Deactivate courses if cancelled or pending
             foreach ($courseIdList as $courseId) {

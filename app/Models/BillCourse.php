@@ -33,4 +33,14 @@ class BillCourse extends Model
 
         return true;
     }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class, 'course_id');
+    }
+
+    public function bill()
+    {
+        return $this->belongsTo(Bill::class, 'bill_id');
+    }
 }
