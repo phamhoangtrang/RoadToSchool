@@ -43,55 +43,53 @@
                                         class="badge"> {{ $cartItemsCount }} </span></a>
                             <ul class="dropdown-menu dropdown-cart" role="menu">
                                 @if($cartItems->isEmpty())
-                                    <li class="text-center">
-                                        <h4> {{ __('messages.your_cart_is_empty') }}</h4>
-                                    </li>
-                                    <li class="divider"></li>
-                                    <li>
-                                        <a class="text-center" href="{{ route('home') }}">
-                                            <h4>{{ __('titles.keep_shopping') }}</h4>
+                                    <li class="empty-cart-state">
+                                        <div class="empty-cart-icon"><i class="fa fa-shopping-basket"></i></div>
+                                        <p style="color: #64748b; font-size: 14px; margin: 0;">{{ __('messages.your_cart_is_empty') }}</p>
+                                        <a class="btn-keep-shopping" href="{{ route('home') }}">
+                                            {{ __('titles.keep_shopping') }}
                                         </a>
                                     </li>
                                 @else
-                                    @foreach($cartItems as $cartItem)
-                                        <li class="cart-item-detail" style="cursor: pointer;"
-                                            data-id="{{ $cartItem->course->id }}">
-                                            {{--<a href="{{ route('courses.show', $cartItem->course->id) }}">--}}
-                                            <span class="item">
-                                                <span class="item-left">
-                                                   <img src="{{ str_replace('public/', '', asset($cartItem->course->course_avatar)) }}"
-                                                        alt=""/>
-                                                   <span class="item-info">
-                                                      <span><strong> {{ (strlen($cartItem->course->title) >= 19) ? substr($cartItem->course->title, 0, 15) . '...' : $cartItem->course->title }}  </strong></span>
-                                                      <span>
-                                                         @if(isset($cartItem->course->promotion_price) && $cartItem->course->promotion_price < $cartItem->course->origin_price)
-                                                              <p><b style="color:red">{{ format_price($cartItem->course->promotion_price) }} </b><strike> {{ format_price($cartItem->course->origin_price) }}</strike></p>
-                                                          @else
-                                                              <b>{{ format_price($cartItem->course->origin_price) }}</b>
-                                                          @endif
-                                                      </span>
-                                                   </span>
-                                                </span>
-                                                </span>
-                                            {{--</a>--}}
-                                        </li>
-                                    @endforeach
-                                    <li class="divider"></li>
-                                    <li>
-                                        <h5 class="text-center">
-                                            <p>
+                                    <li class="dropdown-cart-header">
+                                        <span class="dropdown-cart-title">Khóa học trong giỏ ({{ $cartItemsCount }})</span>
+                                    </li>
+                                    <div class="dropdown-cart-items-scroll">
+                                        @foreach($cartItems as $cartItem)
+                                            <li class="cart-item-detail" style="cursor: pointer;"
+                                                data-id="{{ $cartItem->course->id }}">
+                                                <div class="cart-dropdown-item-inner">
+                                                    <img class="cart-dropdown-thumb" src="{{ str_replace('public/', '', asset($cartItem->course->course_avatar)) }}"
+                                                         onerror="this.src='{{ asset('assets/img/default_avatar.png') }}';" alt=""/>
+                                                    <div class="cart-dropdown-info">
+                                                        <h6 class="cart-dropdown-item-title">{{ \Illuminate\Support\Str::limit($cartItem->course->title, 28) }}</h6>
+                                                        <div class="cart-dropdown-prices">
+                                                            @if(isset($cartItem->course->promotion_price) && $cartItem->course->promotion_price < $cartItem->course->origin_price)
+                                                                <span class="cart-dropdown-sale-price">{{ format_price($cartItem->course->promotion_price) }}</span>
+                                                                <span class="cart-dropdown-origin-price">{{ format_price($cartItem->course->origin_price) }}</span>
+                                                            @else
+                                                                <span class="cart-dropdown-sale-price" style="color: #1e293b;">{{ format_price($cartItem->course->origin_price) }}</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </div>
+                                    <li class="dropdown-cart-footer">
+                                        <div class="dropdown-cart-total-row">
+                                            <span class="dropdown-cart-total-label">{{ __('titles.total') }}:</span>
+                                            <div class="dropdown-cart-total-values">
                                                 @if(0 != $totalPromotionPrice && $totalPromotionPrice < $totalOriginPrice)
-                                                    <strong>{{ __('titles.total') }}</strong>: <b
-                                                            style="color:red">{{ format_price($totalPromotionPrice) }} </b>
-                                                    <strike> {{ format_price($totalOriginPrice) }}</strike>
-                                            @else
-                                                <h4>{{ __('titles.total') }}</h4>
-                                                : <b>{{ format_price($totalOriginPrice) }}</b>
+                                                    <span class="dropdown-cart-total-sale">{{ format_price($totalPromotionPrice) }}</span>
+                                                    <span class="dropdown-cart-total-strike">{{ format_price($totalOriginPrice) }}</span>
+                                                @else
+                                                    <span class="dropdown-cart-total-sale">{{ format_price($totalOriginPrice) }}</span>
                                                 @endif
-                                                </p>
-                                        </h5>
-                                        <a class="text-center" href="{{ route('cart_items.index') }}">
-                                            <h4>{{ __('titles.checkout_cart') }}</h4>
+                                            </div>
+                                        </div>
+                                        <a class="btn-dropdown-checkout" href="{{ route('cart_items.index') }}">
+                                            <span>{{ __('titles.checkout_cart') }}</span> <i class="fa fa-arrow-right" style="margin-left: 8px;"></i>
                                         </a>
                                     </li>
                                 @endif
@@ -105,7 +103,7 @@
 {{--                    {{ dd(\Session::all()) }}--}}
                         <li class="dropdown" id="notification-area">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                               aria-expanded="false"><i class="fa fa-shopping-cart"></i> {{ __('titles.u_notification') }} <span
+                               aria-expanded="false"><i class="fa fa-bell"></i> {{ __('titles.u_notification') }} <span
                                         class="badge"
                                         id="notification-count"> {{ $notificationsList->where('status', 0)->count() }} </span></a>
                             <ul class="dropdown-menu dropdown-cart" id="notification-list" role="menu"
@@ -119,7 +117,7 @@
                                         @if($notification->type == 1 || $notification->type == 2)
                                             <li class="notification-detail" data-id="{{ $notification->id }}"
                                                 data-status="{{ $notification->status }}"
-                                                style="cursor: pointer; {{ $notification->status ? '' : 'background: #CECEF6' }}"
+                                                style="cursor: pointer; {{ $notification->status ? '' : 'background: #eff6ff' }}"
                                                 data-type="{{ $notification->type }}"
                                                 data-course="{{ $notification->course_id }}"
                                                 data-comment="{{ $notification->comment_id }}"
@@ -137,11 +135,11 @@
                                                                  style="height: 45px; width: 45px" alt=""/>
                                                         @endif
                                                        <span class="item-info">
-                                                          <span> {!! (strlen($notification->content) >= 24) ? substr($notification->content, 0, 30) . '...' : $notification->content !!} </span>
+                                                          <span> {!! \Illuminate\Support\Str::limit($notification->content, 35) !!} </span>
                                                        <span class="diff-time" id="diff-time-{{ $notification->id }}"
                                                              data-time="{{ strtotime($notification->created_at) }}">
                                                              @php
-                                                                 $diffTime = \Carbon\Carbon::parse($notification->created_at)->diffForHumans();
+                                                                 $diffTime = \Carbon\Carbon::parse($notification->created_at)->locale('vi')->diffForHumans();
                                                              @endphp
                                                            {{ $diffTime }}
                                                           </span>
@@ -152,31 +150,32 @@
                                         @elseif($notification->type == 0)
                                             <li class="notification-detail" data-id="{{ $notification->id }}"
                                                 data-status="{{ $notification->status }}"
-                                                style="cursor: pointer; {{ $notification->status ? '' : 'background: #CECEF6' }}">
+                                                style="cursor: pointer; {{ $notification->status ? '' : 'background: #eff6ff' }}">
                                                 <span class="item">
                                                     <span class="item-left">
                                                             <img src="/assets/img/logo-short.png"
                                                                  style="height: 45px; width: 45px"
                                                                  alt=""/>
-                                                       <span class="item-info">
-                                                          <span> {!! (strlen($notification->content) >= 24) ? substr($notification->content, 0, 30) . '...' : $notification->content !!} </span>
-                                                       <span class="diff-time" id="diff-time-{{ $notification->id }}"
-                                                             data-time="{{ strtotime($notification->created_at) }}">
-                                                             @php
-                                                                 $diffTime = \Carbon\Carbon::parse($notification->created_at)->diffForHumans();
-                                                             @endphp
-                                                           {{ $diffTime }}
-                                                          </span>
-                                                       </span>
+                                                        <span class="item-info">
+                                                           <span> {!! \Illuminate\Support\Str::limit($notification->content, 35) !!} </span>
+                                                        <span class="diff-time" id="diff-time-{{ $notification->id }}"
+                                                              data-time="{{ strtotime($notification->created_at) }}">
+                                                              @php
+                                                                  $diffTime = \Carbon\Carbon::parse($notification->created_at)->locale('vi')->diffForHumans();
+                                                              @endphp
+                                                            {{ $diffTime }}
+                                                           </span>
+                                                        </span>
                                                     </span>
                                                 </span>
                                             </li>
                                         @endif
                                     @endforeach
                                     <li class="divider"></li>
-                                    <li class="text-center">
-                                        <a href="{{ route('notifications.index') }}">
-                                            <h4> {{ __('titles.see_all_noti') }} </h4></a>
+                                    <li class="text-center" style="padding: 8px 0;">
+                                        <a href="{{ route('notifications.index') }}" style="color: #2563eb; font-weight: 600; font-size: 13.5px; text-decoration: none;">
+                                            {{ __('titles.see_all_noti') }} <i class="fa fa-angle-right"></i>
+                                        </a>
                                     </li>
                                 @endif
                             </ul>
@@ -184,33 +183,37 @@
                         {{--Account--}}
                         <li class="nav-item dropdown">
                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                {{ Auth::user()->name }} <span class="caret"></span>
+                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre
+                               style="display: inline-flex; align-items: center; gap: 8px;">
+                                <img class="header-user-avatar"
+                                     src="{{ \Auth::user()->avatar ? str_replace('public/', '', asset(\Auth::user()->avatar)) : asset('assets/img/default_avatar.png') }}"
+                                     onerror="this.src='{{ asset('assets/img/default_avatar.png') }}';"
+                                     alt="{{ \Auth::user()->name }}">
+                                <span class="header-user-name">{{ Auth::user()->name }}</span>
+                                <span class="caret"></span>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{{ route('users.show', Auth::user()->id) }}"
-                                   style="display: block;">
-                                    {{ __('titles.my_profile') }}
+                            <div class="dropdown-menu dropdown-menu-right modern-user-dropdown" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="{{ route('users.show', Auth::user()->id) }}">
+                                    <i class="fa fa-user" style="color: #64748b; width: 16px;"></i> {{ __('titles.my_profile') }}
                                 </a>
                                 @if(Auth::user()->is_admin)
-                                    <a class="dropdown-item" href="{{ route('admin.dashboard') }}"
-                                       style="display: block;">
-                                        {{ __('titles.r2s_admin') }}
+                                    <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
+                                        <i class="fa fa-dashboard" style="color: #2563eb; width: 16px;"></i> {{ __('titles.r2s_admin') }}
                                     </a>
                                 @elseif(Auth::user()->role == 1)
-                                    <a class="dropdown-item" href="{{ route('instructor.dashboard') }}"
-                                       style="display: block;">
-                                        {{ __('titles.r2s_instructor') }}
+                                    <a class="dropdown-item" href="{{ route('instructor.dashboard') }}">
+                                        <i class="fa fa-graduation-cap" style="color: #2563eb; width: 16px;"></i> {{ __('titles.r2s_instructor') }}
                                     </a>
                                 @elseif(Auth::user()->role == 2)
-                                    <a class="dropdown-item" href="{{ route('courses.my_course', Auth::user()->id) }}"
-                                       style="display: block;">
-                                        {{ __('titles.my_course') }}
+                                    <a class="dropdown-item" href="{{ route('courses.my_course', Auth::user()->id) }}">
+                                        <i class="fa fa-book" style="color: #2563eb; width: 16px;"></i> {{ __('titles.my_course') }}
                                     </a>
                                 @endif
+                                <div style="margin: 6px 0; border-top: 1px solid #f1f5f9;"></div>
                                 <a class="dropdown-item" href="{{ route('logout') }}"
-                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    {{ __('titles.logout') }}
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                   style="color: #ef4444;">
+                                    <i class="fa fa-sign-out" style="width: 16px;"></i> {{ __('titles.logout') }}
                                 </a>
                                 {{ Form::open(['method' => 'post', 'url' => 'logout', 'id' => 'logout-form', 'style' => 'display: none;']) }}
                                 {{ Form::close() }}

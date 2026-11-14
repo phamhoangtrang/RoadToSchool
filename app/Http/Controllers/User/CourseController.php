@@ -203,20 +203,35 @@ class CourseController extends Controller
         $data['course_id'] = $courseId;
 
         $createdComment = $this->modelComment->storeNewComment($data);
-        $commentedUserList = $this->modelComment->where('course_id', $courseId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
-        // Create Notification
-        $createdNotification = $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, Notification::COMMENT);
-        $notificationContent = '<b>' . $createdComment->user->name . '</b> has commented in <b>' . Course::findOrFail($courseId)->first()->title . '</b>: ' . $createdComment->content;
-        $createNotificationIdList = $this->modelNotification->where('comment_id', $createdComment->id)->pluck('id', 'user_id');
+        if ($createdComment) {
+            $commentedUserList = $this->modelComment->where('course_id', $courseId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
+            // Create Notification
+            $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, Notification::COMMENT);
+            $course = Course::find($courseId);
+            $courseTitle = $course ? $course->title : '';
+            $notificationContent = '<b>' . $createdComment->user->name . '</b> đã bình luận trong khóa học <b>' . $courseTitle . '</b>: ' . $createdComment->content;
+            $createNotificationIdList = $this->modelNotification->where('comment_id', $createdComment->id)->pluck('id', 'user_id');
 
-        if ($createdComment && $createdNotification) {
-            event(new GetCommentFromPusherEvent($request, $createdComment));
-            event(new GetNotificationFromPusherEvent($courseId, $commentedUserList, $createdComment, $notificationContent, $createdComment->user->avatar, \Carbon\Carbon::parse($createdComment->created_at)->diffForHumans(), $createNotificationIdList));
+            try {
+                event(new GetCommentFromPusherEvent($request, $createdComment));
+                event(new GetNotificationFromPusherEvent($courseId, $commentedUserList, $createdComment, $notificationContent, $createdComment->user->avatar, \Carbon\Carbon::parse($createdComment->created_at)->diffForHumans(), $createNotificationIdList));
+            } catch (\Exception $e) {
+                \Log::warning('Pusher event error: ' . $e->getMessage());
+            }
 
-            return 200;
+            return response()->json([
+                'status' => 200,
+                'comment' => $createdComment,
+                'user' => [
+                    'id' => $createdComment->user->id,
+                    'name' => $createdComment->user->name,
+                    'avatar' => str_replace(' ', '', str_replace('public/', '', asset($createdComment->user->avatar ?? 'images/default_avatar/default_avatar.jpg'))),
+                ],
+                'created_at' => $createdComment->updated_at ? $createdComment->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
+            ]);
         }
 
-        return 500;
+        return response()->json(['status' => 500, 'message' => 'Lỗi tạo bình luận'], 500);
     }
 
     public function postReplyCommentToPusher(Request $request, $courseId, $parentCommentId)
@@ -227,22 +242,32 @@ class CourseController extends Controller
         $data['parent_comment'] = $parentCommentId;
 
         $createdComment = $this->modelComment->storeNewComment($data);
-        $commentedUserList = $this->modelComment->where('user_id', '!=', $data['user_id'])->where('course_id', $courseId)->where('parent_comment', $parentCommentId)->groupBy('user_id')->pluck('user_id');
-        $createdNotification = $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, 'replied');
-        if ($createdComment && $createdNotification) {
-            event(new GetReplyCommentFromPusherEvent($request, $createdComment, $parentCommentId));
+        if ($createdComment) {
+            $commentedUserList = $this->modelComment->where('user_id', '!=', $data['user_id'])->where('course_id', $courseId)->where('parent_comment', $parentCommentId)->groupBy('user_id')->pluck('user_id');
+            $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, 'replied');
 
-            if ($data['firstChildComment'] == 'false') {
-                $responseData['prevCommentId'] = $data['prevCommentId'];
-                $responseData['parentCommentId'] = $parentCommentId;
-
-                return json_encode($responseData);
+            try {
+                event(new GetReplyCommentFromPusherEvent($request, $createdComment, $parentCommentId));
+            } catch (\Exception $e) {
+                \Log::warning('Pusher reply event error: ' . $e->getMessage());
             }
 
-            return json_encode($parentCommentId);
+            return response()->json([
+                'status' => 200,
+                'comment' => $createdComment,
+                'user' => [
+                    'id' => $createdComment->user->id,
+                    'name' => $createdComment->user->name,
+                    'avatar' => str_replace(' ', '', str_replace('public/', '', asset($createdComment->user->avatar ?? 'images/default_avatar/default_avatar.jpg'))),
+                ],
+                'created_at' => $createdComment->updated_at ? $createdComment->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
+                'parentCommentId' => $parentCommentId,
+                'prevCommentId' => $data['prevCommentId'] ?? 0,
+                'firstChildComment' => $data['firstChildComment'] ?? 'true',
+            ]);
         }
 
-        return 500;
+        return response()->json(['status' => 500, 'message' => 'Lỗi tạo phản hồi'], 500);
     }
 
     public function postAppreciate(Request $request, $courseId)

@@ -5,66 +5,53 @@
 @endsection
 
 @section('inline_styles')
-    <link rel="stylesheet" href="{{ asset('assets/css/custom/register.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/custom/auth.css') }}">
 @endsection
 
 @section('content')
-    <div class="page-header">
+    <section class="auth-page">
         <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="breadcrumb-wrapper">
-                        <h2 class="page-title"> {{ __('titles.register_new_acc') }} </h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            <div class="auth-card">
+                <div class="auth-icon"><i class="fa fa-user-plus"></i></div>
+                <h1 class="auth-title">Tạo tài khoản mới</h1>
+                <p class="auth-subtitle">Đăng ký để bắt đầu hành trình học tập của bạn</p>
 
-    <section id="content">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
-                    <div class="page-login-form box">
-                        <h3>
-                            {{ __('titles.register') }}
-                        </h3>
-                        {{ Form::open(['method' => 'post']) }}
-                        <div class="form-group error-form">
-                            <div class="input-icon @if($errors->has('name')) error-input @endif">
-                                <i class="icon fa fa-user"></i>
-                                {{ Form::text('name', null, ['class' => 'form-control', 'id' => 'name', 'placeholder' => __('titles.your_name')]) }}
-                            </div>
-                            <p>{{ $errors->first('name') }}</p>
-                        </div>
-                        <div class="form-group error-form">
-                            <div class="input-icon @if($errors->has('email')) error-input @endif">
-                                <i class="icon fa fa-envelope"></i>
-                                {{ Form::text('email', null, ['class' => 'form-control', 'id' => 'email', 'placeholder' => __('titles.your_email')]) }}
-                            </div>
-                            <p>{{ $errors->first('email') }}</p>
-                        </div>
-                        <div class="form-group error-form">
-                            <div class="input-icon @if($errors->has('password')) error-input @endif">
-                                <i class="icon fa fa-unlock-alt"></i>
-                                {{ Form::password('password', ['class' => 'form-control', 'id' => 'password', 'placeholder' => __('titles.your_password')]) }}
-                            </div>
-                            <p>{{ $errors->first('password') }}</p>
-                        </div>
-                        <div class="form-group">
-                            <div class="input-icon">
-                                <i class="icon fa fa-unlock-alt"></i>
-                                {{ Form::password('password_confirmation', ['class' => 'form-control', 'id' => 'password-confirmation', 'placeholder' => __('titles.your_password_confirmation')]) }}
-                            </div>
-                        </div>
-                        <div class="checkbox">
-                            {{ Form::checkbox('agree', null, false, ['id' => 'agree', 'onclick' => 'statusCheckboxAgree()', 'style' => 'float: left']) }}
-                            {{ Form::label('agree', __('titles.agree_terms')) }}
-                        </div>
-                        {{ Form::submit(__('titles.register'), ['class' => 'btn btn-common log-btn', 'id' => 'submit']) }}
-                        {{ Form::close() }}
+                {{ Form::open(['method' => 'post']) }}
+                <div class="auth-group">
+                    <label class="auth-label" for="name">Họ và tên</label>
+                    <div class="auth-input-wrap @if($errors->has('name')) error-input @endif">
+                        <i class="fa fa-user"></i>
+                        {{ Form::text('name', null, ['class' => 'form-control', 'id' => 'name', 'placeholder' => 'Nhập họ và tên', 'autocomplete' => 'name']) }}
+                    </div>
+                    @if($errors->has('name'))<p class="auth-field-error">{{ $errors->first('name') }}</p>@endif
+                </div>
+                <div class="auth-group">
+                    <label class="auth-label" for="email">Địa chỉ Email</label>
+                    <div class="auth-input-wrap @if($errors->has('email')) error-input @endif">
+                        <i class="fa fa-envelope"></i>
+                        {{ Form::text('email', null, ['class' => 'form-control', 'id' => 'email', 'placeholder' => 'name@example.com', 'autocomplete' => 'email']) }}
+                    </div>
+                    @if($errors->has('email'))<p class="auth-field-error">{{ $errors->first('email') }}</p>@endif
+                </div>
+                <div class="auth-group">
+                    <label class="auth-label" for="password">Mật khẩu</label>
+                    <div class="auth-input-wrap @if($errors->has('password')) error-input @endif">
+                        <i class="fa fa-lock"></i>
+                        {{ Form::password('password', ['class' => 'form-control', 'id' => 'password', 'placeholder' => 'Tối thiểu 6 ký tự', 'autocomplete' => 'new-password']) }}
+                    </div>
+                    @if($errors->has('password'))<p class="auth-field-error">{{ $errors->first('password') }}</p>@endif
+                </div>
+                <div class="auth-group">
+                    <label class="auth-label" for="password-confirmation">Xác nhận mật khẩu</label>
+                    <div class="auth-input-wrap">
+                        <i class="fa fa-lock"></i>
+                        {{ Form::password('password_confirmation', ['class' => 'form-control', 'id' => 'password-confirmation', 'placeholder' => 'Nhập lại mật khẩu', 'autocomplete' => 'new-password']) }}
                     </div>
                 </div>
+                {{ Form::submit(__('titles.register'), ['class' => 'auth-submit', 'id' => 'submit']) }}
+                {{ Form::close() }}
+
+                <p class="auth-switch">Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập</a></p>
             </div>
         </div>
     </section>
@@ -75,23 +62,16 @@
         $(document).ready(function () {
             $('#name').focus(function () {
                 $('#name').parent().removeClass('error-input');
-                $('#name').parent().next().remove();
+                $('#name').closest('.auth-group').find('.auth-field-error').remove();
             });
             $('#email').focus(function () {
                 $('#email').parent().removeClass('error-input');
-                $('#email').parent().next().remove();
+                $('#email').closest('.auth-group').find('.auth-field-error').remove();
             });
             $('#password').focus(function () {
                 $('#password').parent().removeClass('error-input');
-                $('#password').parent().next().remove();
+                $('#password').closest('.auth-group').find('.auth-field-error').remove();
             });
-        });
-
-        $('#submit').on('click', function () {
-            if (!$('#agree').is(':checked')) {
-                event.preventDefault();
-                alert("{{ __('messages.accept_terms_conditions') }}");
-            }
         });
     </script>
 @endsection

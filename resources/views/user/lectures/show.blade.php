@@ -9,13 +9,17 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-8">
-                    <h2 class="title-2">
-                        <strong> {{ __('titles.lecture') . ': ' . \App\Models\Lecture::findOrFail($lectureId)->title }} </strong>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0;">
+                        <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b; flex: 1; min-width: 250px; line-height: 1.4;">
+                            <span class="text-primary"><i class="fa fa-play-circle"></i> {{ __('titles.lecture') }}:</span> {{ \App\Models\Lecture::findOrFail($lectureId)->title }}
+                        </h2>
                         @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
-                            <b style="float: right; padding-right: 30px;">Tiến độ học tập: {{ $learnedLectureCount }}/{{ $allLectureCount }}</b>
+                            <div style="background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 16px; font-weight: 600; font-size: 13.5px; white-space: nowrap; border: 1px solid #bae6fd; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fa fa-graduation-cap"></i> Tiến độ học tập: {{ $learnedLectureCount }}/{{ $allLectureCount }}
+                            </div>
                         @endif
-                    </h2>
-                    <div class="progress" style="height: 20px">
+                    </div>
+                    <div class="progress" style="height: 16px; margin-bottom: 20px; border-radius: 8px; background: #e2e8f0; overflow: hidden;">
                         @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
                             @php
                                 $percent = $allLectureCount > 0 ? round(($learnedLectureCount / $allLectureCount) * 100, 2) : 0;
@@ -23,17 +27,45 @@
                             <div class="progress-bar progress-bar-info" role="progressbar"
                                  aria-valuenow="{{ $percent }}"
                                  aria-valuemin="0" aria-valuemax="100"
-                                 style="width:{{ $percent }}%">
+                                 style="width:{{ $percent }}%; line-height: 16px; font-size: 11px; font-weight: bold;">
                                 {{ $percent }}%
                             </div>
                         @endif
                     </div>
                     {!! $embed->code !!}
+                    
+                    @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
+                        <div class="lecture-action-bar" style="margin-top: 15px; margin-bottom: 20px; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                            <div class="completion-status" id="completion-status-container">
+                                @if(isset($isCompleted) && $isCompleted)
+                                    <span class="label label-success" style="padding: 9px 16px; font-size: 13.5px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; background-color: #10b981;">
+                                        <i class="fa fa-check-circle"></i> Đã hoàn thành bài học này
+                                    </span>
+                                @else
+                                    <button type="button" id="btn-manual-complete" class="btn btn-success" style="padding: 9px 20px; font-size: 13.5px; font-weight: 600; border-radius: 6px; background-color: #10b981; border: none; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); cursor: pointer;">
+                                        <i class="fa fa-check-circle"></i> Đánh dấu hoàn thành bài học
+                                    </button>
+                                @endif
+                            </div>
+                            <div class="next-lecture-btn">
+                                @php
+                                    $nextLecture = \App\Models\Lecture::where('course_id', $id)->where('is_accepted', 1)->where('id', '>', $lectureId)->orderBy('id')->first();
+                                @endphp
+                                @if($nextLecture)
+                                    <a href="{{ url('/courses/' . $id . '/lectures/' . $nextLecture->id) }}" class="btn btn-info" style="padding: 9px 18px; font-size: 13.5px; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; background-color: #3498db; border: none;">
+                                        Bài tiếp theo <i class="fa fa-arrow-right"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
                     @if (\App\Models\Lecture::find($lectureId + 1))
-                    <div id="timer" style="display: none;">
-                        <p class="text-center" style="font-weight: bold">Tự động chuyển sang bài tiếp theo
-                            <i>{{ \App\Models\Lecture::find($lectureId + 1)?->title }}</i> sau <span
-                                    id="timer-text"></span>s</p>
+                    <div id="timer" style="display: none; margin-bottom: 15px; padding: 10px; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 6px;">
+                        <p class="text-center" style="margin: 0; font-weight: 600; color: #0369a1;">
+                            <i class="fa fa-clock-o"></i> Tự động chuyển sang bài tiếp theo: 
+                            <i>{{ \App\Models\Lecture::find($lectureId + 1)?->title }}</i> sau <span id="timer-text" style="font-weight: 700; color: #dc2626;">6</span>s
+                        </p>
                     </div>
                     @endif
                     <div class="author">
@@ -64,7 +96,7 @@
                     <br>
                     <div id="comments">
                         <div class="inner-box">
-                            <h3 style="font-size: 30px; font-weight: bold;">Bình luận ({{ $lectureComments->count() }})</h3>
+                            <h3 id="comment-count-title" style="font-size: 30px; font-weight: bold;">Bình luận ({{ $lectureComments->count() }})</h3>
                             <ol class="comments-list" id="comment-list">
                                 @foreach($lectureComments as $comment)
                                     <li id="li-comment-{{ $comment->id }}">
@@ -115,7 +147,7 @@
                                         </div>
                                         <ul id="reply-comment-{{ $comment->id }}-list">
                                             @foreach($comment->child_comments as $child_comment)
-                                                <li>
+                                                <li id="li-reply-{{ $child_comment->id }}">
                                                     <div class="media">
                                                         <div class="thumb-left">
                                                             <a href="{{ route('users.show', $comment->user->id) }}">
@@ -246,7 +278,7 @@
                                                             <small class="pull-right text-muted diff-time"
                                                                    id="time-{{ $discussion->id }}"
                                                                    data-time="{{ strtotime($discussion->created_at) }}">
-                                                                <span class="glyphicon glyphicon-time"></span> {{ \Carbon\Carbon::parse($discussion->created_at)->diffForHumans() }}
+                                                                <span class="glyphicon glyphicon-time"></span> {{ \Carbon\Carbon::parse($discussion->created_at)->locale('vi')->diffForHumans() }}
                                                             </small>
                                                         </div>
                                                         <p>
@@ -368,111 +400,173 @@
             replyJavascript();
 
             // Pusher area
-            var comments = $('#comment-list');
-
-            // Subscribe to the channel we specified in our Laravel Event
             var channelComment = pusher.subscribe('lecture-comment');
-
-            // Bind a function to a Event (the full Laravel class)
             channelComment.bind('App\\Events\\GetLectureCommentFromPusherEvent', function (data) {
-                var commentedUser = jQuery.parseJSON(data.user);
-                var userAvatar = commentedUser.avatar;
+                var commentedUser = (typeof data.user === 'string') ? jQuery.parseJSON(data.user) : data.user;
+                var createdComment = (typeof data.createdLectureComment === 'string') ? jQuery.parseJSON(data.createdLectureComment) : data.createdLectureComment;
+                var userAvatar = commentedUser.avatar || '';
                 userAvatar = userAvatar.replace("images/", "http://127.0.0.1:8000/images/");
-                var createdLectureComment = jQuery.parseJSON(data.createdLectureComment);
-                var newCommentHtml =
-                    '<li id="li-comment-' + createdLectureComment.id + '"><div class="media"><div class="thumb-left"><img alt="'
-                    + commentedUser.name +
-                    '" style="height: 75px; width: 75px" src="'
-                    + userAvatar +
-                    '"/></a></div><div class="info-body"><div class="media-heading"><h4 class="name">'
-                    + commentedUser.name +
-                    '</h4><span class="comment-date">'
-                    + createdLectureComment.updated_at +
-                    '</span> <a class="reply-link" data-id="'
-                    + createdLectureComment.id +
-                    '" data-tagged="'
-                    + createdLectureComment.user_id
-                    + '"><i class="fa fa-reply-all"></i> Reply</a> </div>'
-                    + data.content +
-                    '</div></div><br><div class="reply-comment" style="display: none" id="reply-comment-'
-                    + createdLectureComment.id +
-                    '"><form><div class="row">@csrf<div class="row"> <div class=" col-md-10 pull-right"> <div class="form-group"> <textarea id="content-'
-                    + createdLectureComment.id +
-                    '" class="form-control" name="content" cols="30"rows="1" placeholder="Write a reply..."></textarea> </div> <input type="hidden" name="taggedUser" id="tagged-user-'
-                    + createdLectureComment.id +
-                    '"><button type="submit" id="submit" class="btn btn-sm btn-common submit-reply-comment" data-parent="'
-                    + createdLectureComment.id +
-                    '">Reply </button> </div> </div> </div> </form></div><ul id="reply-comment-'
-                    + createdLectureComment.id +
-                    '-list"></ul></li>';
-                comments.append(newCommentHtml).ready(function () {
-                    $('.reply-link').css({'cursor': 'pointer'});
-                });
+                commentedUser.avatar = userAvatar;
+                appendNewComment(createdComment, commentedUser, createdComment.updated_at || 'Vừa xong');
             });
 
-            // Subscribe to the channel we specified in our Laravel Event
             var channelReplyLectureComment = pusher.subscribe('replyLectureComment');
-
-            // Bind a function to a Event (the full Laravel class)
             channelReplyLectureComment.bind('App\\Events\\GetReplyLectureCommentFromPusherEvent', function (data) {
-                var replyLectureComments = $('#reply-comment-' + data.parentCommentId + '-list');
-                var commentedUser = jQuery.parseJSON(data.user);
-                var userAvatar = commentedUser.avatar;
+                var commentedUser = (typeof data.user === 'string') ? jQuery.parseJSON(data.user) : data.user;
+                var createdComment = (typeof data.createdComment === 'string') ? jQuery.parseJSON(data.createdComment) : data.createdComment;
+                var userAvatar = commentedUser.avatar || '';
                 userAvatar = userAvatar.replace("images/", "http://127.0.0.1:8000/images/");
-                var createdComment = jQuery.parseJSON(data.createdComment);
-                var replyUser = '';
-                var currentUserId = '{{ \Auth::user()->id }}';
-                if (commentedUser.id != currentUserId) {
-                    replyUser = commentedUser.name;
-                }
-                var newLectureCommentHtml = '<li> <div class="media"><div class="thumb-left"><img alt="'
-                    + commentedUser.name +
-                    '" style="height: 75px; width: 75px" src="'
-                    + userAvatar +
-                    '"/></a></div><div class="info-body"><div class="media-heading"><h4 class="name">'
-                    + commentedUser.name +
-                    '</h4><span class="comment-date">'
-                    + createdComment.updated_at +
-                    '</span><a class="reply-link" data-id="' + data.parentCommentId + '" data-child="' + createdComment.id + '" data-tagged="'
-                    + createdComment.user_id +
-                    '"><i class="fa fa-reply-all"></i> Reply</a></div>'
-                    + data.content +
-                    '</div></div><br><div class="reply-comment" style="display: none" id="reply-comment-' + data.parentCommentId + '-from-'
-                    + createdComment.id
-                    + '"><form><div class="row">@csrf<div class="row"><div class=" col-md-12 pull-right"><div class="form-group"><textarea id="content-'
-                    + createdComment.id
-                    + '" class="form-control" name="content" cols="30" rows="1" placeholder="Write a reply...">' + replyUser + '</textarea></div><input type="hidden" name="taggedUser" id="tagged-user-'
-                    + createdComment.id
-                    + '"><button type="submit" id="submit" class="btn btn-sm btn-common submit-reply-comment" data-id="'
-                    + createdComment.id
-                    + '" data-parent="'
-                    + data.parentCommentId
-                    + '">Reply</button></div></div></div></form></div></li>';
-                replyLectureComments.append(newLectureCommentHtml).ready(function () {
-                    $('.reply-link').css({'cursor': 'pointer'});
-                });
+                commentedUser.avatar = userAvatar;
+                appendNewReply(createdComment, commentedUser, createdComment.updated_at || 'Vừa xong', data.parentCommentId);
             });
 
-            $('#comments').on('click', '#submit-comment', function (event) {
+            // GỬI BÌNH LUẬN BÀI GIẢNG
+            $('#comments').off('click', '#submit-comment').on('click', '#submit-comment', function (event) {
                 event.preventDefault();
+                var $btn = $(this);
+                if ($btn.prop('disabled')) return;
+
+                var contentVal = $('#comment-content').val().trim();
+                if (!contentVal) {
+                    alert('Vui lòng nhập nội dung bình luận.');
+                    return;
+                }
+                var lectureId = $('#comment-lecture-id').val();
+                var userId = $('#comment-user-id').val();
+
+                $btn.prop('disabled', true).text('Đang gửi...');
+
                 $.ajaxSetup({
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
                 $.ajax({
-                    url: '/lectures/' + $('#comment-lecture-id').val() + '/pusher/postComment',
+                    url: '/lectures/' + lectureId + '/pusher/postComment',
                     type: 'post',
                     data: {
-                        content: $('#comment-content').val(),
-                        userId: $('#comment-user-id').val(),
+                        content: contentVal,
+                        userId: userId,
                     },
-                    success: function () {
+                    success: function (res) {
                         $('#comment-content').val('');
+                        var resData = (typeof res === 'string') ? JSON.parse(res) : res;
+                        if (resData && resData.comment && resData.user) {
+                            appendNewComment(resData.comment, resData.user, resData.created_at || 'Vừa xong');
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi gửi bình luận, vui lòng thử lại.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).text('Gửi bình luận');
                     }
                 });
             });
         });
+
+        // --- HÀM THÊM BÌNH LUẬN TRỰC TIẾP VÀO BÀI HỌC KHÔNG CẦN F5 ---
+        function appendNewComment(comment, user, createdAt) {
+            if ($('#li-comment-' + comment.id).length > 0) return;
+            var userAvatar = user.avatar || '/images/default_avatar/default_avatar.jpg';
+            if (!userAvatar.startsWith('http') && !userAvatar.startsWith('/')) {
+                userAvatar = '/' + userAvatar;
+            }
+            var currentUserId = '{{ \Auth::id() }}';
+            var newCommentHtml =
+                '<li id="li-comment-' + comment.id + '">' +
+                    '<div class="media">' +
+                        '<div class="thumb-left">' +
+                            '<a href="/users/' + user.id + '">' +
+                                '<img alt="' + user.name + '" style="height: 75px; width: 75px; border-radius: 50%; object-fit: cover;" src="' + userAvatar + '"/>' +
+                            '</a>' +
+                        '</div>' +
+                        '<div class="info-body">' +
+                            '<div class="media-heading">' +
+                                '<h4 class="name">' + user.name + '</h4> | ' +
+                                '<span class="comment-date">' + createdAt + '</span> ' +
+                                '<a class="reply-link" data-id="' + comment.id + '" data-tagged="' + user.id + '" style="cursor: pointer;"><i class="fa fa-reply-all"></i> Trả lời</a>' +
+                            '</div>' +
+                            '<p>' + comment.content + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<br>' +
+                    '<div class="reply-comment" style="display: none" id="reply-comment-' + comment.id + '">' +
+                        '<form>' +
+                            '<div class="row">' +
+                                '<input type="hidden" name="user_id" value="' + currentUserId + '">' +
+                                '<div class="row">' +
+                                    '<div class="col-md-10 pull-right">' +
+                                        '<div class="form-group">' +
+                                            '<textarea id="content-' + comment.id + '" class="form-control content-reply" name="content" cols="30" rows="1" placeholder="Viết phản hồi..."></textarea>' +
+                                        '</div>' +
+                                        '<input type="hidden" name="taggedUser" id="tagged-user-' + user.id + '">' +
+                                        '<button type="submit" class="btn btn-sm btn-common submit-reply-comment" data-parent="' + comment.id + '">Gửi trả lời</button>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</form>' +
+                    '</div>' +
+                    '<ul id="reply-comment-' + comment.id + '-list"></ul>' +
+                '</li>';
+
+            $('#comment-list').append(newCommentHtml);
+            var count = $('#comment-list > li').length;
+            $('#comment-count-title').text('Bình luận (' + count + ')');
+            replyJavascript();
+        }
+
+        function appendNewReply(comment, user, createdAt, parentCommentId) {
+            if ($('#li-reply-' + comment.id).length > 0) return;
+            var userAvatar = user.avatar || '/images/default_avatar/default_avatar.jpg';
+            if (!userAvatar.startsWith('http') && !userAvatar.startsWith('/')) {
+                userAvatar = '/' + userAvatar;
+            }
+            var currentUserId = '{{ \Auth::id() }}';
+            var newReplyHtml =
+                '<li id="li-reply-' + comment.id + '">' +
+                    '<div class="media">' +
+                        '<div class="thumb-left">' +
+                            '<a href="/users/' + user.id + '">' +
+                                '<img alt="' + user.name + '" style="height: 75px; width: 75px; border-radius: 50%; object-fit: cover;" src="' + userAvatar + '"/>' +
+                            '</a>' +
+                        '</div>' +
+                        '<div class="info-body">' +
+                            '<div class="media-heading">' +
+                                '<h4 class="name">' + user.name + '</h4> | ' +
+                                '<span class="comment-date">' + createdAt + '</span> ' +
+                                '<a class="reply-link" data-id="' + parentCommentId + '" data-child="' + comment.id + '" data-tagged="' + user.id + '" style="cursor: pointer;"><i class="fa fa-reply-all"></i> Trả lời</a>' +
+                            '</div>' +
+                            '<p>' + comment.content + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<br>' +
+                    '<div class="reply-comment" style="display: none" id="reply-comment-' + parentCommentId + '-from-' + comment.id + '">' +
+                        '<form>' +
+                            '<div class="row">' +
+                                '<input type="hidden" name="user_id" value="' + currentUserId + '">' +
+                                '<div class="row">' +
+                                    '<div class="col-md-12 pull-right">' +
+                                        '<div class="form-group">' +
+                                            '<textarea id="content-' + comment.id + '" class="form-control content-reply" name="content" cols="30" rows="1" placeholder="Viết phản hồi..."></textarea>' +
+                                        '</div>' +
+                                        '<input type="hidden" name="taggedUser" id="tagged-user-' + user.id + '">' +
+                                        '<button type="submit" class="btn btn-sm btn-common submit-reply-child-comment" data-child="' + comment.id + '" data-parent="' + parentCommentId + '">Gửi trả lời</button>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</form>' +
+                    '</div>' +
+                '</li>';
+
+            var targetList = $('#reply-comment-' + parentCommentId + '-list');
+            if (targetList.length === 0) {
+                $('#li-comment-' + parentCommentId).append('<ul id="reply-comment-' + parentCommentId + '-list"></ul>');
+                targetList = $('#reply-comment-' + parentCommentId + '-list');
+            }
+            targetList.append(newReplyHtml);
+            replyJavascript();
+        }
 
         function openTab(tab) {
             $('.tab').attr('style', 'display:none');
@@ -481,7 +575,7 @@
 
         // test area
         function replyJavascript() {
-            $('#comments').on('click', '.reply-link', function (event) {
+            $('#comments').off('click', '.reply-link').on('click', '.reply-link', function (event) {
                 event.preventDefault();
                 if ($(this).data('child')) {
                     if ($('#reply-comment-' + $(this).data('id') + '-from-' + $(this).data('child')).css('display') == 'none') {
@@ -502,34 +596,45 @@
                         $('#reply-comment-' + $(this).data('id')).hide();
                     }
                 }
-            })
+            });
 
-            $('#comments').on('click', '.submit-reply-comment, .submit-reply-child-comment', function (event) {
+            // GỬI PHẢN HỒI (REPLY) BÀI GIẢNG
+            $('#comments').off('click', '.submit-reply-comment, .submit-reply-child-comment').on('click', '.submit-reply-comment, .submit-reply-child-comment', function (event) {
                 event.preventDefault();
+                var $btn = $(this);
+                if ($btn.prop('disabled')) return;
+
                 var contentComment = '';
                 var firstChildComment = true;
                 var prevCommentId = 0;
+                var parentId = $btn.data('parent');
 
-                if ($(this).data('id') != undefined) {
-                    contentComment = $('#content-' + $(this).data('id')).val();
+                if ($btn.data('id') != undefined) {
+                    contentComment = $('#content-' + $btn.data('id')).val();
                     firstChildComment = false;
-                    prevCommentId = $(this).data('id');
+                    prevCommentId = $btn.data('id');
+                } else if ($btn.data('child') != undefined) {
+                    contentComment = $('#content-' + $btn.data('child')).val();
+                    firstChildComment = false;
+                    prevCommentId = $btn.data('child');
                 } else {
-                    if ($(this).data('child') != undefined) {
-                        contentComment = $('#content-' + $(this).data('child')).val();
-                        firstChildComment = false;
-                        prevCommentId = $(this).data('child');
-                    } else {
-                        contentComment = $('#content-' + $(this).data('parent')).val();
-                    }
+                    contentComment = $('#content-' + parentId).val();
                 }
+
+                if (!contentComment || !contentComment.trim()) {
+                    alert('Vui lòng nhập nội dung phản hồi.');
+                    return;
+                }
+
+                $btn.prop('disabled', true).text('Đang gửi...');
+
                 $.ajaxSetup({
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
                 $.ajax({
-                    url: '/lectures/' + $('#comment-lecture-id').val() + '/pusher/replyLectureComment/' + $(this).data('parent'),
+                    url: '/lectures/' + $('#comment-lecture-id').val() + '/pusher/replyLectureComment/' + parentId,
                     type: 'post',
                     data: {
                         content: contentComment,
@@ -538,18 +643,23 @@
                         prevCommentId: prevCommentId,
                     },
                     success: function (data) {
-                        var responseData = jQuery.parseJSON(data);
-                        // if not first child comment, get prev comment
-                        if (responseData.prevCommentId != null) {
-                            $('#content-' + responseData.prevCommentId).val('');
-
-                            $('#reply-comment-' + responseData.parentCommentId + '-from-' + responseData.prevCommentId).hide();
+                        var responseData = (typeof data === 'string') ? JSON.parse(data) : data;
+                        if (prevCommentId) {
+                            $('#content-' + prevCommentId).val('');
+                            $('#reply-comment-' + parentId + '-from-' + prevCommentId).hide();
                         } else {
-                            var parentCommentId = responseData;
-                            $('#content-' + parentCommentId).val('');
-
-                            $('#reply-comment-' + parentCommentId).hide();
+                            $('#content-' + parentId).val('');
+                            $('#reply-comment-' + parentId).hide();
                         }
+                        if (responseData && responseData.comment && responseData.user) {
+                            appendNewReply(responseData.comment, responseData.user, responseData.created_at || 'Vừa xong', parentId);
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi gửi phản hồi, vui lòng thử lại.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).text('Gửi trả lời');
                     }
                 });
             });
@@ -596,93 +706,116 @@
         };
 
 
-        // Get end of youtube video
-        $('iframe').attr('id', 'player');
-        var old = $('iframe').attr('src');
-        $('iframe').attr('src', old + '&enablejsapi=1');
+        // Setup YouTube iframe API and Completion tracking
+        var $iframe = $('iframe');
+        if ($iframe.length > 0) {
+            $iframe.attr('id', 'player');
+            var oldSrc = $iframe.attr('src') || '';
+            var delim = oldSrc.indexOf('?') !== -1 ? '&' : '?';
+            if (oldSrc.indexOf('enablejsapi=1') === -1) {
+                var origin = encodeURIComponent(window.location.origin);
+                $iframe.attr('src', oldSrc + delim + 'enablejsapi=1&origin=' + origin);
+            }
 
-        // 2. This code loads the IFrame Player API code asynchronously.
-        var tag = document.createElement('script');
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
 
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        // 3. This function creates an <iframe> (and YouTube player)
-        //    after the API code downloads.
         var player;
-
         function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                height: '370',
-                width: '750',
-                videoId: 'M7lc1UVf-VE',
-                events: {
-                    'onStateChange': onPlayerStateChange,
+            try {
+                player = new YT.Player('player', {
+                    events: {
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            } catch (e) {
+                console.warn('YouTube Iframe Player API notice:', e);
+            }
+        }
+
+        var isCompletedRequestSending = false;
+        function triggerCompleteLecture() {
+            if (isCompletedRequestSending) return;
+            isCompletedRequestSending = true;
+
+            var lectureId = '{{ $lectureId }}';
+            var userId = $('#comment-user-id').val();
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.ajax({
+                url: '/lectures/' + lectureId + '/user/' + userId + '/changeProcessStatus',
+                type: 'post',
+                success: function (data) {
+                    var responseData = typeof data === 'string' ? JSON.parse(data) : data;
+
+                    // Update UI immediately to completed
+                    $('#completion-status-container').html(
+                        '<span class="label label-success" style="padding: 9px 16px; font-size: 13.5px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; background-color: #10b981;">' +
+                        '<i class="fa fa-check-circle"></i> Đã hoàn thành bài học này</span>'
+                    );
+
+                    if (responseData.isLastLecture == 1) {
+                        $.notify({
+                            message: 'Chúc mừng! Bạn đã hoàn thành toàn bộ khóa học này.'
+                        }, {
+                            type: 'success',
+                            placement: {
+                                from: "bottom",
+                                align: "right"
+                            }
+                        });
+                    } else if (responseData.isLastLecture == 0 && responseData.nextLecture) {
+                        var redirectUrl = '/courses/' + responseData.inCourseId + '/lectures/' + responseData.nextLecture.id;
+                        $.notify({
+                            message: 'Bạn đã hoàn thành bài học này! Chuẩn bị chuyển sang: <b>' + responseData.nextLecture.title + '</b>',
+                            url: redirectUrl,
+                            target: "_self"
+                        }, {
+                            type: 'success',
+                            placement: {
+                                from: "bottom",
+                                align: "right"
+                            },
+                            delay: 6000
+                        });
+                        $('#timer').show();
+                        var timer = 6;
+                        $('#timer-text').text(timer);
+                        var interval = setInterval(function () {
+                            timer = timer - 1;
+                            $('#timer-text').text(timer);
+                            if (timer <= 0) {
+                                clearInterval(interval);
+                                window.location.replace(redirectUrl);
+                            }
+                        }, 1000);
+                    }
+                },
+                error: function (err) {
+                    isCompletedRequestSending = false;
+                    console.error('Lỗi cập nhật tiến độ:', err);
                 }
             });
         }
 
-        // 5. The API calls this function when the player's state changes.
-        //    The function indicates that when playing a video (state=1),
-        //    the player should play for six seconds and then stop.
-        var done = false;
-
         function onPlayerStateChange(event) {
             if (event.data === YT.PlayerState.ENDED) {
-                var lectureId = '{{ $lectureId }}';
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                $.ajax({
-                    url: '/lectures/' + lectureId + '/user/' + $('#comment-user-id').val() + '/changeProcessStatus',
-                    type: 'post',
-                    success: function (data) {
-                        var responseData = jQuery.parseJSON(data);
-                        if (responseData.isLastLecture == 1) {
-                            $.notify({
-                                // options
-                                message: 'Congratulations ! You have completed this course.'
-                            }, {
-                                // settings
-                                type: 'success',
-                                placement: {
-                                    from: "bottom",
-                                    align: "right"
-                                },
-                            });
-                        } else if (responseData.isLastLecture == 0) {
-                            var redirectUrl = '/courses/' + responseData.inCourseId + '/lectures/' + responseData.nextLecture.id;
-                            $.notify({
-                                // options
-                                message: 'You have completed this lecture. Redirect to next lecture: <b>' + responseData.nextLecture.title + '</b>',
-                                url: redirectUrl,
-                                target: "_self"
-                            }, {
-                                // settings
-                                type: 'success',
-                                placement: {
-                                    from: "bottom",
-                                    align: "right"
-                                },
-                                delay: 10000
-                            });
-                            $('#timer').show();
-                            setTimeout(function () {
-                                window.location.replace(redirectUrl);
-                            }, 10000);
-                            var timer = 11;
-                            setInterval(function () {
-                                timer = timer - 1;
-                                $oldText = $
-                                $('#timer-text').text(timer);
-                            }, 1000)
-                        }
-                    }
-                });
+                triggerCompleteLecture();
             }
         }
+
+        $(document).on('click', '#btn-manual-complete', function (e) {
+            e.preventDefault();
+            $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang cập nhật...');
+            triggerCompleteLecture();
+        });
     </script>
 @endsection

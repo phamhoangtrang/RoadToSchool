@@ -17,12 +17,12 @@
                             <div class="advanced-search">
                                 <div class="col-md-6 col-sm-12 search-col">
                                     <span class="hidden-sm hidden-xs"
-                                          style="color: white">Course: <strong>{{ $lecture->course->title }}</strong> </span>
+                                          style="color: white">Khóa học: <strong>{{ $lecture->course->title }}</strong> </span>
 
                                 </div>
                                 <div class="col-md-3 col-sm-12 search-col">
                                     <span class="hidden-sm hidden-xs"
-                                          style="color: white">Week: <strong>{{ $lecture->week }}</strong> </span>
+                                          style="color: white">Tuần: <strong>{{ $lecture->week }}</strong> </span>
                                 </div>
                                 @php
                                     function convertTimeToSecond($time) {
@@ -36,7 +36,7 @@
                                 @endphp
                                 <div class="col-md-3 col-sm-12 search-col">
                                     <span class="hidden-sm hidden-xs"
-                                          style="color: white">Your result: <strong>{{ $quizResult->right_answer_count . '/' . ($quizResult->right_answer_count + $quizResult->wrong_answer_count) }}</strong> </span>
+                                          style="color: white">Kết quả của bạn: <strong>{{ $quizResult->right_answer_count . '/' . ($quizResult->right_answer_count + $quizResult->wrong_answer_count) }}</strong> </span>
                                 </div>
                             </div>
                         </div>
@@ -49,7 +49,7 @@
                                 <div class="form-group mb30 clearfix" style="padding: 15px 30px 15px 30px">
                                     <label class="control-label" for="textarea">
                                         <h3>
-                                            Quiz {{ $key + 1 }} [{!! $question->checkResult ? '<span style="color:green"><i class="fa fa-check" aria-hidden="true"></i> True</span>' : '<span style="color:red"><i class="fa fa-times" aria-hidden="true"></i> False</span>' !!}]
+                                            Câu {{ $key + 1 }} [{!! $question->checkResult ? '<span style="color:green"><i class="fa fa-check" aria-hidden="true"></i> Đúng</span>' : '<span style="color:red"><i class="fa fa-times" aria-hidden="true"></i> Sai</span>' !!}]
                                         </h3>
                                     </label>
                                     <p id="question-{{ $question->id }}-content" class="question-content"
@@ -67,7 +67,7 @@
                                             <br>
                                         @endforeach
                                     </div>
-                                    {!! !$question->userChoice[0] ? '<h4><i class="fa fa-times" aria-hidden="true"></i> <i>You did not choose the answer to this question</i></h4>' : '' !!}
+                                    {!! !$question->userChoice[0] ? '<h4><i class="fa fa-times" aria-hidden="true"></i> <i>Bạn chưa chọn câu trả lời cho câu hỏi này</i></h4>' : '' !!}
                                 </div>
                             </div>
                         </div>
@@ -76,7 +76,7 @@
                         <a class="btn btn-common"
                                 style="background-color: Tomato; float: right;"
                                 href="{{ route('courses.show', $lecture->course_id) }}#course-{{ $lecture->course_id }}-outline">
-                            Back To Course
+                            QUAY LẠI KHÓA HỌC
                         </a>
                 </div>
             </div>

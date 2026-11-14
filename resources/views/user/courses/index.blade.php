@@ -9,21 +9,38 @@
 @endsection
 
 @section('content')
-    @include('user.courses.partials.search_sidebar')
     {{ Breadcrumbs::render('courses_index') }}
+    @include('user.courses.partials.search_sidebar')
     <div class="main-container">
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
-                    <h3 class="section-title">Danh sách {{ $courses->total() }} khóa học</h3>
-                </div>
-                <div class="col-sm-12 page-content">
-                    <div class="product-filter">
-                        <div class="grid-list-count">
-                            <a class="grid switchToList active" id="switch-now" href="#"><i class="fa fa-th-large"></i></a>
-                            <a class="list switchToGrid" href="#"><i class="fa fa-list"></i></a>
+                <div class="col-12">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap m-b-20 p-b-15 border-bottom" style="gap: 15px;">
+                        <div>
+                            <h3 class="m-0" style="font-size: 20px; font-weight: 800; color: #1e293b;">
+                                Danh sách <span class="text-primary">{{ $courses->total() }}</span> khóa học
+                            </h3>
+                            <small class="text-muted" style="font-size: 13px;">Các khóa học chất lượng cao, cập nhật mới nhất trên hệ thống Road To School</small>
+                        </div>
+                        <div class="product-filter" style="margin: 0; padding: 0; border: none; background: transparent;">
+                            <div class="grid-list-count" style="margin: 0;">
+                                <a class="grid switchToList active" id="switch-now" href="#" title="Xem dạng lưới"><i class="fa fa-th-large"></i></a>
+                                <a class="list switchToGrid" href="#" title="Xem dạng danh sách"><i class="fa fa-list"></i></a>
+                            </div>
                         </div>
                     </div>
+                </div>
+                <div class="col-sm-12 page-content">
+                    @if($courses->isEmpty())
+                        <div class="text-center p-5 bg-white" style="border-radius: 12px; border: 1px dashed #cbd5e1; margin: 30px 0; padding: 50px 20px;">
+                            <i class="fa fa-search fa-3x text-muted m-b-15 d-block"></i>
+                            <h4 style="font-weight: 700; color: #334155;">Không tìm thấy khóa học nào phù hợp</h4>
+                            <p class="text-muted" style="max-width: 480px; margin: 10px auto 20px auto; font-size: 14px;">Rất tiếc, hiện tại không có khóa học nào khớp với bộ lọc tìm kiếm của bạn. Bạn hãy thử chọn danh mục hoặc từ khóa khác nhé.</p>
+                            <a href="{{ route('courses.index') }}" class="btn btn-primary" style="border-radius: 8px; font-weight: 600; padding: 10px 24px; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
+                                <i class="fa fa-refresh mr-1"></i> Xem tất cả khóa học
+                            </a>
+                        </div>
+                    @else
                     <div class="adds-wrapper">
                         @foreach ($courses as $selectedCourse)
                             <div class="item-list">
@@ -31,7 +48,8 @@
                                     <div class="add-image">
                                         <a href="#"><img
                                                     src="{{ str_replace('public/', '', asset($selectedCourse->course_avatar)) }}"
-                                                    alt=""></a>
+                                                    onerror="this.onerror=null; this.src='{{ asset('images/default_course_avatar/web_development_1.jpeg') }}';"
+                                                    alt="{{ $selectedCourse->title }}"></a>
                                         <span class="photo-count"><i class="fa fa-eye"></i> {{ $selectedCourse->seller }} </span>
                                     </div>
                                 </div>
@@ -65,8 +83,7 @@
                                        data-id="{{ $selectedCourse->id }}"><i
                                                 class=" fa fa-cart-plus"></i><span> {{ __('titles.add_to_cart') }} </span></a>
                                     <a class="btn btn-sm btn-danger add-to-wishlist" href=""
-                                       data-id="{{ $selectedCourse->id }}" title="{{ __('titles.add_to_wishlist') }}"
-                                       style="height:  26px"><i
+                                       data-id="{{ $selectedCourse->id }}" title="{{ __('titles.add_to_wishlist') }}"><i
                                                 class="fa fa-heart"></i></a>
                                 </div>
                             </div>
@@ -77,6 +94,7 @@
                             <li> {{ $courses->links() }} </li>
                         </ul>
                     </div>
+                    @endif
                     {{--@if (Auth::user()->role == 1)--}}
                     {{--<div class="post-promo text-center">--}}
                     {{--<h2> {{ __('titles.create_course_p1') }} </h2>--}}
@@ -96,6 +114,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('#switch-now').click();
+
             $('.add-to-cart').on('click', function (event) {
                 event.preventDefault();
                 var courseId = $(this).data('id');

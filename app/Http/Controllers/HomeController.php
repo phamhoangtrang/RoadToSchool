@@ -21,24 +21,34 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $recommmendCourseList = [];
         try {
             $currentUserId = \Auth::id();
-            $client = new \GuzzleHttp\Client();
+            $client = new \GuzzleHttp\Client(['timeout' => 0.8]);
             $res = $client->post(
                 'http://127.0.0.1:5000/r2s/v1/recommend/itemstouser',
                 array(
                     'form_params' => array(
                         'appId' => 1,
-                        'userId' => 98,
+                        'userId' => $currentUserId ?: 98,
                         'count' => 10,
                     )
                 )
             );
-            $key = strval(98);
+            $key = strval($currentUserId ?: 98);
             $recommendCourseIdList = json_decode($res->getBody()->getContents())->$key;
-            $recommmendCourseList = \App\Models\Course::whereIn('id', $recommendCourseIdList)->get();
+            $recommmendCourseList = \App\Models\Course::whereIn('id', $recommendCourseIdList)->where('is_accepted', 1)->get();
         } catch (\Exception $e) {
             $recommmendCourseList = [];
+        }
+
+        // Fallback thông minh: nếu API gợi ý chưa khả dụng, lấy các khóa học đánh giá cao nhất
+        if (empty($recommmendCourseList) || $recommmendCourseList->isEmpty()) {
+            $recommmendCourseList = \App\Models\Course::where('is_accepted', 1)
+                ->orderBy('course_rate', 'desc')
+                ->orderBy('seller', 'desc')
+                ->limit(10)
+                ->get();
         }
 
         return view('home', compact(

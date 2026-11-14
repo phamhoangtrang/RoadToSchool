@@ -85,66 +85,580 @@
             content: '\f006';
             font-family: FontAwesome;
         }
+
+        /* Modern Course Detail Styling */
+        #content {
+            background-color: #f8fafc;
+            padding: 24px 0 50px;
+        }
+
+        .cd-header-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px 28px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+            margin-bottom: 24px;
+        }
+
+        .cd-category-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+        }
+        .cd-category-pill:hover {
+            background: #dbeafe;
+            color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .cd-course-title {
+            font-size: 27px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.35;
+            margin: 0 0 14px 0;
+            letter-spacing: -0.3px;
+        }
+
+        .cd-meta-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px 24px;
+            padding-bottom: 18px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .cd-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cd-meta-item i {
+            color: #3b82f6;
+            font-size: 15px;
+        }
+        .cd-meta-item a {
+            color: #0f172a;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .cd-meta-item a:hover {
+            color: #2563eb;
+        }
+
+        .cd-rating-score {
+            font-weight: 800;
+            color: #d97706;
+            margin-right: 4px;
+        }
+        .cd-rating-count {
+            color: #64748b;
+            font-size: 13px;
+            margin-left: 6px;
+        }
+
+        .cd-media-container {
+            border-radius: 14px;
+            overflow: hidden;
+            background: #0f172a;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+        }
+        .cd-media-container .item img {
+            width: 100%;
+            max-height: 440px;
+            object-fit: cover;
+            display: block;
+            border-radius: 14px;
+        }
+
+        /* Common card box on left */
+        .product-info .box {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px 28px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+            margin-bottom: 24px;
+        }
+        .product-info .box .title-2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 16px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        /* Right Sidebar Purchase Card */
+        .cd-sidebar-sticky {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 20px;
+        }
+
+        .cd-purchase-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            padding: 24px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cd-card-badge-header {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #2563eb;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .cd-price-section {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 10px 14px;
+            margin-bottom: 18px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .cd-current-price {
+            font-size: 28px;
+            font-weight: 800;
+            color: #e11d48;
+            line-height: 1;
+        }
+        .cd-original-price {
+            font-size: 16px;
+            color: #94a3b8;
+            text-decoration: line-through;
+            font-weight: 500;
+        }
+        .cd-discount-badge {
+            background: #fee2e2;
+            color: #dc2626;
+            font-weight: 700;
+            font-size: 12.5px;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .cd-btn-buy-now {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 20px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff !important;
+            border: none;
+            border-radius: 10px;
+            font-size: 15.5px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+            transition: all 0.25s ease;
+            text-decoration: none !important;
+            margin-bottom: 10px;
+        }
+        .cd-btn-buy-now:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.45);
+        }
+
+        .cd-btn-add-cart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 20px;
+            background: #f8fafc;
+            color: #1e293b !important;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none !important;
+            margin-bottom: 12px;
+        }
+        .cd-btn-add-cart:hover {
+            background: #e2e8f0;
+            border-color: #94a3b8;
+            color: #0f172a !important;
+            transform: translateY(-1px);
+        }
+
+        .cd-btn-start-learning {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 20px;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: #ffffff !important;
+            border: none;
+            border-radius: 10px;
+            font-size: 15.5px;
+            font-weight: 700;
+            text-decoration: none !important;
+            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.3);
+            transition: all 0.25s ease;
+            margin-bottom: 12px;
+        }
+        .cd-btn-start-learning:hover {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(5, 150, 105, 0.4);
+        }
+
+        .cd-enrolled-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+        .cd-enrolled-banner i {
+            font-size: 18px;
+            color: #10b981;
+        }
+
+        .cd-guarantee-note {
+            font-size: 12.5px;
+            color: #64748b;
+            text-align: center;
+            margin: 6px 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .cd-guarantee-note i {
+            color: #10b981;
+        }
+
+        .cd-specs-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 18px 0 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .cd-specs-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 18px;
+        }
+        .cd-specs-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 0;
+            font-size: 13.5px;
+            color: #475569;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+        .cd-specs-list li:last-child {
+            border-bottom: none;
+        }
+        .cd-specs-list li .spec-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cd-specs-list li .spec-label i {
+            width: 18px;
+            color: #3b82f6;
+            text-align: center;
+            font-size: 14px;
+        }
+        .cd-specs-list li .spec-value {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .cd-share-section {
+            padding-top: 14px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .cd-share-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cd-social-links {
+            display: flex;
+            gap: 8px;
+        }
+        .cd-social-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            color: #64748b;
+            transition: all 0.2s ease;
+            text-decoration: none !important;
+            font-size: 13px;
+        }
+        .cd-social-btn:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+        .cd-social-btn.fb:hover { background: #1877f2; }
+        .cd-social-btn.tw:hover { background: #1da1f2; }
+        .cd-social-btn.wa:hover { background: #25d366; }
+        .cd-social-btn.li:hover { background: #0a66c2; }
+
+        /* Instructor Card */
+        .cd-instructor-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+        .cd-instructor-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .cd-instructor-avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            flex-shrink: 0;
+        }
+        .cd-instructor-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 3px 0;
+        }
+        .cd-instructor-name a {
+            color: #0f172a;
+            text-decoration: none;
+        }
+        .cd-instructor-name a:hover {
+            color: #2563eb;
+        }
+        .cd-instructor-role {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0;
+        }
+        .cd-instructor-contact {
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 14px;
+        }
+        .cd-instructor-contact p {
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cd-instructor-contact i {
+            width: 16px;
+            color: #3b82f6;
+            text-align: center;
+        }
+        .cd-btn-profile {
+            display: block;
+            text-align: center;
+            padding: 9px 14px;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #2563eb !important;
+            font-weight: 600;
+            font-size: 13px;
+            border: 1px solid #bfdbfe;
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+        }
+        .cd-btn-profile:hover {
+            background: #dbeafe;
+            color: #1d4ed8 !important;
+        }
+
+        /* Trust features compact card */
+        .cd-trust-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .cd-trust-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .cd-trust-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .cd-trust-item:last-child {
+            margin-bottom: 0;
+        }
+        .cd-trust-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .cd-trust-text h5 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0 0 2px;
+        }
+        .cd-trust-text p {
+            font-size: 12px;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.4;
+        }
     </style>
 @endsection
 
 @section('content')
-    {{ Breadcrumbs::render('courses_show', $selectedCourse) }}<br>
+    {{ Breadcrumbs::render('courses_show', $selectedCourse) }}
     <div id="content">
         <div class="container">
             <div class="row">
                 <div class="product-info">
                     <div class="col-sm-8">
                         @include('flash::message')
-                        <div class="inner-box ads-details-wrapper">
-                            <h2> {{ $selectedCourse->name }} </h2>
-                            <p class="item-intro"><span
-                                        class="poster"> {{ __('titles.updated_at') . ' ' . $selectedCourse->updated_at . ' ' . __('titles.by') . ' ' . $selectedCourse->user->name }} </span>
-                            </p>
-                            <div id="owl-demo" class="owl-carousel owl-theme">
-                                <div class="item">
-                                    <img src="{{ str_replace('public/', '', asset($selectedCourse->course_avatar)) }}"
-                                         alt="">
+                        <div class="cd-header-card">
+                            @if($selectedCourse->category)
+                                <a href="/courses?sub_category_id={{ $selectedCourse->category->id }}" class="cd-category-pill">
+                                    <i class="fa fa-folder-open-o"></i> {{ $selectedCourse->category->vi_title ?: $selectedCourse->category->title }}
+                                </a>
+                            @endif
+                            <h1 class="cd-course-title">{{ $selectedCourse->title }}</h1>
+                            <div class="cd-meta-bar">
+                                <div class="cd-meta-item">
+                                    <i class="fa fa-user-circle"></i>
+                                    <span>{{ __('titles.teacher') }}:</span>
+                                    <a href="{{ route('instructor_info', $selectedCourse->user->id) }}">
+                                        <strong>{{ $selectedCourse->user->name }}</strong>
+                                    </a>
                                 </div>
-                                <div class="item">
-                                    <img src="{{ str_replace('public/', '', asset($selectedCourse->course_avatar_2)) }}"
-                                         alt="">
+                                <div class="cd-meta-item">
+                                    <i class="fa fa-clock-o"></i>
+                                    <span>{{ __('titles.updated_at') }}:</span>
+                                    <strong>{{ \Carbon\Carbon::parse($selectedCourse->updated_at)->format('d/m/Y') }}</strong>
                                 </div>
-                                <div class="item">
-                                    <img src="{{ str_replace('public/', '', asset($selectedCourse->course_avatar_3)) }}"
-                                         alt="">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="box">
-                            <h2 class="title-2"><strong> {{ __('titles.course_description') }} </strong></h2>
-                            <div class="row">
-                                <div class="ads-details-info col-md-11" style="margin-left: 35px">
-                                    <p class="mb15"> {!! $selectedCourse->description !!} </p>
-                                </div>
-                                <div class="col-md-4" id="active-btn">
-                                    <div class="ads-action">
-                                        <ul class="list-border">
-                                            <li>
-                                            <li>
-                                                <div class="social-link">
-                                                </div>
-                                            </li>
-                                        </ul>
+                                <div class="cd-meta-item">
+                                    <span class="cd-rating-score">{{ number_format($selectedCourse->course_rate, 1) }}</span>
+                                    <div class="ratings">
+                                        <div class="empty-stars"></div>
+                                        <div class="full-stars" style="width:{{ $selectedCourse->course_rate * 20 }}%"></div>
                                     </div>
+                                    <span class="cd-rating-count">({{ number_format($selectedCourse->seller) }} học viên)</span>
+                                </div>
+                            </div>
+                            <div class="cd-media-container">
+                                <div id="owl-demo" class="owl-carousel owl-theme">
+                                    <div class="item">
+                                        <img src="{{ str_replace('public/', '', asset($selectedCourse->course_avatar)) }}"
+                                             alt="{{ $selectedCourse->title }}">
+                                    </div>
+                                    @if($selectedCourse->course_avatar_2)
+                                        <div class="item">
+                                            <img src="{{ str_replace('public/', '', asset($selectedCourse->course_avatar_2)) }}"
+                                                 alt="{{ $selectedCourse->title }}">
+                                        </div>
+                                    @endif
+                                    @if($selectedCourse->course_avatar_3)
+                                        <div class="item">
+                                            <img src="{{ str_replace('public/', '', asset($selectedCourse->course_avatar_3)) }}"
+                                                 alt="{{ $selectedCourse->title }}">
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
-                        <br>
                         <div class="box">
-                            <h2 class="title-2" id="course-{{ $selectedCourse->id }}-outline">
-                                <strong> {{ __('titles.all_lectures') }} </strong>
+                            <h2 class="title-2"><i class="fa fa-info-circle" style="color: #2563eb; margin-right: 6px;"></i><strong>{{ __('titles.course_description') }}</strong></h2>
+                            <div class="course-description-content" style="font-size: 15px; line-height: 1.7; color: #334155;">
+                                {!! $selectedCourse->description !!}
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0;">
+                                <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b;" id="course-{{ $selectedCourse->id }}-outline">
+                                    <strong> {{ __('titles.all_lectures') }} </strong>
+                                </h2>
                                 @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
                                     @if($availableCourse)
-                                        <b style="float: right; padding-right: 30px;">Tiến độ học tập: {{ $learnedLectureCount }}/{{ $allLectureCount }}</b>
+                                        <div style="background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 16px; font-weight: 600; font-size: 13.5px; white-space: nowrap; border: 1px solid #bae6fd;">
+                                            <i class="fa fa-graduation-cap"></i> Tiến độ học tập: {{ $learnedLectureCount }}/{{ $allLectureCount }}
+                                        </div>
                                     @endif
                                 @endif
-                            </h2>
+                            </div>
                             @if(!(\Auth::user() && (\Auth::user()->is_admin || \Auth::user()->role == 1)))
                                 @if($availableCourse)
                                     @php
@@ -170,17 +684,13 @@
                                     <thead>
                                     <tr>
                                         @if(isset($availableCourse))
-                                            <th class="text-center col-xs-1">Status</th>
+                                            <th class="text-center col-xs-1">Trạng thái</th>
                                         @endif
-                                        <th class="text-center col-xs-2">Index</th>
-                                        <th class="text-center col-xs-5">Title</th>
+                                        <th class="text-center col-xs-2">Thứ tự</th>
+                                        <th class="text-center col-xs-5">Tên bài học</th>
                                         @if(isset($availableCourse))
-                                            <th class="text-center col-xs-2"> Time</th>
-                                            <th class="text-center col-xs-3">
-                                                {{-- <a href="#" class="create-modal btn btn-success btn-sm" id="add-lecture">
-                                                    <i class="glyphicon glyphicon-plus"></i>
-                                                </a> --}}
-                                            </th>
+                                            <th class="text-center col-xs-2">Thời lượng</th>
+                                            <th class="text-center col-xs-3"></th>
                                         @endif
                                     </tr>
                                     </thead>
@@ -251,7 +761,7 @@
                         <br>
                         <div id="comments">
                             <div class="inner-box">
-                                <h3 style="font-size: 30px; font-weight: bold;">Bình luận ({{ $comments->count() }})</h3>
+                                <h3 id="comment-count-title" style="font-size: 30px; font-weight: bold;">Bình luận ({{ $comments->count() }})</h3>
                                 <hr>
                                 <ol class="comments-list" id="comment-list">
                                     @foreach($comments as $comment)
@@ -310,7 +820,7 @@
                                             <ul id="reply-comment-{{ $comment->id }}-list">
                                                 @foreach($comment->child_comments as $child_comment)
                                                     @if($child_comment->user)
-                                                    <li>
+                                                    <li id="li-reply-{{ $child_comment->id }}">
                                                         <div class="media">
                                                             <div class="thumb-left">
                                                                 <a href="{{ route('users.show', $child_comment->user->id) }}">
@@ -440,146 +950,169 @@
                     </div>
                 </div>
                 <div class="col-sm-4">
-                    <div class="inner-box">
-                        <div class="widget-title">
-                            <h4>{{ __('titles.course_detail') }}</h4>
-                        </div>
-                        <p class="no-margin ">
-                            <i class="fa fa-user-circle" id="share"></i> &ensp;
-                            <strong> {{ __('titles.teacher') }} </strong><a
-                                    href="{{ route('instructor_info', $selectedCourse->user->id) }}"> {{ $selectedCourse->user->name }} </a>
-                        </p>
-                        <p class="no-margin">
-                            <i class="fa fa-th" id="share"></i> &ensp;
-                            <strong> {{ __('titles.category') }} </strong> <a
-                                    href="/courses?sub_category_id={{ $selectedCourse->category ? $selectedCourse->category->id : '' }}"> {{ $selectedCourse->category ? ($selectedCourse->category->vi_title ?: $selectedCourse->category->title) : '' }} </a>
-                        </p>
-                        <p class="no-margin">
-                            <i class="fa fa-window-maximize" id="share"></i> &ensp;
-                            <strong> {{ __('titles.lectures_1') }} </strong> {{ $selectedCourse->lectures->count() . ' ' . __('titles.lectures') }}
-                        </p>
-                        <p class="no-margin">
-                            <i class="fa fa-clock-o" id="share"></i> &ensp;
-                            <strong> {{ __('titles.duration') }} </strong> {{ $selectedCourse->duration . ' ' . __('titles.minutes')}}
-                        </p>
-                        <p class="no-margin">
-                            <i class="fa fa-credit-card" id="share"></i> &ensp;
-                            <strong> {{ __('titles.seller') }} </strong> {{ $selectedCourse->seller }} </p>
-                        {{--                            <p class="no-margin"><strong> {{ __('titles.like') }} </strong> <span--}}
-                        {{--                                        id="like-count">{{ $selectedCourse->like }}</span>--}}
-                        {{--                            </p><br>--}}
-                        {{--                            <a href="#" data-like="{{ $liked }}"--}}
-                        {{--                               id="like-course">@if($liked) {!! '<i class="fa fa-heart"></i>&ensp;' . __('titles.unlike') !!} @else {!! '<i class="fa fa-heart-o"></i>&ensp;' . __('titles.like') !!} @endif</a></li>--}}
-                        {{--                            <br>--}}
-                        <p class="no-margin" style="display: inline-block;">
-                            <i class="fa fa-caret-square-o-left "></i> &ensp;
-                            <strong> {{ __('titles.rate') }} </strong>&emsp;
-                        <div class="ratings" style="display: inline-block;">
-                            <div class="empty-stars"></div>
-                            <div class="full-stars" style="width:{{ $selectedCourse->course_rate*20 }}%"></div>
-                        </div>
-                        </p>
-                        <i class="fa fa-share-alt" id="share"></i> &ensp; <strong>{{ __('titles.share') }}</strong>
-                        <div class="social-link" style="margin-top: 8px">
-                            <a class="twitter" target="_blank" data-original-title="Twitter"
-                               href="https://twitter.com/intent/tweet?text=Write your share&amp;url={{ Request::url() }}"
-                               data-toggle="tooltip" data-placement="top"><i class="fa fa-twitter"
-                                                                             style="margin-top: 8px"></i></a>
-                            <a class="facebook" target="_blank" data-original-title="Facebook"
-                               href="https://www.facebook.com/sharer/sharer.php?u={{ Request::url() }}"
-                               data-toggle="tooltip" data-placement="top"><i class="fa fa-facebook"
-                                                                             style="margin-top: 8px"></i></a>
-                            <a class="google" target="_blank" data-original-title="Whatsapp"
-                               href="https://wa.me/?text={{ Request::url() }}"
-                               data-toggle="tooltip" data-placement="top"><i class="fa fa-whatsApp"
-                                                                             style="margin-top: 8px"></i></a>
-                            <a class="linkedin" target="_blank" data-original-title="Linkedin"
-                               href="http://www.linkedin.com/shareArticle?mini=true&amp;url={{ Request::url() }}&amp;title=Write your share&amp;summary=dit is de linkedin summary"
-                               data-toggle="tooltip" data-placement="top"><i class="fa fa-linkedin"
-                                                                             style="margin-top: 8px"></i></a>
-                        </div>
-                        </li>
-                        <br>
-                        @if(!$availableCourse)
-                            <a class="btn btn-common btn-sm" href="" id="add-to-cart"
-                               data-id="{{ $selectedCourse->id }}"><i
-                                        class=" fa fa-cart-plus"></i><span> {{ __('titles.add_to_cart') }} </span></a>
-                            <a class="btn btn-common btn-sm" href="" id="buy-now"
-                               data-id="{{ $selectedCourse->id }}"><i
-                                        class=" fa fa-credit-card"></i><span> {{ __('titles.buy_now') }} </span></a>
-                        @endif
-                    </div>
-                    <div class="inner-box">
-                        <div class="widget-title">
-                            <h4>{{ __('titles.teacher_info') }}</h4>
-                        </div>
-                        {{ __('titles.posted_by') }} &ensp; <i class=" fa fa-user"></i> <a
-                                href="{{ route('instructor_info', $selectedCourse->user->id) }}"> {{ $selectedCourse->user->name }} </a></li>
-                        <br>
-                        <p><i class=" fa fa-envelope"></i>&ensp; {{ $selectedCourse->user->email }}</p>
-                        <p><i class=" fa fa-phone"></i>&ensp; {{ $selectedCourse->user->phone }}</p><br>
-                        <p><a class="btn btn-common btn-sm"
-                              href="{{ route('instructor_info', $selectedCourse->user->id) }}"><i
-                                        class=" fa fa-info"></i><span> {{ __('titles.see_details') }} </span></a>
-                    </div>
-                    <div class="col-xs-12">
-                        <div class="features-box wow fadeInDownQuick" data-wow-delay="0.3s">
-                            <div class="features-icon">
-                                <i class="lnr lnr-star">
-                                </i>
+                    <div class="cd-sidebar-sticky">
+                        <!-- Course Purchase Card -->
+                        <div class="cd-purchase-card">
+                            <div class="cd-card-badge-header">
+                                <i class="fa fa-graduation-cap"></i> Khóa học trực tuyến
                             </div>
-                            <div class="features-content">
-                                <h4>
-                                    Bảo vệ quyền lợi
-                                </h4>
-                                <p>
-                                    Đảm bảo quyền lợi học viên tối đa khi thanh toán trực tuyến, bảo mật thông tin tuyệt đối.
-                                </p>
+
+                            @php
+                                $hasDiscount = isset($selectedCourse->promotion_price) && $selectedCourse->promotion_price > 0 && $selectedCourse->promotion_price < $selectedCourse->origin_price;
+                                $discountPercent = $hasDiscount && $selectedCourse->origin_price > 0 ? round((($selectedCourse->origin_price - $selectedCourse->promotion_price) / $selectedCourse->origin_price) * 100) : 0;
+                            @endphp
+
+                            <div class="cd-price-section">
+                                @if($hasDiscount)
+                                    <span class="cd-current-price">{{ format_price($selectedCourse->promotion_price) }}</span>
+                                    <span class="cd-original-price">{{ format_price($selectedCourse->origin_price) }}</span>
+                                    <span class="cd-discount-badge">-{{ $discountPercent }}%</span>
+                                @elseif($selectedCourse->origin_price > 0)
+                                    <span class="cd-current-price">{{ format_price($selectedCourse->origin_price) }}</span>
+                                @else
+                                    <span class="cd-current-price" style="color: #10b981;">Miễn phí</span>
+                                @endif
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-12">
-                        <div class="features-box wow fadeInDownQuick" data-wow-delay="0.6s">
-                            <div class="features-icon">
-                                <i class="lnr lnr-chart-bars"></i>
-                            </div>
-                            <div class="features-content">
-                                <h4>
-                                    Không phát sinh chi phí
-                                </h4>
-                                <p>
-                                    Học viên chỉ thanh toán một lần duy nhất, sở hữu khóa học trọn đời và cập nhật bài giảng miễn phí.
-                                </p>
+
+                            @if($availableCourse)
+                                <div class="cd-enrolled-banner">
+                                    <i class="fa fa-check-circle"></i>
+                                    <div>
+                                        <div>Bạn đã sở hữu khóa học này</div>
+                                        <small style="font-weight: 400; color: #047857;">Truy cập bài giảng không giới hạn</small>
+                                    </div>
+                                </div>
+                                @php
+                                    $firstLecture = $selectedCourse->lectures->first();
+                                    $learningUrl = $firstLecture 
+                                        ? route('courses.lectures.show', ['id' => $selectedCourse->id, 'lectureId' => $firstLecture->id]) 
+                                        : '#course-' . $selectedCourse->id . '-outline';
+                                @endphp
+                                <a href="{{ $learningUrl }}"
+                                   class="cd-btn-start-learning">
+                                    <i class="fa fa-play-circle"></i> Vào học ngay
+                                </a>
+                            @else
+                                <button type="button" class="cd-btn-buy-now" id="buy-now" data-id="{{ $selectedCourse->id }}">
+                                    <i class="fa fa-credit-card"></i> <span>{{ __('titles.buy_now') }}</span>
+                                </button>
+                                <button type="button" class="cd-btn-add-cart" id="add-to-cart" data-id="{{ $selectedCourse->id }}">
+                                    <i class="fa fa-cart-plus"></i> <span>{{ __('titles.add_to_cart') }}</span>
+                                </button>
+                                <div class="cd-guarantee-note">
+                                    <i class="fa fa-shield"></i> Cam kết chất lượng - Hỗ trợ tận tâm
+                                </div>
+                            @endif
+
+                            <div class="cd-specs-header">Khóa học này bao gồm:</div>
+                            <ul class="cd-specs-list">
+                                <li>
+                                    <span class="spec-label"><i class="fa fa-clock-o"></i> Thời lượng</span>
+                                    <span class="spec-value">{{ $selectedCourse->duration }} phút</span>
+                                </li>
+                                <li>
+                                    <span class="spec-label"><i class="fa fa-play-circle-o"></i> Giáo trình</span>
+                                    <span class="spec-value">{{ $selectedCourse->lectures->count() }} bài học</span>
+                                </li>
+                                <li>
+                                    <span class="spec-label"><i class="fa fa-signal"></i> Cấp độ</span>
+                                    <span class="spec-value">{{ $selectedCourse->level ?? 'Mọi cấp độ' }}</span>
+                                </li>
+                                <li>
+                                    <span class="spec-label"><i class="fa fa-users"></i> Học viên đã mua</span>
+                                    <span class="spec-value">{{ number_format($selectedCourse->seller) }}</span>
+                                </li>
+                                <li>
+                                    <span class="spec-label"><i class="fa fa-certificate"></i> Chứng chỉ</span>
+                                    <span class="spec-value">Hoàn thành</span>
+                                </li>
+                            </ul>
+
+                            <div class="cd-share-section">
+                                <span class="cd-share-label"><i class="fa fa-share-alt"></i> Chia sẻ khóa học:</span>
+                                <div class="cd-social-links">
+                                    <a class="cd-social-btn fb" target="_blank" title="Facebook"
+                                       href="https://www.facebook.com/sharer/sharer.php?u={{ Request::url() }}">
+                                        <i class="fa fa-facebook"></i>
+                                    </a>
+                                    <a class="cd-social-btn tw" target="_blank" title="Twitter"
+                                       href="https://twitter.com/intent/tweet?text=Khóa học hay tại RoadToSchool&amp;url={{ Request::url() }}">
+                                        <i class="fa fa-twitter"></i>
+                                    </a>
+                                    <a class="cd-social-btn wa" target="_blank" title="WhatsApp"
+                                       href="https://wa.me/?text={{ Request::url() }}">
+                                        <i class="fa fa-whatsapp"></i>
+                                    </a>
+                                    <a class="cd-social-btn li" target="_blank" title="LinkedIn"
+                                       href="http://www.linkedin.com/shareArticle?mini=true&amp;url={{ Request::url() }}&amp;title={{ urlencode($selectedCourse->title) }}">
+                                        <i class="fa fa-linkedin"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-xs-12">
-                        <div class="features-box wow fadeInDownQuick" data-wow-delay="0.9s">
-                            <div class="features-icon">
-                                <i class="lnr lnr-spell-check"></i>
+
+                        <!-- Instructor Card -->
+                        <div class="cd-instructor-card">
+                            <div class="cd-card-badge-header" style="color: #0f172a; margin-bottom: 12px;">
+                                <i class="fa fa-id-card-o" style="color: #2563eb;"></i> Thông tin giảng viên
                             </div>
-                            <div class="features-content">
-                                <h4>
-                                    Kiểm duyệt chất lượng
-                                </h4>
-                                <p>
-                                    Tất cả nội dung khóa học và tài liệu đính kèm đều được đội ngũ chuyên gia kiểm duyệt kỹ lưỡng.
-                                </p>
+                            @php
+                                $instructorAvatar = $selectedCourse->user->avatar 
+                                    ? (strpos($selectedCourse->user->avatar, 'http') === 0 ? $selectedCourse->user->avatar : asset(str_replace('public/', '', $selectedCourse->user->avatar))) 
+                                    : asset('images/default_avatar/teacher.jpg');
+                            @endphp
+                            <div class="cd-instructor-header">
+                                <img class="cd-instructor-avatar" src="{{ $instructorAvatar }}" alt="{{ $selectedCourse->user->name }}" onerror="this.src='{{ asset('images/default_avatar/teacher.jpg') }}'">
+                                <div>
+                                    <h4 class="cd-instructor-name">
+                                        <a href="{{ route('instructor_info', $selectedCourse->user->id) }}">{{ $selectedCourse->user->name }}</a>
+                                    </h4>
+                                    <p class="cd-instructor-role"><i class="fa fa-check-circle" style="color: #10b981;"></i> Giảng viên uy tín</p>
+                                </div>
                             </div>
+                            <div class="cd-instructor-contact">
+                                @if($selectedCourse->user->email)
+                                    <p><i class="fa fa-envelope-o"></i> <span>{{ $selectedCourse->user->email }}</span></p>
+                                @endif
+                                @if($selectedCourse->user->phone)
+                                    <p><i class="fa fa-phone"></i> <span>{{ $selectedCourse->user->phone }}</span></p>
+                                @endif
+                            </div>
+                            <a class="cd-btn-profile" href="{{ route('instructor_info', $selectedCourse->user->id) }}">
+                                <i class="fa fa-user"></i> Xem hồ sơ giảng viên & các khóa học khác
+                            </a>
                         </div>
-                    </div>
-                    <div class="col-xs-12">
-                        <div class="features-box wow fadeInDownQuick" data-wow-delay="0.9s">
-                            <div class="features-icon">
-                                <i class="lnr lnr-smile"></i>
+
+                        <!-- Trust Features Card -->
+                        <div class="cd-trust-card">
+                            <h4 class="cd-trust-title"><i class="fa fa-shield" style="color: #2563eb;"></i> Cam kết tại Road To School</h4>
+                            <div class="cd-trust-item">
+                                <div class="cd-trust-icon"><i class="fa fa-lock"></i></div>
+                                <div class="cd-trust-text">
+                                    <h5>Bảo vệ quyền lợi tối đa</h5>
+                                    <p>Thanh toán an toàn, bảo mật thông tin học viên 100%.</p>
+                                </div>
                             </div>
-                            <div class="features-content">
-                                <h4>
-                                    Chính sách hỗ trợ 24/7
-                                </h4>
-                                <p>
-                                    Đội ngũ hỗ trợ và giảng viên luôn sẵn sàng giải đáp thắc mắc và hỗ trợ hoàn tiền linh hoạt.
-                                </p>
+                            <div class="cd-trust-item">
+                                <div class="cd-trust-icon"><i class="fa fa-repeat"></i></div>
+                                <div class="cd-trust-text">
+                                    <h5>Học trọn đời - Không phát sinh chi phí</h5>
+                                    <p>Thanh toán 1 lần, cập nhật giáo trình mới hoàn toàn miễn phí.</p>
+                                </div>
+                            </div>
+                            <div class="cd-trust-item">
+                                <div class="cd-trust-icon"><i class="fa fa-check-square-o"></i></div>
+                                <div class="cd-trust-text">
+                                    <h5>Kiểm duyệt nội dung chuẩn hóa</h5>
+                                    <p>Bài giảng được chọn lọc kỹ bởi chuyên gia đầu ngành.</p>
+                                </div>
+                            </div>
+                            <div class="cd-trust-item">
+                                <div class="cd-trust-icon"><i class="fa fa-headphones"></i></div>
+                                <div class="cd-trust-text">
+                                    <h5>Hỗ trợ học tập 24/7</h5>
+                                    <p>Giảng viên & đội ngũ trợ giảng hỗ trợ giải đáp trực tiếp.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -681,81 +1214,24 @@
             replyJavascript();
 
             // Pusher area
-            var comments = $('#comment-list');
-
-            // Subscribe to the channel we specified in our Laravel Event
             var channel = pusher.subscribe('comment');
-
-            // Bind a function to a Event (the full Laravel class)
             channel.bind('App\\Events\\GetCommentFromPusherEvent', function (data) {
-                var commentedUser = jQuery.parseJSON(data.user);
-                var userAvatar = commentedUser.avatar;
+                var commentedUser = (typeof data.user === 'string') ? jQuery.parseJSON(data.user) : data.user;
+                var createdComment = (typeof data.createdComment === 'string') ? jQuery.parseJSON(data.createdComment) : data.createdComment;
+                var userAvatar = commentedUser.avatar || '';
                 userAvatar = userAvatar.replace("images/", "http://127.0.0.1:8000/images/");
-                var createdComment = jQuery.parseJSON(data.createdComment);
-                var newCommentHtml =
-                    '<li id="li-comment-' + createdComment.id + '"><div class="media"><div class="thumb-left"><img alt="'
-                    + commentedUser.name +
-                    '" style="height: 75px; width: 75px" src="'
-                    + userAvatar +
-                    '"/></a></div><div class="info-body"><div class="media-heading"><h4 class="name">'
-                    + commentedUser.name +
-                    '</h4> | <span class="comment-date">'
-                    + createdComment.updated_at +
-                    '</span> <a class="reply-link" data-id="'
-                    + createdComment.id +
-                    '" data-tagged="' + createdComment.user_id + '"><i class="fa fa-reply-all"></i> Reply</a> </div>'
-                    + data.content +
-                    '</div></div><br><div class="reply-comment" style="display: none" id="reply-comment-'
-                    + createdComment.id + '"><form><div class="row">@csrf<div class="row"> <div class=" col-md-10 pull-right"> <div class="form-group"> <textarea id="content-' + createdComment.id + '" class="form-control" name="content" cols="30"rows="1" placeholder="Write a reply..."></textarea> </div> <input type="hidden" name="taggedUser" id="tagged-user-'
-                    + createdComment.id + '"><button type="submit" id="submit" class="btn btn-sm btn-common submit-reply-comment" data-parent="'
-                    + createdComment.id +
-                    '">Reply </button> </div> </div> </div> </form></div><ul id="reply-comment-' + createdComment.id + '-list"></ul></li>';
-                comments.append(newCommentHtml).ready(function () {
-                    $('.reply-link').css({'cursor': 'pointer'});
-                });
+                commentedUser.avatar = userAvatar;
+                appendNewComment(createdComment, commentedUser, createdComment.updated_at || 'Vừa xong');
             });
 
-            // Subscribe to the channel we specified in our Laravel Event
             var replyChannel = pusher.subscribe('replyComment');
-
-            // Bind a function to a Event (the full Laravel class)
             replyChannel.bind('App\\Events\\GetReplyCommentFromPusherEvent', function (data) {
-                var replyComments = $('#reply-comment-' + data.parentCommentId + '-list');
-                var commentedUser = jQuery.parseJSON(data.user);
-                var userAvatar = commentedUser.avatar;
+                var commentedUser = (typeof data.user === 'string') ? jQuery.parseJSON(data.user) : data.user;
+                var createdComment = (typeof data.createdComment === 'string') ? jQuery.parseJSON(data.createdComment) : data.createdComment;
+                var userAvatar = commentedUser.avatar || '';
                 userAvatar = userAvatar.replace("images/", "http://127.0.0.1:8000/images/");
-                var createdComment = jQuery.parseJSON(data.createdComment);
-                var replyUser = '';
-                var currentUserId = '{{ \Auth::id() }}';
-                if (commentedUser.id != currentUserId) {
-                    replyUser = commentedUser.name;
-                }
-                var newCommentHtml = '<li> <div class="media"><div class="thumb-left"><img alt="'
-                    + commentedUser.name +
-                    '" style="height: 75px; width: 75px" src="'
-                    + userAvatar +
-                    '"/></a></div><div class="info-body"><div class="media-heading"><h4 class="name">'
-                    + commentedUser.name +
-                    '</h4> | <span class="comment-date">'
-                    + createdComment.updated_at +
-                    '</span><a class="reply-link" data-id="' + data.parentCommentId + '" data-child="' + createdComment.id + '" data-tagged="'
-                    + createdComment.user_id +
-                    '"><i class="fa fa-reply-all"></i> Reply</a></div>'
-                    + data.content +
-                    '</div></div><br><div class="reply-comment" style="display: none" id="reply-comment-' + data.parentCommentId + '-from-'
-                    + createdComment.id
-                    + '"><form><div class="row">@csrf<div class="row"><div class=" col-md-12 pull-right"><div class="form-group"><textarea id="content-'
-                    + createdComment.id
-                    + '" class="form-control" name="content" cols="30" rows="1" placeholder="Write a reply...">' + replyUser + '</textarea></div><input type="hidden" name="taggedUser" id="tagged-user-'
-                    + createdComment.id
-                    + '"><button type="submit" id="submit" class="btn btn-sm btn-common submit-reply-comment" data-id="'
-                    + createdComment.id
-                    + '" data-parent="'
-                    + data.parentCommentId
-                    + '">Reply</button></div></div></div></form></div></li>';
-                replyComments.append(newCommentHtml).ready(function () {
-                    $('.reply-link').css({'cursor': 'pointer'});
-                });
+                commentedUser.avatar = userAvatar;
+                appendNewReply(createdComment, commentedUser, createdComment.updated_at || 'Vừa xong', data.parentCommentId);
             });
 
             $('#add-to-cart').on('click', function (event) {
@@ -770,36 +1246,164 @@
                 addCourseToCart(courseId, '{{ __('messages.add_to_cart_success_redirecting') }}', '{{ __('messages.in_cart_already_failed') }}', '{{ __('messages.my_course_already_failed') }}', '{{ __('messages.my_bill_already_failed') }}', $(this).attr('id'), 'add-to-cart');
             });
 
-            $('#comments').on('click', '#submit-comment', function (event) {
+            // GỬI BÌNH LUẬN CHÍNH
+            $('#comments').off('click', '#submit-comment').on('click', '#submit-comment', function (event) {
                 event.preventDefault();
+                var $btn = $(this);
+                if ($btn.prop('disabled')) return;
+
+                var contentVal = $('#comment-content').val().trim();
+                if (!contentVal) {
+                    alert('Vui lòng nhập nội dung bình luận.');
+                    return;
+                }
+                var courseId = $('#comment-course-id').val();
+                var userId = $('#comment-user-id').val();
+
+                $btn.prop('disabled', true).text('Đang gửi...');
+
                 $.ajaxSetup({
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
                 $.ajax({
-                    url: '/courses/' + $('#comment-course-id').val() + '/pusher/postComment',
+                    url: '/courses/' + courseId + '/pusher/postComment',
                     type: 'post',
                     data: {
-                        content: $('#comment-content').val(),
-                        userId: $('#comment-user-id').val(),
+                        content: contentVal,
+                        userId: userId,
                     },
-                    success: function () {
+                    success: function (res) {
                         $('#comment-content').val('');
+                        var resData = (typeof res === 'string') ? JSON.parse(res) : res;
+                        if (resData && resData.comment && resData.user) {
+                            appendNewComment(resData.comment, resData.user, resData.created_at || 'Vừa xong');
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi gửi bình luận, vui lòng thử lại.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).text('Gửi bình luận');
                     }
                 });
             });
         });
 
+        // --- HÀM THÊM BÌNH LUẬN TRỰC TIẾP VÀO GIAO DIỆN KHÔNG CẦN F5 ---
+        function appendNewComment(comment, user, createdAt) {
+            if ($('#li-comment-' + comment.id).length > 0) return;
+            var userAvatar = user.avatar || '/images/default_avatar/default_avatar.jpg';
+            if (!userAvatar.startsWith('http') && !userAvatar.startsWith('/')) {
+                userAvatar = '/' + userAvatar;
+            }
+            var currentUserId = '{{ \Auth::id() }}';
+            var newCommentHtml =
+                '<li id="li-comment-' + comment.id + '">' +
+                    '<div class="media">' +
+                        '<div class="thumb-left">' +
+                            '<a href="/users/' + user.id + '">' +
+                                '<img alt="' + user.name + '" style="height: 75px; width: 75px; border-radius: 50%; object-fit: cover;" src="' + userAvatar + '"/>' +
+                            '</a>' +
+                        '</div>' +
+                        '<div class="info-body">' +
+                            '<div class="media-heading">' +
+                                '<h4 class="name">' + user.name + '</h4> | ' +
+                                '<span class="comment-date">' + createdAt + '</span> ' +
+                                '<a class="reply-link" data-id="' + comment.id + '" data-tagged="' + user.id + '" style="cursor: pointer;"><i class="fa fa-reply-all"></i> Trả lời</a>' +
+                            '</div>' +
+                            '<p>' + comment.content + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<br>' +
+                    '<div class="reply-comment" style="display: none" id="reply-comment-' + comment.id + '">' +
+                        '<form>' +
+                            '<div class="row">' +
+                                '<input type="hidden" name="user_id" value="' + currentUserId + '">' +
+                                '<div class="row">' +
+                                    '<div class="col-md-10 pull-right">' +
+                                        '<div class="form-group">' +
+                                            '<textarea id="content-' + comment.id + '" class="form-control content-reply" name="content" cols="30" rows="1" placeholder="Viết phản hồi..."></textarea>' +
+                                        '</div>' +
+                                        '<input type="hidden" name="taggedUser" id="tagged-user-' + user.id + '">' +
+                                        '<button type="submit" class="btn btn-sm btn-common submit-reply-comment" data-parent="' + comment.id + '">Gửi trả lời</button>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</form>' +
+                    '</div>' +
+                    '<ul id="reply-comment-' + comment.id + '-list"></ul>' +
+                '</li>';
+
+            $('#comment-list').append(newCommentHtml);
+            var count = $('#comment-list > li').length;
+            $('#comment-count-title').text('Bình luận (' + count + ')');
+            replyJavascript();
+        }
+
+        function appendNewReply(comment, user, createdAt, parentCommentId) {
+            if ($('#li-reply-' + comment.id).length > 0) return;
+            var userAvatar = user.avatar || '/images/default_avatar/default_avatar.jpg';
+            if (!userAvatar.startsWith('http') && !userAvatar.startsWith('/')) {
+                userAvatar = '/' + userAvatar;
+            }
+            var currentUserId = '{{ \Auth::id() }}';
+            var newReplyHtml =
+                '<li id="li-reply-' + comment.id + '">' +
+                    '<div class="media">' +
+                        '<div class="thumb-left">' +
+                            '<a href="/users/' + user.id + '">' +
+                                '<img alt="' + user.name + '" style="height: 75px; width: 75px; border-radius: 50%; object-fit: cover;" src="' + userAvatar + '"/>' +
+                            '</a>' +
+                        '</div>' +
+                        '<div class="info-body">' +
+                            '<div class="media-heading">' +
+                                '<h4 class="name">' + user.name + '</h4> | ' +
+                                '<span class="comment-date">' + createdAt + '</span> ' +
+                                '<a class="reply-link" data-id="' + parentCommentId + '" data-child="' + comment.id + '" data-tagged="' + user.id + '" style="cursor: pointer;"><i class="fa fa-reply-all"></i> Trả lời</a>' +
+                            '</div>' +
+                            '<p>' + comment.content + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<br>' +
+                    '<div class="reply-comment" style="display: none" id="reply-comment-' + parentCommentId + '-from-' + comment.id + '">' +
+                        '<form>' +
+                            '<div class="row">' +
+                                '<input type="hidden" name="user_id" value="' + currentUserId + '">' +
+                                '<div class="row">' +
+                                    '<div class="col-md-12 pull-right">' +
+                                        '<div class="form-group">' +
+                                            '<textarea id="content-' + comment.id + '" class="form-control content-reply" name="content" cols="30" rows="1" placeholder="Viết phản hồi..."></textarea>' +
+                                        '</div>' +
+                                        '<input type="hidden" name="taggedUser" id="tagged-user-' + user.id + '">' +
+                                        '<button type="submit" class="btn btn-sm btn-common submit-reply-child-comment" data-child="' + comment.id + '" data-parent="' + parentCommentId + '">Gửi trả lời</button>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</form>' +
+                    '</div>' +
+                '</li>';
+
+            var targetList = $('#reply-comment-' + parentCommentId + '-list');
+            if (targetList.length === 0) {
+                $('#li-comment-' + parentCommentId).append('<ul id="reply-comment-' + parentCommentId + '-list"></ul>');
+                targetList = $('#reply-comment-' + parentCommentId + '-list');
+            }
+            targetList.append(newReplyHtml);
+            replyJavascript();
+        }
+
         function replyJavascript() {
             $('.content-reply').each(function() {
                 var currentString = $(this).val();
-                if(currentString.trim() != '') {
-                    currentString = currentString.trim() + ': '
+                if(currentString && currentString.trim() != '' && !currentString.endsWith(': ')) {
+                    currentString = currentString.trim() + ': ';
+                    $(this).val(currentString);
                 }
-                $(this).val(currentString);
-            })
-            $('#comments').on('click', '.reply-link', function (event) {
+            });
+
+            $('#comments').off('click', '.reply-link').on('click', '.reply-link', function (event) {
                 event.preventDefault();
                 if ($(this).data('child')) {
                     if ($('#reply-comment-' + $(this).data('id') + '-from-' + $(this).data('child')).css('display') == 'none') {
@@ -820,34 +1424,45 @@
                         $('#reply-comment-' + $(this).data('id')).hide();
                     }
                 }
-            })
+            });
 
-            $('#comments').on('click', '.submit-reply-comment, .submit-reply-child-comment', function (event) {
+            // GỬI PHẢN HỒI (REPLY)
+            $('#comments').off('click', '.submit-reply-comment, .submit-reply-child-comment').on('click', '.submit-reply-comment, .submit-reply-child-comment', function (event) {
                 event.preventDefault();
+                var $btn = $(this);
+                if ($btn.prop('disabled')) return;
+
                 var contentComment = '';
                 var firstChildComment = true;
                 var prevCommentId = 0;
+                var parentId = $btn.data('parent');
 
-                if ($(this).data('id') != undefined) {
-                    contentComment = $('#content-' + $(this).data('id')).val();
+                if ($btn.data('id') != undefined) {
+                    contentComment = $('#content-' + $btn.data('id')).val();
                     firstChildComment = false;
-                    prevCommentId = $(this).data('id');
+                    prevCommentId = $btn.data('id');
+                } else if ($btn.data('child') != undefined) {
+                    contentComment = $('#content-' + $btn.data('child')).val();
+                    firstChildComment = false;
+                    prevCommentId = $btn.data('child');
                 } else {
-                    if ($(this).data('child') != undefined) {
-                        contentComment = $('#content-' + $(this).data('child')).val();
-                        firstChildComment = false;
-                        prevCommentId = $(this).data('child');
-                    } else {
-                        contentComment = $('#content-' + $(this).data('parent')).val();
-                    }
+                    contentComment = $('#content-' + parentId).val();
                 }
+
+                if (!contentComment || !contentComment.trim()) {
+                    alert('Vui lòng nhập nội dung phản hồi.');
+                    return;
+                }
+
+                $btn.prop('disabled', true).text('Đang gửi...');
+
                 $.ajaxSetup({
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
                 $.ajax({
-                    url: '/courses/' + $('#comment-course-id').val() + '/pusher/replyComment/' + $(this).data('parent'),
+                    url: '/courses/' + $('#comment-course-id').val() + '/pusher/replyComment/' + parentId,
                     type: 'post',
                     data: {
                         content: contentComment,
@@ -856,18 +1471,23 @@
                         prevCommentId: prevCommentId,
                     },
                     success: function (data) {
-                        var responseData = jQuery.parseJSON(data);
-                        // if not first child comment, get prev comment
-                        if (responseData.prevCommentId != null) {
-                            $('#content-' + responseData.prevCommentId).val('');
-
-                            $('#reply-comment-' + responseData.parentCommentId + '-from-' + responseData.prevCommentId).hide();
+                        var responseData = (typeof data === 'string') ? JSON.parse(data) : data;
+                        if (prevCommentId) {
+                            $('#content-' + prevCommentId).val('');
+                            $('#reply-comment-' + parentId + '-from-' + prevCommentId).hide();
                         } else {
-                            var parentCommentId = responseData;
-                            $('#content-' + parentCommentId).val('');
-
-                            $('#reply-comment-' + parentCommentId).hide();
+                            $('#content-' + parentId).val('');
+                            $('#reply-comment-' + parentId).hide();
                         }
+                        if (responseData && responseData.comment && responseData.user) {
+                            appendNewReply(responseData.comment, responseData.user, responseData.created_at || 'Vừa xong', parentId);
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi gửi phản hồi, vui lòng thử lại.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).text('Gửi trả lời');
                     }
                 });
             });

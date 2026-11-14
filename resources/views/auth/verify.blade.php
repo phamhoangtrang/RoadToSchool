@@ -1,33 +1,7 @@
-{{--@extends('layouts.app')--}}
-
-{{--@section('content')--}}
-{{--    <div class="container">--}}
-{{--        <div class="row justify-content-center">--}}
-{{--            <div class="col-md-8">--}}
-{{--                <div class="card">--}}
-{{--                    <div class="card-header">{{ __('Verify Your Email Address') }}</div>--}}
-
-{{--                    <div class="card-body">--}}
-{{--                        @if (session('resent'))--}}
-{{--                            <div class="alert alert-success" role="alert">--}}
-{{--                                {{ __('A fresh verification link has been sent to your email address.') }}--}}
-{{--                            </div>--}}
-{{--                        @endif--}}
-
-{{--                        {{ __('Before proceeding, please check your email for a verification link.') }}--}}
-{{--                        {{ __('If you did not receive the email') }}, <a--}}
-{{--                                href="{{ route('verification.resend') }}">{{ __('click here to request another') }}</a>.--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--    </div>--}}
-{{--@endsection--}}
-
 @extends('user.layouts.default')
 
 @section('title')
-    Verify Email
+    Xác thực Email
 @endsection
 
 @section('inline_styles')
@@ -38,23 +12,23 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="inner-box posting">
-                        <div class="alert alert-danger alert-lg" role="alert">
-                            <h1 class="postin-title text-center">Verify Email</h1>
+                    <div class="inner-box posting" style="margin: 40px auto; max-width: 850px;">
+                        <div class="alert alert-danger alert-lg" role="alert" style="padding: 30px; border-radius: 8px;">
+                            <h1 class="postin-title text-center" style="color: #fff; font-size: 26px; font-weight: bold; margin-bottom: 15px;">
+                                <i class="fa fa-envelope-o"></i> Xác thực Email
+                            </h1>
                             @if (session('resent'))
-                                <div class="text-center" role="alert">
-                                    {{ __('A fresh verification link has been sent to your email address.') }}
+                                <div class="alert alert-success text-center" role="alert" style="background-color: #d4edda; color: #155724; border-color: #c3e6cb; margin-bottom: 15px; border-radius: 4px; padding: 10px;">
+                                    Đường link xác thực mới đã được gửi đến địa chỉ email của bạn.
                                 </div>
                             @endif
-                            <div class="text-center">
-                                {{ __('Before proceeding, please check your email for a verification link.') }}
-                                {{ __('If you did not receive the email') }},
-                                <form class="d-inline" method="POST" action="{{ route('verification.resend') }}" style="display: inline;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-link p-0 m-0 align-baseline" style="color: #fff; text-decoration: underline; background: none; border: none; padding: 0; font-weight: bold; cursor: pointer;">
-                                        {{ __('click here to request another') }}
-                                    </button>.
-                                </form>
+                            <div class="text-center" style="font-size: 16px; line-height: 1.6; color: #fff;">
+                                Trước khi tiếp tục, vui lòng kiểm tra hộp thư email của bạn để lấy đường link xác thực tài khoản.
+                            </div>
+                            <div class="text-center" style="margin-top: 20px;">
+                                <a href="https://mail.google.com" target="_blank" class="btn btn-common" style="background-color: #fff; color: #d9534f; font-weight: bold; border-radius: 4px; padding: 8px 24px; text-transform: none; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                    <i class="fa fa-external-link"></i> Mở hộp thư Gmail
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -66,4 +40,3 @@
 
 @section('inline_scripts')
 @endsection
-

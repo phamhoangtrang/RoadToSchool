@@ -17,12 +17,12 @@
                             <div class="advanced-search">
                                 <div class="col-md-6 col-sm-12 search-col">
                                     <span class="hidden-sm hidden-xs"
-                                          style="color: white">Course: <strong>{{ $lecture->course->title }}</strong> </span>
+                                          style="color: white">Khóa học: <strong>{{ $lecture->course->title }}</strong> </span>
 
                                 </div>
                                 <div class="col-md-2 col-sm-12 search-col">
                                     <span class="hidden-sm hidden-xs"
-                                          style="color: white">Week: <strong>{{ $lecture->week }}</strong> </span>
+                                          style="color: white">Tuần: <strong>{{ $lecture->week }}</strong> </span>
                                 </div>
                                 @php
                                     function convertTimeToSecond($time) {
@@ -37,12 +37,12 @@
                                 <div class="col-md-2 col-sm-12 search-col">
                                     <span class="hidden-sm hidden-xs"
                                           style="color: white" id="quiz-time"
-                                          data-time="{{ convertTimeToSecond($lecture->duration) }}">Time: <strong>{{ $lecture->duration }}</strong> </span>
+                                          data-time="{{ convertTimeToSecond($lecture->duration) }}">Thời gian: <strong>{{ $lecture->duration }}</strong> </span>
                                 </div>
                                 <div class="col-md-2 col-sm-12 search-col">
                                     <button class="btn btn-xs btn-common" id="button-start-quiz"
                                             style="background-color: Tomato"
-                                            type="button">Start quiz
+                                            type="button">Bắt đầu làm bài
                                     </button>
                                 </div>
                             </div>
@@ -57,7 +57,7 @@
                             <div class="form-group">
                                 <div class="page-ads box">
                                     <div class="form-group mb30 clearfix">
-                                        <label class="control-label" for="textarea">Quiz {{ $key + 1 }}</label>
+                                        <label class="control-label" for="textarea">Câu {{ $key + 1 }}</label>
                                         <p id="question-{{ $question->id }}-content" class="question-content"
                                            data-multi="{{ $question->is_multiple_choice }}">{{ $question->content }}</p>
                                         <div class="form-inline">
@@ -81,14 +81,13 @@
                         @if(\Auth::user()->role == 2)
                             <button class="btn btn-common" style="background-color: Tomato; float: right;"
                                     type="submit">
-                                Submit
-                                for review
+                                Nộp bài kiểm tra
                             </button>
                         @else
                             <button class="btn btn-common" id="back-button"
                                     style="background-color: Tomato; float: right;"
                                     type="submit">
-                                Back
+                                Quay lại
                             </button>
                         @endif
                     </form>
@@ -146,7 +145,7 @@
                     if (time == 300) {
                         $.notify({
                             // options
-                            message: '<b>Message from R2S<b>: 5 minutes remaining !',
+                            message: '<b>Thông báo từ RoadToSchool<b>: Còn lại 5 phút!',
                         }, {
                             // settings
                             type: 'warning',
@@ -156,7 +155,7 @@
                     if (time == 60) {
                         $.notify({
                             // options
-                            message: '<b>Message from R2S<b>: 1 minutes remaining !',
+                            message: '<b>Thông báo từ RoadToSchool<b>: Còn lại 1 phút!',
                         }, {
                             // settings
                             type: 'warning',
@@ -168,13 +167,13 @@
                         $('input:checkbox').attr('disabled', '');
                         $.notify({
                             // options
-                            message: '<b>Message from R2S<b>: Time \'s end !\n Starting auto submit ...',
+                            message: '<b>Thông báo từ RoadToSchool<b>: Đã hết thời gian làm bài!\n Đang tự động nộp bài...',
                         }, {
                             // settings
                             type: 'danger',
 
                         });
-                        $('#quiz-time').children().text('Time \'s end, submitting');
+                        $('#quiz-time').children().text('Hết giờ, đang nộp bài...');
                         // ajax save
                     }
                     var hours = Math.floor((time / 3600));
@@ -194,7 +193,7 @@
 
             $('.question-content').each(function () {
                 if ($(this).data('multi') == 1) {
-                    $(this).text($(this).text() + ' Check all that apply.');
+                    $(this).text($(this).text() + ' (Chọn tất cả các đáp án đúng)');
                 }
             })
 

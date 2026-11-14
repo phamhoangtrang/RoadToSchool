@@ -121,6 +121,12 @@ class LectureController extends Controller
                 $lectureComment->child_comments = $this->modelLectureComment->where('parent_comment', $lectureComment->id)->orderBy('updated_at', 'asc')->get();
             }
 
+            $isCompleted = false;
+            if (\Auth::check()) {
+                $currProc = $this->modelProcess->where('lecture_id', $lectureId)->where('user_id', \Auth::user()->id)->first();
+                $isCompleted = ($currProc && $currProc->status == 1);
+            }
+
             return view('user.lectures.show', compact(
                 'embed',
                 'lectures',
@@ -133,7 +139,8 @@ class LectureController extends Controller
                 'allLectureCount',
                 'learnedLectureCount',
                 'maxWeek',
-                'lectureOutline'
+                'lectureOutline',
+                'isCompleted'
             ));
         }
     }
@@ -145,20 +152,35 @@ class LectureController extends Controller
         $data['lecture_id'] = $lectureId;
 
         $createdLectureComment = $this->modelLectureComment->storeNewLectureComment($data);
-        $lectureCommentedUserList = $this->modelLectureComment->where('lecture_id', $lectureId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
-        // Create Notification
-        $createdNotification = $this->modelNotification->createCommentNotification($lectureId, $lectureCommentedUserList, $createdLectureComment, Notification::LECTURE_COMMENT);
-        $notificationContent = '<b>' . $createdLectureComment->user->name . '</b>' . ' has commented in lecture ' . Lecture::findOrFail($lectureId)->title . ': ' . $createdLectureComment->content;
-        $createNotificationIdList = $this->modelNotification->where('comment_id', $createdLectureComment->id)->pluck('id', 'user_id');
+        if ($createdLectureComment) {
+            $lectureCommentedUserList = $this->modelLectureComment->where('lecture_id', $lectureId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
+            // Create Notification
+            $this->modelNotification->createCommentNotification($lectureId, $lectureCommentedUserList, $createdLectureComment, Notification::LECTURE_COMMENT);
+            $lecture = Lecture::find($lectureId);
+            $lectureTitle = $lecture ? $lecture->title : '';
+            $notificationContent = '<b>' . $createdLectureComment->user->name . '</b> đã bình luận trong bài giảng <b>' . $lectureTitle . '</b>: ' . $createdLectureComment->content;
+            $createNotificationIdList = $this->modelNotification->where('comment_id', $createdLectureComment->id)->pluck('id', 'user_id');
 
-        if ($createdLectureComment && $createdNotification) {
-            event(new GetLectureCommentFromPusherEvent($request, $createdLectureComment));
-            event(new GetNotificationFromPusherEvent($lectureId, $lectureCommentedUserList, $createdLectureComment, $notificationContent, $createdLectureComment->user->avatar, \Carbon\Carbon::parse($createdLectureComment->created_at)->diffForHumans(), $createNotificationIdList));
+            try {
+                event(new GetLectureCommentFromPusherEvent($request, $createdLectureComment));
+                event(new GetNotificationFromPusherEvent($lectureId, $lectureCommentedUserList, $createdLectureComment, $notificationContent, $createdLectureComment->user->avatar, \Carbon\Carbon::parse($createdLectureComment->created_at)->diffForHumans(), $createNotificationIdList));
+            } catch (\Exception $e) {
+                \Log::warning('Pusher lecture event error: ' . $e->getMessage());
+            }
 
-            return 200;
+            return response()->json([
+                'status' => 200,
+                'comment' => $createdLectureComment,
+                'user' => [
+                    'id' => $createdLectureComment->user->id,
+                    'name' => $createdLectureComment->user->name,
+                    'avatar' => str_replace(' ', '', str_replace('public/', '', asset($createdLectureComment->user->avatar ?? 'images/default_avatar/default_avatar.jpg'))),
+                ],
+                'created_at' => $createdLectureComment->updated_at ? $createdLectureComment->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
+            ]);
         }
 
-        return 500;
+        return response()->json(['status' => 500, 'message' => 'Lỗi tạo bình luận'], 500);
     }
 
     public function postReplyLectureCommentToPusher(Request $request, $lectureId, $parentCommentId)
@@ -169,23 +191,29 @@ class LectureController extends Controller
         $data['parent_comment'] = $parentCommentId;
 
         $createdComment = $this->modelLectureComment->storeNewLectureComment($data);
-//        $commentedUserList = $this->modelComment->where('user_id', '!=', $data['user_id'])->where('course_id', $courseId)->where('parent_comment', $parentCommentId)->groupBy('user_id')->pluck('user_id');
-//        $createdNotification = $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, 'replied');
-//        if($createdComment && $createdNotification) {
         if ($createdComment) {
-            event(new GetReplyLectureCommentFromPusherEvent($request, $createdComment, $parentCommentId));
-
-            if ($data['firstChildComment'] == 'false') {
-                $responseData['prevCommentId'] = $data['prevCommentId'];
-                $responseData['parentCommentId'] = $parentCommentId;
-
-                return json_encode($responseData);
+            try {
+                event(new GetReplyLectureCommentFromPusherEvent($request, $createdComment, $parentCommentId));
+            } catch (\Exception $e) {
+                \Log::warning('Pusher lecture reply event error: ' . $e->getMessage());
             }
 
-            return json_encode($parentCommentId);
+            return response()->json([
+                'status' => 200,
+                'comment' => $createdComment,
+                'user' => [
+                    'id' => $createdComment->user->id,
+                    'name' => $createdComment->user->name,
+                    'avatar' => str_replace(' ', '', str_replace('public/', '', asset($createdComment->user->avatar ?? 'images/default_avatar/default_avatar.jpg'))),
+                ],
+                'created_at' => $createdComment->updated_at ? $createdComment->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
+                'parentCommentId' => $parentCommentId,
+                'prevCommentId' => $data['prevCommentId'] ?? 0,
+                'firstChildComment' => $data['firstChildComment'] ?? 'true',
+            ]);
         }
 
-        return 500;
+        return response()->json(['status' => 500, 'message' => 'Lỗi tạo phản hồi'], 500);
     }
 
     public function showQuizResult($courseId, $lectureId)

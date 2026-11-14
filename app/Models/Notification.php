@@ -50,7 +50,7 @@ class Notification extends Model
                 $result =
                     Notification::create([
                         'type' => self::COMMENT,
-                        'content' => '<b>' . $comment->user->name . '</b> has commented in <b>' . Course::findOrFail($courseOrLectureId)->first()->title . '</b>: ' . $comment->content,
+                        'content' => '<b>' . $comment->user->name . '</b> đã bình luận trong khóa học <b>' . Course::findOrFail($courseOrLectureId)->first()->title . '</b>: ' . $comment->content,
                         'status' => self::NOT_SEEN,
                         'course_id' => $courseOrLectureId,
                         'comment_id' => $comment->id,
@@ -66,7 +66,7 @@ class Notification extends Model
                 $result =
                     Notification::create([
                         'type' => self::LECTURE_COMMENT,
-                        'content' => '<b>' . $comment->user->name . '</b> has commented in lecture <b>' . Lecture::findOrFail($courseOrLectureId)->title . '</b>: ' . $comment->content,
+                        'content' => '<b>' . $comment->user->name . '</b> đã bình luận trong bài giảng <b>' . Lecture::findOrFail($courseOrLectureId)->title . '</b>: ' . $comment->content,
                         'status' => self::NOT_SEEN,
                         'lecture_id' => $courseOrLectureId,
                         'comment_id' => $comment->id,
@@ -87,7 +87,7 @@ class Notification extends Model
     public static function createWelcomeNotification($userId)
     {
         $data['type'] = self::WELCOME;
-        $data['content'] = 'Welcome to Road To School';
+        $data['content'] = 'Chào mừng bạn đến với Road To School!';
         $data['status'] = 0;
         $data['user_id'] = $userId;
         return Notification::create($data);

@@ -7,17 +7,223 @@
 @section('inline_styles')
     <link rel="stylesheet" href="{{ asset('assets/css/custom/users_show.css') }}">
     <style>
-        .btn-file {
+        /* Modern Profile Edit Page Styling */
+        .page-content .inner-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+            padding: 24px 28px;
+            margin-bottom: 25px;
+        }
+
+        .profile-welcome-header {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .profile-welcome-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-welcome-title span.brand-text {
+            color: #2563eb;
+        }
+
+        .panel-modern {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            box-shadow: none !important;
+            overflow: hidden;
+            margin-bottom: 0 !important;
+        }
+
+        .panel-modern .panel-heading {
+            background: #f8fafc !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            padding: 14px 20px !important;
+        }
+
+        .panel-modern .panel-title {
+            font-size: 15px !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+        }
+
+        .panel-modern .panel-title a {
+            color: #1e293b !important;
+            text-decoration: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .panel-modern .panel-body {
+            padding: 26px 24px !important;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label.control-label {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 7px;
+            display: block;
+        }
+
+        .form-control {
+            height: 44px;
+            border-radius: 9px !important;
+            border: 1.5px solid #cbd5e1 !important;
+            box-shadow: none !important;
+            font-size: 14px;
+            color: #1e293b;
+            padding: 10px 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+        }
+
+        .form-control[readonly] {
+            background-color: #f8fafc !important;
+            color: #64748b !important;
+            border-color: #e2e8f0 !important;
+            cursor: not-allowed;
+        }
+
+        /* 3-Column Address Selectors */
+        .address-selectors-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .address-selectors-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .address-selectors-row select.form-control {
+            width: 100% !important;
+            background-color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* Avatar Modern Uploader Card */
+        .avatar-uploader-card {
+            background: #f8fafc;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 6px;
+        }
+
+        .avatar-uploader-layout {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        .avatar-previews-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .avatar-preview-box {
+            text-align: center;
+        }
+
+        .avatar-preview-box .avatar-box-title {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .avatar-circle-frame {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .avatar-circle-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-empty-placeholder {
+            font-size: 24px;
+            color: #94a3b8;
+        }
+
+        .avatar-controls-group {
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .avatar-file-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .btn-choose-avatar {
             position: relative;
             overflow: hidden;
-            background-color: #3498db;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 9px 18px;
+            background: #2563eb;
+            color: #ffffff !important;
+            font-size: 13.5px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+            transition: all 0.2s ease;
+            margin: 0;
+            white-space: nowrap;
         }
 
-        .btn-file:hover {
-            background: #48acef;
+        .btn-choose-avatar:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
         }
 
-        .btn-file input[type=file] {
+        .btn-choose-avatar input[type=file] {
             position: absolute;
             top: 0;
             right: 0;
@@ -28,45 +234,120 @@
             filter: alpha(opacity=0);
             opacity: 0;
             outline: none;
-            /*background: white;*/
             cursor: inherit;
             display: block;
         }
 
-        #current-img, #img-upload {
-            width: 50px;
-            height: 50px;
-            margin-left: 20px;
+        .avatar-filename-display {
+            flex: 1;
+            background: #ffffff !important;
+            height: 40px;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .avatar-actions-btns {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-avatar-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 7px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .btn-delete-avatar {
+            background: #ffffff;
+            color: #ef4444;
+            border-color: #fca5a5;
+        }
+
+        .btn-delete-avatar:hover {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #ef4444;
+        }
+
+        .btn-redo-avatar {
+            background: #ffffff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+
+        .btn-redo-avatar:hover {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-color: #2563eb;
+        }
+
+        .avatar-tip-text {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+
+        .btn-submit-profile {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 34px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+            color: #ffffff !important;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 9px;
+            border: none !important;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+            transition: all 0.25s ease;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-submit-profile:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
         }
     </style>
 @endsection
 
 @section('content')
-    {{ Breadcrumbs::render('users_show', $selectedUser) }} <br>
+    {{ Breadcrumbs::render('users_show', $selectedUser) }}
     <div id="content">
         <div class="container">
             <div class="row">
                 @include('user.partials.user_management_info')
                 <div class="col-sm-9 page-content">
-                    <div class="inner-box">
-                        <div class="usearadmin">
-                            <h3><img class="userimg"
-                                     src="{{ str_replace(' ', '', str_replace('public/', '', asset($selectedUser->avatar))) }}"
-                                     alt="">{{ $selectedUser->name }}</h3>
-                        </div>
-                    </div>
                     @include('flash::message')
                     <div class="inner-box">
-                        <div class="welcome-msg">
-                            <h3 class="page-sub-header2 clearfix no-padding">{{ strtoupper(__('titles.slogan_p1')) }}
-                                <span>{{ __('titles.slogan_p2') }} </span> {{ $selectedUser->name }}</h3>
-                            {{-- <span class="page-sub-header-sub small">{{ __('titles.last_login') . $diffTime }}</span> --}}
+                        <div class="profile-welcome-header">
+                            <h3 class="profile-welcome-title">
+                                <span>{{ __('titles.slogan_p1') }}</span>
+                                <span class="brand-text">{{ __('titles.slogan_p2') }}</span>, {{ $selectedUser->name }}
+                            </h3>
                         </div>
                         <div id="accordion" class="panel-group">
-                            <div class="panel panel-default">
+                            <div class="panel panel-default panel-modern">
                                 <div class="panel-heading">
-                                    <h4 class="panel-title"><a href="#collapseB1"
-                                                               data-toggle="collapse"> {{ __('titles.profile_info') }} </a>
+                                    <h4 class="panel-title">
+                                        <a href="#collapseB1" data-toggle="collapse">
+                                            <span><i class="fa fa-id-card-o" style="color: #2563eb; margin-right: 6px;"></i> {{ __('titles.profile_info') }}</span>
+                                            <i class="fa fa-chevron-down" style="font-size: 13px; color: #94a3b8;"></i>
+                                        </a>
                                     </h4>
                                 </div>
                                 <div class="panel-collapse collapse in" id="collapseB1">
@@ -91,54 +372,64 @@
                                         <div class="form-group">
                                             {{ Form::label('address', __('titles.address') . ' *', ['class' => 'control-label']) }}
                                             {{ Form::text('address', null, ['class' => 'form-control', 'id' => 'address', 'readonly']) }}
-                                            <div class="form-inline">
+                                            <div class="address-selectors-row">
                                                 {{ Form::select('province', $selectProvince, null, ['class' => 'form-control', 'id' => 'province', 'placeholder' => __('titles.choose_province')]) }}
                                                 {{ Form::select('district', [], null, ['class' => 'form-control', 'id' => 'district', 'placeholder' => __('titles.choose_district')]) }}
                                                 {{ Form::select('commune', [], null, ['class' => 'form-control', 'id' => 'commune', 'placeholder' => __('titles.choose_commune')]) }}
                                             </div>
                                             <p class="error-input-p"> {{ $errors->first('address')}} </p>
                                         </div>
-                                        {{--                                        <div class="form-group">--}}
-                                        {{--                                            {{ Form::label('avatar', __('titles.update_avatar'), ['class' => 'control-label']) }}--}}
-                                        {{--                                            <br>--}}
-                                        {{--                                            {{ Form::file('avatar', ['id' => 'avatar', 'onchange' => 'readURL(this)']) }}--}}
-                                        {{--                                            <input type="file" id="avatar" class="form-control" name="pic" accept="image/*">--}}
-                                        {{--                                            <input type="button" value="{{ __('titles.upload_avatar') }}"--}}
-                                        {{--                                                   onclick="document.getElementById('avatar').click();"/>--}}
-                                        {{--                                            <input type="button" id="cancel" value="{{ __('titles.cancel_avatar') }}"--}}
-                                        {{--                                                   onclick="backAvatar()" hidden=""/>--}}
-                                        {{--                                            <input type="text" id="cancel-value" name="cancel_value" hidden=""--}}
-                                        {{--                                                   value="cancel" disabled=""/>--}}
-                                        {{--                                            <input type="button" id="delete" name="delete"--}}
-                                        {{--                                                   value="{{ __('titles.delete_avatar') }}" onclick="deleteAvatar()"/>--}}
-                                        {{--                                            <input type="text" id="delete-value" name="delete_value" hidden=""--}}
-                                        {{--                                                   value="delete" disabled=""/>--}}
-                                        {{--                                        </div>--}}
-                                        {{--                                        <img class="userimg" id="current-avatar"--}}
-                                        {{--                                             src="{{ str_replace('public/', '', asset($selectedUser->avatar)) }}">--}}
-                                        {{--                                        <br>--}}
-                                        {{--                                        <br>--}}
                                         <div class="form-group">
-                                            <label>Upload Image</label>
-                                            <div class="input-group">
-                                                <span class="input-group-btn">
-                                                    <span class="btn btn-default btn-file upload-avatar-btn">
-                                                        Browse… <input type="file" id="imgInp" name="avatar">
-                                                    </span>
-                                                </span>
-                                                <input type="text" class="form-control" readonly>
+                                            <label class="control-label">{{ __('titles.upload_avatar') }}</label>
+                                            <div class="avatar-uploader-card">
+                                                <div class="avatar-uploader-layout">
+                                                    <div class="avatar-previews-group">
+                                                        <div class="avatar-preview-box">
+                                                            <span class="avatar-box-title">Ảnh hiện tại</span>
+                                                            <div class="avatar-circle-frame">
+                                                                <img id="current-img"
+                                                                     src="{{ str_replace('public', '', asset($selectedUser->avatar)) }}"
+                                                                     onerror="this.src='{{ asset('assets/img/default_avatar.png') }}';"
+                                                                     alt="Avatar hiện tại"/>
+                                                            </div>
+                                                        </div>
+                                                        <div class="avatar-preview-box">
+                                                            <span class="avatar-box-title">Ảnh mới</span>
+                                                            <div class="avatar-circle-frame">
+                                                                <img id="img-upload" style="display: none;" alt="Ảnh mới"/>
+                                                                <span class="avatar-empty-placeholder" id="new-avatar-placeholder">
+                                                                    <i class="fa fa-user-circle-o"></i>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="avatar-controls-group">
+                                                        <div class="avatar-file-input-wrapper">
+                                                            <span class="btn-choose-avatar" id="upload-avatar-btn">
+                                                                <i class="fa fa-camera"></i> Chọn ảnh… 
+                                                                <input type="file" id="imgInp" name="avatar" accept="image/*">
+                                                            </span>
+                                                            <input type="text" class="form-control avatar-filename-display" placeholder="Chưa chọn tệp nào" readonly>
+                                                        </div>
+                                                        <div class="avatar-actions-btns">
+                                                            <button type="button" class="btn-avatar-action btn-redo-avatar" id="button-redo-avatar" style="display: none">
+                                                                <i class="fa fa-undo"></i> Khôi phục ảnh
+                                                            </button>
+                                                            <button type="button" class="btn-avatar-action btn-delete-avatar" id="button-delete-avatar">
+                                                                <i class="fa fa-trash-o"></i> {{ __('titles.delete_avatar') }}
+                                                            </button>
+                                                        </div>
+                                                        <p class="avatar-tip-text">
+                                                            <i class="fa fa-info-circle"></i> Định dạng: JPG, PNG, GIF. Kích thước tối đa 2MB.
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            Current Image
-                                            <img id='current-img'
-                                                 src="{{ str_replace('public', '', asset($selectedUser->avatar)) }}"/>
-                                            &emsp;&emsp;New Image
-                                            <img id='img-upload'/>
-                                            &emsp;&emsp;<button class="btn btn-default btn-file" id="button-redo-avatar" style="display: none">Redo Avatar</button>
-                                            <button class="btn btn-default btn-file"id="button-delete-avatar">Delete Avatar</button>
                                         </div>
                                         <div class="form-group">
                                             {{ Form::label('personal_info', __('titles.detail'), ['class' => 'control-label']) }}
-                                            {{ Form::textarea('personal_info', null, ['class' => 'form-control', 'id' => 'personal-info', 'rows' => 5, 'cols' => 30]) }}
+                                            {{ Form::textarea('personal_info', null, ['class' => 'form-control', 'id' => 'personal-info', 'rows' => 4, 'cols' => 30, 'style' => 'height: auto; border-radius: 9px !important;']) }}
                                         </div>
                                         @if ($selectedUser->role == 1)
                                             <div class="form-group">
@@ -146,7 +437,7 @@
                                                 <div @if ($errors->has('working_place')) class="error-input" @endif>
                                                     {{ Form::text('working_place', null, ['class' => 'form-control', 'id' => 'working_place', 'readonly' => '']) }}
                                                 </div>
-                                                <div class="form-inline">
+                                                <div class="address-selectors-row">
                                                     {{ Form::select('province', $selectProvince, null, ['class' => 'form-control', 'id' => 'province', 'placeholder' => __('titles.choose_province')]) }}
                                                     {{ Form::select('district', [], null, ['class' => 'form-control', 'id' => 'district', 'placeholder' => __('titles.choose_district')]) }}
                                                     {{ Form::select('commune', [], null, ['class' => 'form-control', 'id' => 'commune', 'placeholder' => __('titles.choose_commune')]) }}
@@ -159,50 +450,13 @@
                                             <div @if ($errors->has('grade')) class="error-input" @endif>
                                                 {{ Form::text('grade', null, ['class' => 'form-control', 'id' => 'grade', 'readonly' => '']) }}
                                             </div>
-                                            {{ Form::select('grade', \App\Models\User::$grades, null, ['class' => 'form-control fix-select', 'id' => 'select-grade', 'placeholder' => __('titles.choose_grade')]) }}
+                                            {{ Form::select('grade', \App\Models\User::$grades, null, ['class' => 'form-control fix-select', 'id' => 'select-grade', 'placeholder' => __('titles.choose_grade'), 'style' => 'margin-top: 10px;']) }}
                                             <p class="error-input-p"> {{ $errors->first('grade')}} </p>
                                         </div>
-                                        {{ Form::submit(__('titles.update'), ['class' => 'btn btn-common submit', 'name' => 'update_info']) }}
+                                        <button type="submit" class="btn-submit-profile" name="update_info">
+                                            <i class="fa fa-check"></i> {{ __('titles.update') }}
+                                        </button>
                                         {{ Form::close() }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title"><a aria-expanded="false" class="collapsed"
-                                                               href="#collapseB2"
-                                                               data-toggle="collapse"> {{ __('titles.change_password') }} </a>
-                                    </h4>
-                                </div>
-                                <div aria-expanded="false" class="panel-collapse collapse" id="collapseB2">
-                                    <div class="panel-body">
-                                        @if (empty($errors))
-                                            <p class="error-input-p"> __('titles.update_info_fail') </p>
-                                        @endif
-                                        {{ Form::model($selectedUser, ['route' => ['users.update', $selectedUser->id]]) }}
-                                        <input name="_method" type="hidden" value="PUT">
-                                        <div class="form-group">
-                                            {{ Form::label('old_password', __('titles.old_password'), ['class' => 'control-label']) }}
-                                            <div @if ($errors->has('old_password')) class="error-input" @endif>
-                                                {{ Form::password('old_password', ['class' => 'form-control', 'id' => 'old-password']) }}
-                                            </div>
-                                            <p class="error-input-p"> {{ $errors->first('old_password')}} </p>
-                                        </div>
-                                        <div class="form-group">
-                                            {{ Form::label('new_password', __('titles.new_password'), ['class' => 'control-label']) }}
-                                            <div @if ($errors->has('new_password')) class="error-input" @endif>
-                                                {{ Form::password('new_password', ['class' => 'form-control', 'id' => 'new-password']) }}
-                                            </div>
-                                            <p class="error-input-p"> {{ $errors->first('new_password')}} </p>
-                                        </div>
-                                        <div class="form-group">
-                                            {{ Form::label('password_confirmation', __('titles.retype_new_password'), ['class' => 'control-label']) }}
-                                            <div>
-                                                {{ Form::password('password_confirmation', ['class' => 'form-control', 'id' => 'password-confirmation']) }}
-                                            </div>
-                                            <p class="error-input-p"> {{ $errors->first('password_confirmation')}} </p>
-                                        </div>
-                                        {{ Form::submit(__('titles.update_password'), ['class' => 'btn btn-common submit', 'name' => 'update_password']) }}
                                     </div>
                                 </div>
                             </div>
@@ -327,8 +581,7 @@
         });
 
         $('#upload-avatar-btn :file').on('fileselect', function (event, label) {
-
-            var input = $(this).parents('.input-group').find(':text'),
+            var input = $(this).closest('.avatar-file-input-wrapper').find(':text'),
                 log = label;
 
             if (input.length) {
@@ -340,32 +593,34 @@
 
         $('#button-redo-avatar').on('click', function (e) {
             e.preventDefault();
-            {{--var userAvatar = '{{ $selectedUser->avatar }}';--}}
-            {{--userAvatar = userAvatar.replace(--}}
-            {{--    "images/",--}}
-            {{--    "http://127.0.0.1:8000/images/"--}}
-            {{--);--}}
-            $('#img-upload').attr('src', '');
+            $('#img-upload').attr('src', '').hide();
+            $('#new-avatar-placeholder').show();
+            $('.avatar-filename-display').val('');
+            $('#imgInp').val('');
             $('#button-redo-avatar').fadeOut(300);
-        })
+            $('#button-delete-avatar').fadeIn(300);
+        });
 
         $('#button-delete-avatar').on('click', function (e) {
             e.preventDefault();
-            $('#img-upload').attr('src', 'http://127.0.0.1:8000/images/default_avatar/default_avatar.jpg');
+            $('#img-upload').attr('src', '{{ asset("images/default_avatar/default_avatar.jpg") }}').show();
+            $('#new-avatar-placeholder').hide();
             $('#button-delete-avatar').fadeOut(300);
-        })
+            $('#button-redo-avatar').fadeIn(300);
+        });
 
         function readURL(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
 
                 reader.onload = function (e) {
-                    $('#img-upload').attr('src', e.target.result);
+                    $('#img-upload').attr('src', e.target.result).show();
+                    $('#new-avatar-placeholder').hide();
                 }
 
                 reader.readAsDataURL(input.files[0]);
+                $('#button-redo-avatar').fadeIn(300);
             }
-            $('#button-redo-avatar').fadeIn(300);
         }
 
         $("#imgInp").change(function () {
