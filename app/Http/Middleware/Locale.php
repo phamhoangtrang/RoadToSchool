@@ -25,6 +25,8 @@ class Locale
 //        return $next($request);
         config(['app.locale' => 'vi']);
         app()->setLocale('vi');
+        \Carbon\Carbon::setLocale('vi');
+        \Illuminate\Support\Carbon::setLocale('vi');
         \Session::put('website_language', 'vi');
 
         return $next($request);

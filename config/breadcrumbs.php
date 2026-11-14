@@ -24,7 +24,7 @@ return [
     |
     */
 
-    'view' => 'breadcrumbs::bootstrap4',
+    'view' => 'user.partials.breadcrumbs',
 
     /*
     |--------------------------------------------------------------------------

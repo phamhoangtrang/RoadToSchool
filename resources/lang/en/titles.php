@@ -21,7 +21,7 @@ return [
     'latest_tweets' => 'Latest Tweets',
     'premium_ads' => 'Premium Ads',
     'copyright_p1' => 'All copyrights reserved ',
-    'copyright_p2' => ' 2018 - Designed & Developed by',
+    'copyright_p2' => ' 2026 - Designed & Developed by',
     'all_pages' => 'All pages',
     'login' => 'Login',
     'register' => 'Register',

@@ -18,3 +18,4 @@ yarn-error.log
 course_user.csv
 /public/js
 resources/lang/vendor/
+cloudflared

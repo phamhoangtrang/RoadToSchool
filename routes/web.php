@@ -23,10 +23,14 @@ Route::middleware('auth', 'verified', 'locale')->group(function () {
     // ->middleware('selfaccount');
     Route::get('instructor_info/{id}', 'User\UserController@getInstructorInfo')->name('instructor_info');
     Route::resource('courses', 'User\CourseController')->only('index', 'show');
-    Route::get('courses/{id}/lectures/{lectureId}', 'User\LectureController@show')->middleware('access_lecture');
+    Route::get('courses/{id}/lectures/{lectureId}', 'User\LectureController@show')->name('courses.lectures.show')->middleware('access_lecture');
     Route::resource('cart_items', 'User\CartItemController')->only('index');
     Route::get('cart_items/checkout', 'User\BillController@getCheckout')->name('cart_items.checkout.get');
     Route::post('cart_items/checkout', 'User\BillController@postCheckout')->name('cart_items.checkout.post');
+    Route::get('bills/{id}/payment', 'User\BillController@getPayment')->name('bills.payment');
+    Route::get('bills/{id}/check-status', 'User\BillController@checkStatus')->name('bills.check_status');
+    Route::get('bills/{id}/success', 'User\BillController@getSuccess')->name('bills.success');
+    Route::post('bills/{id}/simulate-payment', 'User\BillController@simulatePayment')->name('bills.simulate_payment');
     Route::post('cart_items/create', 'User\CartItemController@createNewItem');
     Route::post('cart_items/{action}', 'User\CartItemController@changeStatus');
 //    Route::get('/pusher/getComment', function(Illuminate\Http\Request $request) {
@@ -68,7 +72,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'mi
     // Route::resource('specializes', 'SpecializeController')->except('create', 'show');
     Route::resource('categories', 'CategoryController')->except('create');
     Route::resource('courses', 'CourseController')->except('create', 'store');
-    Route::post('courses/{id}/active', 'CourseController@acceptCourse')->name('active-course');
+    Route::match(['get', 'post'], 'courses/{id}/active', 'CourseController@acceptCourse')->name('active-course');
+    Route::post('courses/{id}/update-price', 'CourseController@updatePrice')->name('courses.update-price');
     Route::resource('bills', 'BillController')->only('index', 'create', 'show');
     Route::post('bills/status/update', 'BillController@updateStatus')->name('bills.updateStatus');
     Route::resource('permissions', 'PermissionController')->only('index', 'create', 'store');
@@ -76,6 +81,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin', 'as' => 'admin.', 'mi
     Route::post('/permissions/updatePermission/{userId}', 'PermissionController@updatePermission')->name('permissions.updatePermission');
     Route::get('/lectures/requests', 'LectureController@getRequestList')->name('lectures.requests.index');
     Route::post('/lectures/postAccept', 'LectureController@acceptLectureRequest')->name('lectures.requests.accept');
+    Route::post('/lectures/postDelete', 'LectureController@deleteLectureRequest')->name('lectures.requests.delete');
     Route::get('/conversations/waiting', 'ConversationController@getWaitingList')->name('conversations.waiting');
     Route::post('/users/create_new_instructor', 'UserController@storeNewInstructor')->name('users.store_new_instructor');
 });
@@ -91,3 +97,5 @@ Route::post('districts', 'User\DistrictController@getAllRecord');
 Route::post('communes', 'User\CommuneController@getAllRecord');
 Route::post('/youtube/getVideoDuration', 'Instructor\LectureController@getVideoDuration');
 Route::get('/change-language/{language}', 'HomeController@changeLanguage')->name('user.change-language');
+Route::match(['get', 'post'], '/api/sepay/webhook', 'User\BillController@handleSepayWebhook')->name('sepay.webhook');
+Route::match(['get', 'post'], '/api/sepay/webhook/', 'User\BillController@handleSepayWebhook');

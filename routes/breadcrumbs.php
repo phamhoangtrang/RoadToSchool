@@ -53,5 +53,11 @@ Breadcrumbs::for('checkout', function ($trail) {
 // Home > Checkout Success
 Breadcrumbs::for('checkout_success', function ($trail) {
     $trail->parent('home');
-    $trail->push(__('titles.checkout_success'), route('cart_items.checkout.post'));
+    $trail->push(__('titles.checkout_success'), route('home'));
+});
+
+// Home > Payment
+Breadcrumbs::for('bills_payment', function ($trail, $bill) {
+    $trail->parent('cart');
+    $trail->push('Thanh toán đơn hàng #' . $bill->id, route('bills.payment', $bill->id));
 });

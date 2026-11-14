@@ -35,4 +35,24 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'vietqr' => [
+        'bank_id' => env('VIETQR_BANK_ID', 'MB'),
+        'account_no' => env('VIETQR_ACCOUNT_NO', '44401287290165'),
+        'account_name' => env('VIETQR_ACCOUNT_NAME', 'PHAM HOANG TRANG'),
+    ],
+
+    'sepay' => [
+        'api_key' => env('SEPAY_API_KEY'),
+    ],
+
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+    ],
+
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-3.1-flash-lite'),
+    ],
+
 ];
