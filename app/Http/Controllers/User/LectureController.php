@@ -1,0 +1,263 @@
+<?php
+
+namespace App\Http\Controllers\User;
+
+use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\Lecture;
+use App\Models\Discussion;
+use App\Models\LectureComment;
+use App\Models\Notification;
+use App\Models\Process;
+use App\Models\QuizElement;
+use App\Models\QuizElementzQuizResult;
+use App\Models\QuizResult;
+use Embed\Embed;
+use Illuminate\Http\Request;
+use App\Events\GetLectureCommentFromPusherEvent;
+use App\Events\GetReplyLectureCommentFromPusherEvent;
+use App\Events\GetNotificationFromPusherEvent;
+
+class LectureController extends Controller
+{
+    // protected $modelLecture;
+    protected $modelDiscussion;
+    protected $modelLectureComment;
+    protected $modelNotification;
+    protected $modelProcess;
+    protected $modelLecture;
+    protected $modelQuizElement;
+    protected $modelQuizResult;
+    protected $modelQuizElementzQuizResult;
+
+    public function __construct(
+        Discussion $discussion,
+        LectureComment $lectureComment,
+        Notification $notification,
+        Process $process,
+        Lecture $lecture,
+        QuizElement $quizElement,
+        QuizResult $quizResult,
+        QuizElementzQuizResult $quizElementzQuizResult
+    )
+    {
+        $this->modelDiscussion = $discussion;
+        $this->modelLectureComment = $lectureComment;
+        $this->modelNotification = $notification;
+        $this->modelProcess = $process;
+        $this->modelLecture = $lecture;
+        $this->modelQuizElement = $quizElement;
+        $this->modelQuizResult = $quizResult;
+        $this->modelQuizElementzQuizResult = $quizElementzQuizResult;
+    }
+
+    public function show($id, $lectureId)
+    {
+        if ($this->modelLecture::findOrFail($lectureId)->is_quiz == 1) {
+            $lecture = $this->modelLecture->findOrFail($lectureId);
+            $allQuestion = $this->modelQuizElement->where('lecture_id', $lectureId)->where('is_question', 1)->get();
+            foreach ($allQuestion as $question) {
+                // TODO xu ly cau hoi nhieu dap an va 1 dap an, pick dap an dung cho phu hop
+                $answer = $this->modelQuizElement->where('lecture_id', $lectureId)->where('is_answer', 1)->where('question_parent_id', $question->id)->get();
+                $question->answer = $answer;
+            }
+
+            return view('user.quiz_elements.index', compact(
+                'lecture',
+                'allQuestion'
+            ));
+        } else {
+            $currentLecture = $this->modelLecture->findOrFail($lectureId);
+            $link = $currentLecture->video_link;
+            $description = $currentLecture->description;
+            $course = Course::findOrFail($id);
+            $teacher = $course->user;
+            $lectures = $this->modelLecture->where('course_id', $id)->where('is_accepted', 1)->orderBy('week')->orderBy('index')->get();
+            try {
+                $embedObj = (new \Embed\Embed())->get($link);
+                $embed = (object)[
+                    'code' => $embedObj->code ? (string)$embedObj->code : ''
+                ];
+            } catch (\Throwable $e) {
+                $embed = (object)[
+                    'code' => '<iframe src="' . e($link) . '" frameborder="0" allowfullscreen></iframe>'
+                ];
+            }
+            $lectureComments = $this->modelLectureComment->where('lecture_id', $lectureId)->get();
+
+            // Get lecture follow week and index
+            $maxWeek = 0;
+            foreach ($lectures as $lecture) {
+                if ($lecture->week > $maxWeek) {
+                    $maxWeek = $lecture->week;
+                }
+            }
+
+            $lectureOutline = [];
+            for ($i = 0; $i < $maxWeek; $i++) {
+                $result = $this->modelLecture->where('course_id', $id)->where('is_accepted', 1)->where('week', ($i + 1))->orderBy('index')->get();
+                if (!(\Auth::user()->is_admin || \Auth::user()->role == 1)) {
+                    foreach ($result as $lec) {
+                        $p = $this->modelProcess->where('lecture_id', $lec->id)->where('user_id', \Auth::user()->id)->first();
+                        $lec->status = $p ? $p->status : 0;
+                    }
+                }
+                $lectureOutline[$i] = $result;
+            }
+
+            $allLectureCount = $lectures->count();
+            $learnedLectureCount = 0;
+            foreach ($lectures as $lec) {
+                $proc = $this->modelProcess->where('lecture_id', $lec->id)->where('user_id', \Auth::user()->id)->first();
+                if ($proc && $proc->status) {
+                    $learnedLectureCount++;
+                }
+            }
+
+            // Get all discussions in lecture
+            $discussionsList = $this->modelDiscussion->where('lecture_id', $lectureId)->orderBy('created_at')->get();
+            // Get all child lecture comment set to collection lecture comment
+            foreach ($lectureComments as $lectureComment) {
+                $lectureComment->child_comments = $this->modelLectureComment->where('parent_comment', $lectureComment->id)->orderBy('updated_at', 'asc')->get();
+            }
+
+            $isCompleted = false;
+            if (\Auth::check()) {
+                $currProc = $this->modelProcess->where('lecture_id', $lectureId)->where('user_id', \Auth::user()->id)->first();
+                $isCompleted = ($currProc && $currProc->status == 1);
+            }
+
+            return view('user.lectures.show', compact(
+                'embed',
+                'lectures',
+                'id',
+                'description',
+                'teacher',
+                'lectureId',
+                'discussionsList',
+                'lectureComments',
+                'allLectureCount',
+                'learnedLectureCount',
+                'maxWeek',
+                'lectureOutline',
+                'isCompleted'
+            ));
+        }
+    }
+
+    public function postCommentToPusher(Request $request, $lectureId)
+    {
+        $data = $request->all();
+        $data['user_id'] = \Auth::id();
+        $data['lecture_id'] = $lectureId;
+
+        $createdLectureComment = $this->modelLectureComment->storeNewLectureComment($data);
+        if ($createdLectureComment) {
+            $lectureCommentedUserList = $this->modelLectureComment->where('lecture_id', $lectureId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
+            // Giảng viên của khóa học cũng nhận thông báo khi có bình luận mới trong bài giảng
+            $lectureOwnerId = optional(optional(Lecture::find($lectureId))->course)->user_id;
+            if ($lectureOwnerId && $lectureOwnerId != $data['user_id']) {
+                $lectureCommentedUserList = collect($lectureCommentedUserList)->push($lectureOwnerId)->unique()->values();
+            }
+            // Create Notification
+            $this->modelNotification->createCommentNotification($lectureId, $lectureCommentedUserList, $createdLectureComment, Notification::LECTURE_COMMENT);
+            $lecture = Lecture::find($lectureId);
+            $lectureTitle = $lecture ? $lecture->title : '';
+            $notificationContent = '<b>' . $createdLectureComment->user->name . '</b> đã bình luận trong bài giảng <b>' . $lectureTitle . '</b>: ' . $createdLectureComment->content;
+            $createNotificationIdList = $this->modelNotification->where('comment_id', $createdLectureComment->id)->pluck('id', 'user_id');
+
+            try {
+                event(new GetLectureCommentFromPusherEvent($request, $createdLectureComment));
+                event(new GetNotificationFromPusherEvent($lectureId, $lectureCommentedUserList, $createdLectureComment, $notificationContent, $createdLectureComment->user->avatar, \Carbon\Carbon::parse($createdLectureComment->created_at)->diffForHumans(), $createNotificationIdList));
+            } catch (\Exception $e) {
+                \Log::warning('Pusher lecture event error: ' . $e->getMessage());
+            }
+
+            return response()->json([
+                'status' => 200,
+                'comment' => $createdLectureComment,
+                'user' => [
+                    'id' => $createdLectureComment->user->id,
+                    'name' => $createdLectureComment->user->name,
+                    'avatar' => str_replace(' ', '', str_replace('public/', '', asset($createdLectureComment->user->avatar ?? 'images/default_avatar/default_avatar.jpg'))),
+                ],
+                'created_at' => $createdLectureComment->updated_at ? $createdLectureComment->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return response()->json(['status' => 500, 'message' => 'Lỗi tạo bình luận'], 500);
+    }
+
+    public function postReplyLectureCommentToPusher(Request $request, $lectureId, $parentCommentId)
+    {
+        $data = $request->all();
+        $data['user_id'] = \Auth::id();
+        $data['lecture_id'] = $lectureId;
+        $data['parent_comment'] = $parentCommentId;
+
+        $createdComment = $this->modelLectureComment->storeNewLectureComment($data);
+        if ($createdComment) {
+            try {
+                event(new GetReplyLectureCommentFromPusherEvent($request, $createdComment, $parentCommentId));
+            } catch (\Exception $e) {
+                \Log::warning('Pusher lecture reply event error: ' . $e->getMessage());
+            }
+
+            return response()->json([
+                'status' => 200,
+                'comment' => $createdComment,
+                'user' => [
+                    'id' => $createdComment->user->id,
+                    'name' => $createdComment->user->name,
+                    'avatar' => str_replace(' ', '', str_replace('public/', '', asset($createdComment->user->avatar ?? 'images/default_avatar/default_avatar.jpg'))),
+                ],
+                'created_at' => $createdComment->updated_at ? $createdComment->updated_at->format('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
+                'parentCommentId' => $parentCommentId,
+                'prevCommentId' => $data['prevCommentId'] ?? 0,
+                'firstChildComment' => $data['firstChildComment'] ?? 'true',
+            ]);
+        }
+
+        return response()->json(['status' => 500, 'message' => 'Lỗi tạo phản hồi'], 500);
+    }
+
+    public function showQuizResult($courseId, $lectureId)
+    {
+        $lecture = $this->modelLecture->findOrFail($lectureId);
+        $allQuestion = $this->modelQuizElement->where('lecture_id', $lectureId)->where('is_question', 1)->get();
+        $quizResult = $this->modelQuizResult
+            ->where('lecture_id', $lectureId)
+            ->where('user_id', \Auth::user()->id)
+            ->get()
+            ->last();
+        if (!$quizResult) {
+            return redirect()->route('courses.lectures.show', [$courseId, $lectureId]);
+        }
+        foreach ($allQuestion as $question) {
+            // TODO xu ly cau hoi nhieu dap an va 1 dap an, pick dap an dung cho phu hop
+            $answer = $this->modelQuizElement->where('lecture_id', $lectureId)->where('question_parent_id', $question->id)->get();
+            $question->answer = $answer;
+            $question->trueAnswer = $this->modelQuizElement
+                ->where('question_parent_id', $question->id)
+                ->where('is_right_answer', 1)
+                ->pluck('id')->toArray();
+            $userChoice = $this->modelQuizElementzQuizResult
+                ->where('quiz_element_id', $question->id)
+                ->where('quiz_result_id', $quizResult->id)->get()
+                ->last()->user_choice;
+            $question->userChoice = explode(',', $userChoice);
+
+            if ($question->trueAnswer == $question->userChoice) {
+                $question->checkResult = 1;
+            } else {
+                $question->checkResult = 0;
+            }
+        }
+
+        return view('user.quiz_elements.check', compact(
+            'lecture',
+            'allQuestion',
+            'quizResult'
+        ));
+    }
+}
