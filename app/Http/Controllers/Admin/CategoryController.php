@@ -30,7 +30,7 @@ class CategoryController extends Controller
     {
         $categories = Category::all();
         $parentCategories = Category::all()->where('parent_id', 0)->pluck('title', 'id');
-        $parentCategories[0] = 'No choice';
+        $parentCategories[0] = 'Không chọn (danh mục gốc)';
 
         return view('admin.categories.index', compact('categories', 'parentCategories'));
     }
@@ -43,13 +43,25 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->all();
-        $result = $this->modelCategory->createCategory($data);
+        $request->validate([
+            'title' => 'required|string|max:191',
+            'parent_id' => ['nullable', 'integer', function ($attribute, $value, $fail) {
+                // 0 = danh mục gốc; còn lại phải là một danh mục gốc đang tồn tại
+                if ((int)$value !== 0 && !Category::where('id', $value)->where('parent_id', 0)->exists()) {
+                    $fail('Danh mục cha không hợp lệ.');
+                }
+            }],
+        ], [
+            'title.required' => 'Vui lòng nhập tên danh mục.',
+            'title.max' => 'Tên danh mục tối đa 191 ký tự.',
+        ]);
+
+        $result = $this->modelCategory->createCategory($request->all());
 
         if ($result) {
-            flash(__('create status') . $result->id)->success();
+            flash('Đã thêm danh mục "' . $result->title . '" thành công.')->success();
         } else {
-            flash(__('something wrong'))->error();
+            flash('Không thể thêm danh mục, vui lòng thử lại.')->error();
         }
 
         return redirect(route('admin.categories.index'));

@@ -30,7 +30,6 @@ Route::middleware('auth', 'verified', 'locale')->group(function () {
     Route::get('bills/{id}/payment', 'User\BillController@getPayment')->name('bills.payment');
     Route::get('bills/{id}/check-status', 'User\BillController@checkStatus')->name('bills.check_status');
     Route::get('bills/{id}/success', 'User\BillController@getSuccess')->name('bills.success');
-    Route::post('bills/{id}/simulate-payment', 'User\BillController@simulatePayment')->name('bills.simulate_payment');
     Route::post('cart_items/create', 'User\CartItemController@createNewItem');
     Route::post('cart_items/{action}', 'User\CartItemController@changeStatus');
 //    Route::get('/pusher/getComment', function(Illuminate\Http\Request $request) {
@@ -38,6 +37,7 @@ Route::middleware('auth', 'verified', 'locale')->group(function () {
 //
 //        return redirect()->back();
 //    });
+    Route::delete('comments/{id}', 'User\CourseController@destroyComment')->name('comments.destroy');
     Route::post('courses/{courseId}/pusher/postComment', 'User\CourseController@postCommentToPusher')->name('courses.postCommentToPusher');
     Route::post('courses/{courseId}/pusher/replyComment/{parentCommentId}', 'User\CourseController@postReplyCommentToPusher')->name('courses.comment.postReplyCommentToPusher');
 //    Route::post('courses/{id}/postComment', 'User\CourseController@createNewComment')->name('courses.comment.store');
@@ -45,6 +45,7 @@ Route::middleware('auth', 'verified', 'locale')->group(function () {
     Route::resource('notifications', 'User\NotificationController')->only('index');
     Route::post('notifications/{id}/changeStatus', 'User\NotificationController@changeStatus');
     Route::post('discussions/pusher/pushNewDiscussion', 'User\DiscussionController@createNewDiscussion');
+    Route::get('lectures/{lectureId}/discussions', 'User\DiscussionController@index')->name('lectures.discussions.index');
     Route::post('lectures/{lectureId}/pusher/postComment', 'User\LectureController@postCommentToPusher')->name('lectures.postCommentToPusher');
     Route::post('lectures/{lectureId}/pusher/replyLectureComment/{parentCommentId}', 'User\LectureController@postReplyLectureCommentToPusher')->name('lectures.comment.postReplyCommentToPusher');
     // Course Like
@@ -55,7 +56,9 @@ Route::middleware('auth', 'verified', 'locale')->group(function () {
     Route::post('/quiz_results/storeNewResult', 'User\QuizResultController@storeNewResult');
     Route::post('/quiz_element_quiz_result/storeNewRecord', 'User\QuizElementzQuizResultController@storeNewRecord');
     Route::get('/courses/{id}/lectures/{lectureId}/getResult', 'User\LectureController@showQuizResult')->name('quiz.result')->middleware('access_lecture');
+    Route::post('/courses/{courseId}/lectures/{lectureId}/retake', 'User\QuizResultController@retake')->name('quiz.retake');
     Route::post('/courses/{courseId}/postAppreciate', 'User\CourseController@postAppreciate');
+    Route::get('/conversations/messages', 'User\ConversationController@messages')->name('conversations.messages');
     Route::post('/conversations/store', 'User\ConversationController@store')->name('conversations.store');
     Route::post('/conversations/{conversationId}/storeNewMessage', 'User\ConversationController@storeNewMessage')->name('conversations.storeNewMessage');
     Route::post('/conversations/{conversationId}/changeConversationStatus', 'User\ConversationController@changeConversationStatus')->name('conversations.changeConversationStatus');
@@ -91,6 +94,8 @@ Route::group(['namespace' => 'Instructor', 'prefix' => 'instructor', 'as' => 'in
     Route::resource('courses', 'CourseController')->only('index', 'create', 'store', 'show');
     Route::get('courses/{courseId}/lectures/create', 'LectureController@create')->name('courses.lectures.create');
     Route::post('courses/{courseId}/lectures/store', 'LectureController@store')->name('courses.lectures.store');
+    Route::get('qa', 'QaController@index')->name('qa.index');
+    Route::post('qa/reply', 'QaController@reply')->name('qa.reply');
 });
 
 Route::post('districts', 'User\DistrictController@getAllRecord');

@@ -3,8 +3,8 @@
         <div class="inner-box modern-user-sidebar">
             <div class="user-sidebar-profile">
                 <div class="sidebar-user-avatar">
-                    <img src="{{ \Auth::user()->avatar ? str_replace('public/', '', asset(\Auth::user()->avatar)) : asset('assets/img/default_avatar.png') }}"
-                         onerror="this.src='{{ asset('images/default_user.png') }}';"
+                    <img src="{{ \Auth::user()->avatar_url }}"
+                         onerror="this.onerror=null; this.src='{{ asset('assets/img/avatar_users/default_avatar.png') }}';"
                          alt="{{ \Auth::user()->name }}">
                 </div>
                 <div class="sidebar-user-info">

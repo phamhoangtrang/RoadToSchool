@@ -56,7 +56,7 @@
 
 @if(\Auth::user())
 <a href="#" class="chat-with-admin" id="open-chat-with-admin">
-    <i class="fa fa-weixin"></i><span>Trò chuyện với Quản trị viên</span>
+    <i class="fa fa-weixin"></i><span>Trò chuyện với Quản trị viên</span><b class="chat-unread-dot" id="chat-unread-dot" style="display:none;"></b>
 </a>
 @endif
 

@@ -87,11 +87,34 @@ class QuizResultController extends Controller
         return redirect()->route('quiz.result', [$courseId, $quizResult->lecture_id]);
     }
 
+    /**
+     * Làm lại bài quiz: xóa kết quả cũ (và các câu đã chọn) của chính học viên, rồi cho vào làm bài mới.
+     * Lưu ý: điểm lần trước bị mất.
+     */
+    public function retake($courseId, $lectureId)
+    {
+        $lecture = $this->modelLecture->findOrFail($lectureId);
+        abort_unless($lecture->is_quiz && (int)$lecture->course_id === (int)$courseId, 404);
+
+        $user = \Auth::user();
+        $isStaff = $user->is_admin || $user->role == 1;
+        $isEnrolled = \App\Models\CourseUser::where('course_id', $courseId)->where('user_id', $user->id)->exists();
+        abort_unless($isStaff || $isEnrolled, 403, 'Bạn chưa tham gia khóa học này.');
+
+        $resultIds = $this->modelQuizResult->where('lecture_id', $lectureId)->where('user_id', $user->id)->pluck('id');
+        \DB::transaction(function () use ($resultIds) {
+            $this->modelQuizElementQuizResult->whereIn('quiz_result_id', $resultIds)->delete();
+            $this->modelQuizResult->whereIn('id', $resultIds)->delete();
+        });
+
+        return redirect()->route('courses.lectures.show', [$courseId, $lectureId]);
+    }
+
     public function storeNewResult(Request $request)
     {
         $data = $request->all();
         $data['lecture_id'] = $data['lectureId'];
-        $data['user_id'] = $data['userId'];
+        $data['user_id'] = \Auth::id();
         $data['right_answer_count'] = 0;
         $data['wrong_answer_count'] = $data['questionCount'];
         $createdQuizResult = $this->modelQuizResult->create($data);

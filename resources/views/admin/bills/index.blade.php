@@ -182,6 +182,68 @@
             color: #0f172a;
             border-color: #94a3b8;
         }
+
+        /* Thẻ thống kê nhanh */
+        .bill-summary { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+        .bill-summary .sum-item {
+            flex: 1 1 180px; display: flex; align-items: center; gap: 12px;
+            background: #fff; border: 1px solid #edf2f7; border-radius: 12px; padding: 14px 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .bill-summary .sum-icon {
+            width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+        .bill-summary .sum-num { font-size: 20px; font-weight: 800; color: #0f172a; line-height: 1.1; }
+        .bill-summary .sum-label { font-size: 12.5px; color: #64748b; font-weight: 500; }
+        .sum-all .sum-icon { background: #eff6ff; color: #2563eb; }
+        .sum-pending .sum-icon { background: #fffbeb; color: #d97706; }
+        .sum-paid .sum-icon { background: #f0fdf4; color: #16a34a; }
+        .sum-canceled .sum-icon { background: #fef2f2; color: #dc2626; }
+
+        /* Huy hiệu trạng thái */
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+            font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; border: 1px solid transparent;
+        }
+        .status-pending { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+        .status-paid { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+        .status-canceled { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+        .status-other { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+
+        /* Ô khách hàng, khóa học, thời gian */
+        .customer-phone { display: block; font-size: 12px; color: #94a3b8; margin-top: 2px; }
+        .course-list { display: flex; flex-direction: column; gap: 4px; max-width: 260px; }
+        .course-link {
+            color: #1e293b; font-weight: 600; font-size: 13px; line-height: 1.35; text-decoration: none;
+            display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .course-link:hover { color: #2563eb; }
+        .course-more { font-size: 11.5px; color: #94a3b8; }
+        .date-text small { display: block; color: #94a3b8; font-size: 11.5px; }
+
+        /* Nút thao tác: gọn, cùng một hàng */
+        .table-overflow .action-btn-group { flex-wrap: nowrap; max-width: none; justify-content: center; }
+        .icon-btn { flex: 0 0 32px; margin: 0 !important; }
+        #dt-opt td.col-actions { min-width: 124px; }
+        #dt-opt .price-text { white-space: nowrap; }
+        #dt-opt td.col-price { white-space: nowrap; min-width: 120px; }
+        #dt-opt td.col-customer { min-width: 150px; }
+        .icon-btn {
+            width: 32px; height: 32px; padding: 0 !important; border-radius: 8px !important;
+            display: inline-flex; align-items: center; justify-content: center; font-size: 14px !important;
+            border: 1px solid transparent; transition: all .15s;
+        }
+        .icon-btn.btn-view-detail { background: #fff; color: #475569; border-color: #cbd5e1; }
+        .icon-btn.btn-view-detail:hover { background: #f1f5f9; }
+        .icon-btn.btn-approve { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+        .icon-btn.btn-approve:hover { background: #16a34a; color: #fff; }
+        .icon-btn.btn-reject { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+        .icon-btn.btn-reject:hover { background: #dc2626; color: #fff; }
+        .icon-btn.btn-restore { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+        .icon-btn.btn-restore:hover { background: #2563eb; color: #fff; }
+        #dt-opt thead th.no-sort, #dt-opt thead th.no-sort:hover { background-image: none !important; cursor: default; }
+        #dt-opt thead th.no-sort::before, #dt-opt thead th.no-sort::after { display: none !important; }
     </style>
 @endsection
 
@@ -200,84 +262,101 @@
                     </nav>
                 </div>
             </div>
+            @php
+                $paidStatuses = [\App\Models\Bill::ALREADY_PAID, \App\Models\Bill::ACTIVATED];
+                $countAll = $billsList->count();
+                $countPending = $billsList->where('status', \App\Models\Bill::PENDING)->count();
+                $countPaid = $billsList->whereIn('status', $paidStatuses)->count();
+                $countCanceled = $billsList->where('status', \App\Models\Bill::CANCELED)->count();
+            @endphp
+            <div class="bill-summary">
+                <div class="sum-item sum-all"><div class="sum-icon"><i class="fa fa-file-text-o"></i></div><div><div class="sum-num">{{ $countAll }}</div><div class="sum-label">Tổng đơn hàng</div></div></div>
+                <div class="sum-item sum-pending"><div class="sum-icon"><i class="fa fa-clock-o"></i></div><div><div class="sum-num">{{ $countPending }}</div><div class="sum-label">Chờ thanh toán</div></div></div>
+                <div class="sum-item sum-paid"><div class="sum-icon"><i class="fa fa-check-circle"></i></div><div><div class="sum-num">{{ $countPaid }}</div><div class="sum-label">Đã thanh toán</div></div></div>
+                <div class="sum-item sum-canceled"><div class="sum-icon"><i class="fa fa-ban"></i></div><div><div class="sum-num">{{ $countCanceled }}</div><div class="sum-label">Đã hủy</div></div></div>
+            </div>
+
             <div class="card">
                 <div class="card-body">
                     <div class="table-overflow">
                         <table id="dt-opt" class="table table-hover table-xl">
                             <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Tên khách hàng</th>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
                                 <th>Trạng thái</th>
-                                <th>Mã khóa học</th>
-                                <th>Giao dịch gần nhất</th>
-                                <th>Tổng tiền</th>
-                                <th class="text-center">Thao tác</th>
+                                <th>Khóa học</th>
+                                <th>Cập nhật lần cuối</th>
+                                <th class="text-right">Tổng tiền</th>
+                                <th class="text-center no-sort" data-orderable="false">Thao tác</th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach($billsList as $bill)
+                                @php $isPaid = in_array($bill->status, $paidStatuses); @endphp
                                 <tr>
-                                    <td>
-                                        <a href="{{ route('admin.bills.show', $bill->id) }}" class="bill-id-link">
-                                            #{{ $bill->id }}
-                                        </a>
+                                    <td data-order="{{ $bill->id }}">
+                                        <a href="{{ route('admin.bills.show', $bill->id) }}" class="bill-id-link">#{{ $bill->id }}</a>
                                     </td>
-                                    <td>
+                                    <td class="col-customer">
                                         <span class="customer-name">{{ $bill->customer_name }}</span>
+                                        @if($bill->customer_phone)
+                                            <span class="customer-phone"><i class="fa fa-phone"></i> {{ $bill->customer_phone }}</span>
+                                        @endif
                                     </td>
                                     <td id="bill-status-{{ $bill->id }}" style="white-space: nowrap;">
                                         @if($bill->status === \App\Models\Bill::PENDING)
-                                            <span class="badge badge-pill" style="font-size: 12px; font-weight: 600; padding: 6px 12px; background: #fffbeb; color: #b45309; border: 1px solid #fde68a;">
-                                                <i class="fa fa-clock-o m-r-5"></i> Chờ thanh toán
-                                            </span>
-                                        @elseif(in_array($bill->status, [\App\Models\Bill::ALREADY_PAID, \App\Models\Bill::ACTIVATED]))
-                                            <span class="badge badge-pill" style="font-size: 12px; font-weight: 600; padding: 6px 12px; background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0;">
-                                                <i class="fa fa-check-circle m-r-5"></i> Đã thanh toán
-                                            </span>
+                                            <span class="status-pill status-pending"><i class="fa fa-clock-o"></i> Chờ thanh toán</span>
+                                        @elseif($isPaid)
+                                            <span class="status-pill status-paid"><i class="fa fa-check-circle"></i> Đã thanh toán</span>
                                         @elseif($bill->status === \App\Models\Bill::CANCELED)
-                                            <span class="badge badge-pill" style="font-size: 12px; font-weight: 600; padding: 6px 12px; background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;">
-                                                <i class="fa fa-ban m-r-5"></i> Đã hủy
-                                            </span>
+                                            <span class="status-pill status-canceled"><i class="fa fa-ban"></i> Đã hủy</span>
                                         @else
-                                            <span class="badge badge-pill" style="font-size: 12px; font-weight: 600; padding: 6px 12px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;">
-                                                {{ \App\Models\Bill::$status[$bill->status] ?? 'Đang xử lý' }}
-                                            </span>
+                                            <span class="status-pill status-other">{{ \App\Models\Bill::$status[$bill->status] ?? 'Đang xử lý' }}</span>
                                         @endif
                                     </td>
                                     <td>
-                                        @foreach(\App\Models\BillCourse::where('bill_id', $bill->id)->get() as $billCourse)
-                                            <a href="{{ route('admin.courses.show', $billCourse->course_id) }}" class="course-tag">
-                                                #{{ $billCourse->course_id }}
-                                            </a>
-                                        @endforeach
+                                        <div class="course-list">
+                                            @foreach($bill->billCourses->take(2) as $billCourse)
+                                                @if($billCourse->course)
+                                                    <a href="{{ route('courses.show', $billCourse->course_id) }}" class="course-link" title="{{ $billCourse->course->title }}">{{ $billCourse->course->title }}</a>
+                                                @else
+                                                    <span class="course-more">Khóa học #{{ $billCourse->course_id }} (đã xóa)</span>
+                                                @endif
+                                            @endforeach
+                                            @if($bill->billCourses->count() > 2)
+                                                <span class="course-more">+ {{ $bill->billCourses->count() - 2 }} khóa học khác</span>
+                                            @endif
+                                        </div>
                                     </td>
-                                    <td>
-                                        <span class="date-text">{{ $bill->updated_at }}</span>
+                                    <td data-order="{{ optional($bill->updated_at)->timestamp }}">
+                                        <span class="date-text">
+                                            {{ optional($bill->updated_at)->format('d/m/Y') }}
+                                            <small>{{ optional($bill->updated_at)->format('H:i') }}</small>
+                                        </span>
                                     </td>
-                                    <td>
+                                    <td class="text-right col-price" data-order="{{ (float)$bill->total_amount }}">
                                         <span class="price-text">{{ format_price($bill->total_amount) }}</span>
                                     </td>
-                                    <td class="text-center" style="white-space: nowrap;">
+                                    <td class="text-center col-actions" style="white-space: nowrap;">
                                         <div class="action-btn-group">
-                                            <a href="{{ route('admin.bills.show', $bill->id) }}" class="btn btn-xs btn-view-detail" title="Xem chi tiết đơn hàng">
-                                                <i class="fa fa-eye"></i> Chi tiết
+                                            <a href="{{ route('admin.bills.show', $bill->id) }}" class="btn icon-btn btn-view-detail" title="Xem chi tiết đơn hàng">
+                                                <i class="fa fa-eye"></i>
                                             </a>
-
                                             @if($bill->status === \App\Models\Bill::PENDING)
-                                                <button type="button" class="btn btn-xs btn-success btn-manual-activate" data-id="{{ $bill->id }}" title="Duyệt đơn thủ công khi học viên chuyển khoản bị sót nội dung">
-                                                    <i class="fa fa-check"></i> Duyệt tay
+                                                <button type="button" class="btn icon-btn btn-approve btn-manual-activate" data-id="{{ $bill->id }}" title="Duyệt tay: dùng khi học viên đã chuyển khoản nhưng thiếu nội dung">
+                                                    <i class="fa fa-check"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-xs btn-danger btn-cancel-bill" data-id="{{ $bill->id }}" title="Hủy đơn hàng này">
-                                                    <i class="fa fa-times"></i> Hủy
+                                                <button type="button" class="btn icon-btn btn-reject btn-cancel-bill" data-id="{{ $bill->id }}" title="Hủy đơn hàng này">
+                                                    <i class="fa fa-times"></i>
                                                 </button>
-                                            @elseif(in_array($bill->status, [\App\Models\Bill::ALREADY_PAID, \App\Models\Bill::ACTIVATED]))
-                                                <button type="button" class="btn btn-xs btn-outline-danger btn-cancel-bill" data-id="{{ $bill->id }}" title="Hủy đơn và thu hồi quyền học">
-                                                    <i class="fa fa-undo"></i> Hoàn / Hủy
+                                            @elseif($isPaid)
+                                                <button type="button" class="btn icon-btn btn-reject btn-cancel-bill" data-id="{{ $bill->id }}" data-revoke="1" title="Thu hồi khóa học">
+                                                    <i class="fa fa-user-times"></i>
                                                 </button>
                                             @elseif($bill->status === \App\Models\Bill::CANCELED)
-                                                <button type="button" class="btn btn-xs btn-outline-success btn-manual-activate" data-id="{{ $bill->id }}" title="Kích hoạt lại khóa học cho đơn này">
-                                                    <i class="fa fa-refresh"></i> Kích hoạt lại
+                                                <button type="button" class="btn icon-btn btn-restore btn-manual-activate" data-id="{{ $bill->id }}" title="Kích hoạt lại khóa học cho đơn này">
+                                                    <i class="fa fa-refresh"></i>
                                                 </button>
                                             @endif
                                         </div>
@@ -327,11 +406,14 @@
                 }
             });
 
-            // Hủy đơn hàng (hoặc hoàn tiền, thu hồi quyền học)
+            // Hủy đơn hàng chờ thanh toán / thu hồi khóa học của đơn đã thanh toán
             $(document).on('click', '.btn-cancel-bill', function (e) {
                 e.preventDefault();
                 var billId = $(this).data('id');
-                if (confirm('Bạn có chắc chắn muốn HỦY đơn hàng #' + billId + '?\nNếu đơn hàng đã kích hoạt, hệ thống sẽ tự động THU HỒI khóa học của học viên.')) {
+                var message = $(this).data('revoke')
+                    ? 'Xác nhận THU HỒI khóa học của đơn hàng #' + billId + '?\nHọc viên sẽ mất quyền truy cập các khóa học trong đơn này.'
+                    : 'Bạn có chắc chắn muốn HỦY đơn hàng #' + billId + '?';
+                if (confirm(message)) {
                     $.ajaxSetup({
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -353,8 +435,9 @@
                     });
                 }
             });
-        });  }, 'json');
-            });
-        })
+
+            // Mặc định hiển thị đơn mới nhất lên đầu
+            $('#dt-opt').DataTable().order([0, 'desc']).draw();
+        });
     </script>
 @endsection

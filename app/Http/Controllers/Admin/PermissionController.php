@@ -56,12 +56,8 @@ class PermissionController extends Controller
         $permissionList = $this->modelPermissionUser->where('user_id', $userId)->pluck('permission_id');
         $selectedUser = User::findOrFail($userId);
 
-        // Check update permission
-        if ($this->modelPermissionUser->where('permission_id', 19)->where('user_id', \Auth::user()->id)->first()) {
-            $responseData['allowUpdate'] = 1;
-        } else {
-            $responseData['allowUpdate'] = 0;
-        }
+        // Chỉ super admin hoặc người có quyền "Update user permission" mới được sửa
+        $responseData['allowUpdate'] = $this->canUpdatePermission(\Auth::user()) && !$selectedUser->isSuperAdmin() ? 1 : 0;
 
         $responseData['permissionList'] = $permissionList;
         $responseData['selectedUser'] = $selectedUser;
@@ -69,30 +65,53 @@ class PermissionController extends Controller
         return json_encode($responseData);
     }
 
+    private function canUpdatePermission($user)
+    {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        return $user->permissions()->where('content', 'Update user permission')->exists();
+    }
+
     public function updatePermission(Request $request, $userId)
     {
-        $data = $request->all();
-        if (!array_key_exists('checkedPermissionList', $data)) {
-            $this->modelPermissionUser->where('user_id', $userId)->delete();
-
-            return 200;
-        } else {
-            $checkedPermissionList = $data['checkedPermissionList'];
-            $this->modelPermissionUser->where('user_id', $userId)->delete();
-            for ($x = 0; $x < count($checkedPermissionList); $x++) {
-                $checkPermissionExist = $this->modelPermissionUser->where('permission_id', $checkedPermissionList[$x])
-                    ->where('user_id', $userId)
-                    ->first();
-                if (!$checkPermissionExist) {
-                    $this->modelPermissionUser->create([
-                        'permission_id' => $checkedPermissionList[$x],
-                        'user_id' => $userId
-                    ]);
-                }
-            }
-
-            return json_encode($checkedPermissionList);
+        $actor = \Auth::user();
+        if (!$this->canUpdatePermission($actor)) {
+            abort(403, 'Bạn không có quyền cập nhật phân quyền.');
         }
+
+        $targetUser = User::findOrFail($userId);
+        if ($targetUser->isSuperAdmin()) {
+            abort(403, 'Không thể thay đổi quyền của Super Admin.');
+        }
+
+        $request->validate([
+            'checkedPermissionList' => 'nullable|array',
+            'checkedPermissionList.*' => 'integer|exists:permissions,id',
+        ]);
+
+        $checkedPermissionList = array_values(array_unique(array_map('intval', $request->input('checkedPermissionList', []))));
+
+        // Admin không thể tự tước quyền sửa phân quyền của chính mình
+        if ($actor->id === $targetUser->id) {
+            $keepId = $this->modelPermission->where('content', 'Update user permission')->value('id');
+            if ($keepId && !in_array($keepId, $checkedPermissionList)) {
+                $checkedPermissionList[] = $keepId;
+            }
+        }
+
+        \DB::transaction(function () use ($targetUser, $checkedPermissionList) {
+            $this->modelPermissionUser->where('user_id', $targetUser->id)->delete();
+            foreach ($checkedPermissionList as $permissionId) {
+                $this->modelPermissionUser->create([
+                    'permission_id' => $permissionId,
+                    'user_id' => $targetUser->id,
+                ]);
+            }
+        });
+
+        return empty($checkedPermissionList) ? 200 : json_encode($checkedPermissionList);
     }
 
     public function create()

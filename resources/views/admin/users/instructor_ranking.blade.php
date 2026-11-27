@@ -16,52 +16,6 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     }
-    .badge-rank-1 {
-        background: linear-gradient(135deg, #ffd700 0%, #ff9800 100%);
-        color: #fff;
-        font-weight: 700;
-        font-size: 13px;
-        padding: 6px 14px;
-        border-radius: 20px;
-        box-shadow: 0 3px 8px rgba(255, 152, 0, 0.35);
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .badge-rank-2 {
-        background: linear-gradient(135deg, #cfd8dc 0%, #78909c 100%);
-        color: #fff;
-        font-weight: 700;
-        font-size: 13px;
-        padding: 6px 14px;
-        border-radius: 20px;
-        box-shadow: 0 3px 8px rgba(120, 144, 156, 0.35);
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .badge-rank-3 {
-        background: linear-gradient(135deg, #ffab91 0%, #d84315 100%);
-        color: #fff;
-        font-weight: 700;
-        font-size: 13px;
-        padding: 6px 14px;
-        border-radius: 20px;
-        box-shadow: 0 3px 8px rgba(216, 67, 21, 0.35);
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .badge-rank-normal {
-        background: #f1f3f5;
-        color: #495057;
-        font-weight: 700;
-        font-size: 13px;
-        padding: 6px 14px;
-        border-radius: 20px;
-        display: inline-flex;
-        align-items: center;
-    }
     .instructor-avatar {
         width: 48px;
         height: 48px;
@@ -181,7 +135,6 @@
                         <table class="table table-hover table-ranking mb-0">
                             <thead>
                                 <tr>
-                                    <th style="width: 140px;">Thứ hạng</th>
                                     <th>Giảng viên</th>
                                     <th style="width: 130px; text-align: center;">Khóa học</th>
                                     <th style="width: 140px; text-align: center;">Học viên</th>
@@ -193,25 +146,6 @@
                             <tbody>
                             @forelse($orderRankingInstructors as $instructor)
                                 <tr>
-                                    <td>
-                                        @if($instructor->ranking === 1)
-                                            <span class="badge-rank-1">
-                                                <i class="mdi mdi-crown"></i> Quán quân (#1)
-                                            </span>
-                                        @elseif($instructor->ranking === 2)
-                                            <span class="badge-rank-2">
-                                                <i class="mdi mdi-medal"></i> Á quân 1 (#2)
-                                            </span>
-                                        @elseif($instructor->ranking === 3)
-                                            <span class="badge-rank-3">
-                                                <i class="mdi mdi-medal"></i> Á quân 2 (#3)
-                                            </span>
-                                        @else
-                                            <span class="badge-rank-normal">
-                                                Hạng #{{ $instructor->ranking }}
-                                            </span>
-                                        @endif
-                                    </td>
                                     <td>
                                         <div class="d-flex align-items-center" style="gap: 14px;">
                                             <img class="instructor-avatar"
@@ -258,7 +192,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center p-40">
+                                    <td colspan="6" class="text-center p-40">
                                         <div class="text-muted">
                                             <i class="mdi mdi-account-off" style="font-size: 40px; color: #ccc;"></i>
                                             <p class="mt-2 mb-0">Hiện tại chưa có dữ liệu giảng viên để xếp hạng.</p>

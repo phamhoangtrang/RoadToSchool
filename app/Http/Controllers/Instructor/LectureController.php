@@ -59,36 +59,52 @@ class LectureController extends Controller
 
     public function getVideoDuration(Request $request)
     {
-        $data = $request->all();
+        return json_encode($this->fetchVideoMeta($request->input('url')));
+    }
 
+    /**
+     * Lấy tiêu đề, mô tả, thời lượng video từ đường dẫn (Youtube...). Lỗi thì trả giá trị mặc định.
+     */
+    private function fetchVideoMeta($url)
+    {
         $responseData = [
             'duration' => '00:00:00',
             'title' => '',
             'description' => ''
         ];
 
+        if (empty($url)) {
+            return $responseData;
+        }
+
         try {
             $embed = new \Embed\Embed();
-            $embedUrl = $embed->get($data['url']);
+            $embedUrl = $embed->get($url);
             $responseData['title'] = (string)$embedUrl->title;
             $responseData['description'] = (string)$embedUrl->description;
             $oembed = $embedUrl->getOEmbed();
             if ($oembed) {
                 $all = $oembed->all();
                 if (!empty($all['duration'])) {
-                    $responseData['duration'] = self::covtime((string)$all['duration']);
+                    $responseData['duration'] = $this->covtime((string)$all['duration']);
                 }
             }
         } catch (\Throwable $e) {
             // fallback
         }
 
-        return json_encode($responseData);
+        return $responseData;
     }
 
     public function store(Request $request, $courseId)
     {
         $data = $request->all();
+        // Thời lượng bắt buộc có giá trị: nếu chưa lấy được thì tự lấy từ video, không được thì đặt 00:00:00
+        if (empty($data['duration'])) {
+            $data['duration'] = !empty($data['video_link'])
+                ? $this->fetchVideoMeta($data['video_link'])['duration']
+                : '00:00:00';
+        }
         // Create lecture
         if (array_key_exists('video_link', $data)) {
             if ($data['positionValue'] == 0) {

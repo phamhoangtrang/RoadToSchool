@@ -124,6 +124,26 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany('App\Models\Discussion');
     }
 
+    /**
+     * Đường dẫn ảnh đại diện an toàn: nếu tệp không tồn tại (hoặc giá trị lưu bị hỏng)
+     * thì dùng ảnh mặc định, tránh ảnh bị trắng/nhấp nháy.
+     */
+    public function getAvatarUrlAttribute()
+    {
+        $default = 'assets/img/avatar_users/default_avatar.png';
+        $path = str_replace('public/', '', (string) $this->avatar);
+
+        if ($path === '') {
+            return asset($default);
+        }
+        if (preg_match('#^https?://#i', $path)) {
+            return $path;
+        }
+        $path = ltrim($path, '/');
+
+        return file_exists(public_path($path)) ? asset($path) : asset($default);
+    }
+
     public function findUser($id)
     {
         return User::findOrFail($id);
@@ -134,20 +154,35 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $selectedUser = User::find($id);
 
-        if (isset($data['update_info'])) {
-            if (isset($data['cancel_value'])) {
-                $data['avatar'] = $selectedUser->avatar;
-            } elseif (isset($data['delete_value'])) {
-                $data['avatar'] = 'images/avatar/basic-avatar.png';
-            } else {
-                $file = $data['avatar'];
-                $file->store($file->getClientOriginalName());
-                $file->move('images/dummy_image', $file->getClientOriginalName());
-                $data['avatar'] = 'images/dummy_image/' . $file->getClientOriginalName();
+        // array_key_exists: nút gửi form không có value nên Laravel đổi '' thành null, isset() sẽ sai
+        if (array_key_exists('update_info', $data)) {
+            $file = $data['avatar'] ?? null;
+            $deleteAvatar = ($data['delete_avatar'] ?? '0') === '1';
+            $defaultAvatar = 'assets/img/avatar_users/default_avatar.png';
+            $oldAvatar = $selectedUser->avatar;
+
+            // Chỉ cho phép cập nhật các trường thông tin cá nhân (không cho đổi role, is_admin...)
+            $data = array_intersect_key($data, array_flip([
+                'name', 'address', 'working_place', 'grade', 'personal_info', 'phone', 'birthday',
+            ]));
+
+            if ($deleteAvatar) {
+                $data['avatar'] = $defaultAvatar;
+            } elseif ($file instanceof \Illuminate\Http\UploadedFile && $file->isValid()) {
+                $fileName = 'avatar_' . $selectedUser->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('images/avatar'), $fileName);
+                $data['avatar'] = 'images/avatar/' . $fileName;
+            }
+
+            // Xóa tệp ảnh cũ do người dùng tự tải lên (không đụng tới ảnh mặc định của hệ thống)
+            if (isset($data['avatar']) && $data['avatar'] !== $oldAvatar
+                && $oldAvatar && strpos($oldAvatar, 'images/avatar/') === 0
+                && file_exists(public_path($oldAvatar))) {
+                @unlink(public_path($oldAvatar));
             }
         }
 
-        if (isset($data['update_password'])) {
+        if (array_key_exists('update_password', $data)) {
             if (isset($data['old_password'])) {
                 $hasher = app('hash');
                 $result = $hasher->check($data['old_password'], $selectedUser->password);
@@ -156,6 +191,8 @@ class User extends Authenticatable implements MustVerifyEmail
                 }
                 $data['password'] = Hash::make($data['new_password']);
             }
+            // Đổi mật khẩu chỉ được phép cập nhật cột password
+            $data = array_intersect_key($data, ['password' => true]);
         }
 
         return $selectedUser->update($data);
@@ -202,7 +239,41 @@ class User extends Authenticatable implements MustVerifyEmail
         $data['role'] = self::ROLE_TEACHER;
         $data['is_admin'] = 0;
         $data['password'] = Hash::make($data['password']);
+        // Giảng viên do trung tâm tạo tài khoản nên không cần xác thực email.
+        $data['email_verified_at'] = now();
 
-        return User::create($data);
+        $instructor = User::create($data);
+        $instructor->assignDefaultInstructorPermissions();
+
+        return $instructor;
+    }
+
+    /**
+     * Quyền mặc định của giảng viên (khớp với các giảng viên có sẵn).
+     * Thiếu các quyền này, middleware access_page sẽ trả về 403 khi vào trang giảng viên.
+     */
+    public const INSTRUCTOR_DEFAULT_PERMISSIONS = [
+        'Access instructor dashboard',
+        'Show instructor\'s course',
+        'Create Course',
+        'Show all self student',
+        'Show a instructor\'s course',
+        'Update a course',
+        'Update a lecture',
+        'Create a lecture in course',
+        'Create a course',
+    ];
+
+    public const SUPER_ADMIN_ID = 1;
+
+    public function isSuperAdmin()
+    {
+        return (int)$this->id === self::SUPER_ADMIN_ID;
+    }
+
+    public function assignDefaultInstructorPermissions()
+    {
+        $ids = Permission::whereIn('content', self::INSTRUCTOR_DEFAULT_PERMISSIONS)->pluck('id');
+        $this->permissions()->syncWithoutDetaching($ids->all());
     }
 }

@@ -503,35 +503,33 @@ function getHumanTime(date) {
     var fuzzy;
 
     if (delta < 30) {
-        fuzzy = "just then";
+        fuzzy = "vừa xong";
     } else if (delta < minute) {
-        fuzzy = delta + " seconds ago";
+        fuzzy = delta + " giây trước";
     } else if (delta < 2 * minute) {
-        fuzzy = "a minute ago.";
+        fuzzy = "1 phút trước";
     } else if (delta < hour) {
-        fuzzy = Math.floor(delta / minute) + " minutes ago";
+        fuzzy = Math.floor(delta / minute) + " phút trước";
     } else if (Math.floor(delta / hour) == 1) {
-        fuzzy = "an hour ago";
+        fuzzy = "1 giờ trước";
     } else if (delta < day) {
-        fuzzy = Math.floor(delta / hour) + " hours ago";
+        fuzzy = Math.floor(delta / hour) + " giờ trước";
     } else if (delta < day * 2) {
-        fuzzy = "yesterday";
-    } else if (Math.floor(delta / day) == 1) {
-        fuzzy = "a day ago";
+        fuzzy = "hôm qua";
     } else if (delta < week) {
-        fuzzy = Math.floor(delta / day) + " days ago";
+        fuzzy = Math.floor(delta / day) + " ngày trước";
     } else if (Math.floor(delta / week) == 1) {
-        fuzzy = "1 week ago";
+        fuzzy = "1 tuần trước";
     } else if (delta < month) {
-        fuzzy = Math.floor(delta / week) + " weeks ago";
+        fuzzy = Math.floor(delta / week) + " tuần trước";
     } else if (Math.floor(delta / month) == 1) {
-        fuzzy = "a month ago";
+        fuzzy = "1 tháng trước";
     } else if (delta < year) {
-        fuzzy = Math.floor(delta / month) + " months ago";
+        fuzzy = Math.floor(delta / month) + " tháng trước";
     } else if (Math.floor(delta / year) == 1) {
-        fuzzy = "a year ago";
+        fuzzy = "1 năm trước";
     } else {
-        fuzzy = Math.floor(delta / year) + " years ago";
+        fuzzy = Math.floor(delta / year) + " năm trước";
     }
 
     return fuzzy;
@@ -574,6 +572,7 @@ $(document).on('click', '#removeClass', function () {
 });
 
 var isSendingUserMessage = false;
+var chatLastMessageId = parseInt($('#last-message-id').val(), 10) || 0;
 
 $(document).on('keypress', '#status_message', function (e) {
     if (e.which == 13 && !e.shiftKey) {
@@ -646,7 +645,7 @@ $(document).on('keypress', '#status_message', function (e) {
                         .replace(/\n/g, '<br>')
                         .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 
-                    var aiHtml = '<div class="direct-chat-msg doted-border" style="margin-bottom: 15px;">' +
+                    var aiHtml = '<div class="direct-chat-msg doted-border" data-message-id="' + ai.id + '" style="margin-bottom: 15px;">' +
                         '<div class="direct-chat-info clearfix">' +
                         '<span class="direct-chat-name pull-left" style="font-weight: 600; color: #e67e22;"><i class="fa fa-android"></i> ' + ai.sender_name + '</span>' +
                         '</div>' +
@@ -661,6 +660,12 @@ $(document).on('keypress', '#status_message', function (e) {
 
                     conversationList.append(aiHtml);
                     if (popupMessages) popupMessages.scrollTop = popupMessages.scrollHeight;
+                }
+                if (res && res.message && res.message.id) {
+                    chatLastMessageId = Math.max(chatLastMessageId, res.message.id);
+                }
+                if (res && res.ai_reply && res.ai_reply.id) {
+                    chatLastMessageId = Math.max(chatLastMessageId, res.ai_reply.id);
                 }
             },
             complete: function () {
@@ -718,3 +723,46 @@ try {
     // Ignore pusher init error
 }
 
+
+// Tự động cập nhật tin nhắn mới (câu trả lời của quản trị viên...) mà không cần tải lại trang
+(function () {
+    if (!$('#last-message-id').length) return;
+
+    function renderIncomingMessage(m) {
+        var list = $('#conversation-list');
+        if (list.find('[data-message-id="' + m.id + '"]').length) return; // đã hiển thị rồi
+        var content = $('<div/>').text(m.content).html()
+            .replace(/\n/g, '<br>')
+            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        var name = $('<div/>').text(m.sender_name).html();
+        var html = '<div class="direct-chat-msg doted-border" data-message-id="' + m.id + '" style="margin-bottom: 15px;">' +
+            '<div class="direct-chat-info clearfix"><span class="direct-chat-name pull-left" style="font-weight: 600; color: #e67e22;"><i class="fa fa-android"></i> ' + name + '</span></div>' +
+            '<img alt="avatar" src="/assets/img/logo-short.png" class="direct-chat-img" style="border-radius: 50%; width: 32px; height: 32px;">' +
+            '<div class="direct-chat-text" style="background-color: #f1f8fe; color: #2c3e50; border-color: #d6eaf8; display: inline-block; max-width: 85%; border-radius: 12px 12px 12px 2px; margin: 4px 0; line-height: 1.5;">' + content + '</div>' +
+            '<div class="direct-chat-info clearfix"><span class="direct-chat-timestamp pull-left" style="font-size: 11px; color: #95a5a6; margin-left: 42px;">' + (m.created_time || '') + '</span></div>' +
+            '</div>';
+        list.find('p.text-center, div.text-center').remove();
+        list.append(html);
+    }
+
+    function pollChatMessages() {
+        if (document.hidden || isSendingUserMessage) return;
+        $.getJSON('/conversations/messages', { after: chatLastMessageId }, function (res) {
+            if (!res || !res.messages || !res.messages.length) return;
+            res.messages.forEach(function (m) {
+                renderIncomingMessage(m);
+                chatLastMessageId = Math.max(chatLastMessageId, m.id);
+            });
+            var popupMessages = document.getElementById('popup-messages');
+            if (popupMessages) popupMessages.scrollTop = popupMessages.scrollHeight;
+            // Chat đang thu nhỏ: hiện chấm đỏ báo có tin mới
+            if (!$('#qnimate').hasClass('popup-box-on')) $('#chat-unread-dot').show();
+        });
+    }
+
+    setInterval(pollChatMessages, 5000);
+})();
+
+$(document).on('click', '#open-chat-with-admin', function () {
+    $('#chat-unread-dot').hide();
+});

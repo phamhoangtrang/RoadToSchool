@@ -73,29 +73,10 @@
             gap: 12px;
         }
 
-        .toolbar-select-all {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0;
-            font-size: 13.5px;
-            font-weight: 600;
-            color: #334155;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .toolbar-select-all input[type="checkbox"] {
-            margin: 0;
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
-        }
-
         .toolbar-search-wrap {
             position: relative;
             min-width: 260px;
-            flex: 0 1 320px;
+            flex: 1 1 320px;
         }
 
         .toolbar-search-wrap i {
@@ -158,18 +139,6 @@
 
         .modern-course-table tbody tr:hover {
             background-color: #fbfcfe;
-        }
-
-        .td-check {
-            width: 36px;
-            text-align: center;
-        }
-
-        .td-check input[type="checkbox"] {
-            margin: 0;
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
         }
 
         .td-thumb {
@@ -397,10 +366,6 @@
                             </div>
                         @else
                             <div class="dashboard-toolbar">
-                                <label class="toolbar-select-all" for="checkAll">
-                                    <input id="checkAll" type="checkbox">
-                                    <span>Chọn tất cả</span>
-                                </label>
                                 <div class="toolbar-search-wrap">
                                     <i class="fa fa-search"></i>
                                     <input class="toolbar-search-input" id="filter" type="text" placeholder="Tìm kiếm trong khóa học của tôi...">
@@ -411,7 +376,6 @@
                                 <table class="modern-course-table" id="in-cart-item-table">
                                     <thead>
                                     <tr>
-                                        <th class="td-check"></th>
                                         <th class="td-thumb">{{ __('titles.image') }}</th>
                                         <th class="td-details">{{ __('titles.course_detail') }}</th>
                                         <th class="td-progress-col">{{ __('titles.process') }}</th>
@@ -421,9 +385,6 @@
                                     <tbody>
                                     @foreach($courseList as $course)
                                         <tr id="cart-item-{{$course->id}}">
-                                            <td class="td-check">
-                                                <input type="checkbox" class="course-item-checkbox" value="{{ $course->id }}">
-                                            </td>
                                             <td class="td-thumb">
                                                 <a href="{{ route('courses.show', $course->id) }}" class="course-thumb-box">
                                                     <img src="{{ str_replace('public/', '', asset($course->course_avatar)) }}"
@@ -480,18 +441,6 @@
 @section('inline_scripts')
     <script type="text/javascript">
         $(document).ready(function () {
-            // Chọn tất cả checkboxes
-            $('#checkAll').on('change', function () {
-                var isChecked = $(this).is(':checked');
-                $('.course-item-checkbox').prop('checked', isChecked);
-            });
-
-            $(document).on('change', '.course-item-checkbox', function () {
-                var total = $('.course-item-checkbox').length;
-                var checked = $('.course-item-checkbox:checked').length;
-                $('#checkAll').prop('checked', total > 0 && total === checked);
-            });
-
             // Lọc tìm kiếm thời gian thực
             $('#filter').on('keyup', function () {
                 var value = $(this).val().toLowerCase().trim();

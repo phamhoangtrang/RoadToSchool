@@ -10,6 +10,11 @@
 @endsection
 
 @section('content')
+@php
+    // Hộp chat hiển thị mặc định: ưu tiên cuộc trò chuyện đang chờ, rồi đến đang xử lý (có thể không có cuộc nào)
+    $firstConversation = $waitingConversationList->first() ?? $inProgressConversationList->first();
+    $firstConversationId = $firstConversation ? $firstConversation->id : null;
+@endphp
     <!-- Content Wrapper START -->
     <div class="main-content">
         <div class="container-fluid">
@@ -88,7 +93,7 @@
                 @foreach($waitingConversationList as $conversation)
                     <div class="chat-content" id="conversation-box">
                         <div class="conversation" id="conversation-box-{{ $conversation->id }}"
-                             style="{{ $conversation->id == $waitingConversationList->first()->id ? '' : 'display:none' }}">
+                             style="{{ $conversation->id == $firstConversationId ? '' : 'display:none' }}">
                             <div class="conversation-wrapper">
                                 <div class="conversation-header">
                                     <span class="recipient"> {{ \App\Models\User::findOrFail($conversation->user_sender_id)->name }} </span>
@@ -146,7 +151,7 @@
                 @foreach($inProgressConversationList as $conversation)
                     <div class="chat-content" id="conversation-box">
                         <div class="conversation" id="conversation-box-{{ $conversation->id }}"
-                             style="{{ $conversation->id == $waitingConversationList->first()->id ? '' : 'display:none' }}">
+                             style="{{ $conversation->id == $firstConversationId ? '' : 'display:none' }}">
                             <div class="conversation-wrapper">
                                 <div class="conversation-header">
                                     <span class="recipient"> {{ \App\Models\User::findOrFail($conversation->user_sender_id)->name }} </span>

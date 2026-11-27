@@ -266,7 +266,7 @@
                                     <ul class="chat" id="discussions-list">
                                         @if($discussionsList->count() != 0)
                                             @foreach($discussionsList as $discussion)
-                                                <li class="left clearfix"><span class="chat-img pull-left">
+                                                <li class="left clearfix discussion-item" id="discussion-item-{{ $discussion->id }}" data-id="{{ $discussion->id }}"><span class="chat-img pull-left">
                                                 <img style="height: 50px; width: 50px"
                                                      src="{{ str_replace('public/', '', asset($discussion->user->avatar)) }}"
                                                      alt="User Avatar"
@@ -275,6 +275,12 @@
                                                     <div class="chat-body clearfix">
                                                         <div class="header">
                                                             <strong class="primary-font">{{ $discussion->user->name }}</strong>
+                                                            @php
+                                                                $discussionBadge = $discussion->user->is_admin ? 'Quản trị viên' : (($discussion->lecture && $discussion->lecture->course && (int)$discussion->lecture->course->user_id === (int)$discussion->user_id) ? 'Giảng viên' : '');
+                                                            @endphp
+                                                            @if($discussionBadge)
+                                                                <span class="label label-primary" style="margin-left: 6px; font-size: 10px;">{{ $discussionBadge }}</span>
+                                                            @endif
                                                             <small class="pull-right text-muted diff-time"
                                                                    id="time-{{ $discussion->id }}"
                                                                    data-time="{{ strtotime($discussion->created_at) }}">
@@ -295,13 +301,13 @@
                                 <div class="panel-footer">
                                     <div class="input-group">
                                         <input id="input-content" type="text" class="input-sm pull-right"
-                                               style="width: 100%" placeholder="Type your discussion ..."/>
+                                               style="width: 100%" placeholder="Nhập nội dung thảo luận..." maxlength="191"/>
                                         <span class="input-group-btn">
                                             <input type="hidden" id="current-user" value="{{ Auth::user()->id }}">
                                             <input type="hidden" id="lecture-id" value="{{ $lectureId }}">
                                             <button class="btn btn-warning btn-sm" id="btn-chat"
                                                     style="background-color: #3498db">
-                                                Send</button>
+                                                Gửi</button>
                                         </span>
                                     </div>
                                 </div>
@@ -321,27 +327,68 @@
             $('iframe').attr('height', 370);
             // $('iframe').attr('src', $('iframe').attr('src').replace('feature=oembed', 'autoplay=1'));
             $('iframe').attr('src', $('iframe').attr('src').replace('&enablejsapi=1', ''));
-            $('#btn-chat').on('click', function (event) {
-                event.preventDefault();
+            // Thêm một thảo luận vào danh sách (bỏ qua nếu đã có, tránh trùng khi Pusher cũng gửi về)
+            function appendDiscussion(d) {
+                if ($('#discussion-item-' + d.id).length) { return; }
+                $('#no-discussion').hide();
+                var $li = $('<li class="left clearfix discussion-item"></li>').attr({id: 'discussion-item-' + d.id, 'data-id': d.id});
+                var $img = $('<img style="height: 50px; width: 50px" alt="User Avatar" class="img-circle"/>').attr('src', d.userAvatar);
+                var $time = $('<small class="pull-right text-muted diff-time"></small>')
+                    .attr({id: 'time-' + d.id, 'data-time': d.time})
+                    .html('<span class="glyphicon glyphicon-time"></span> vừa xong');
+                var $name = $('<strong class="primary-font"></strong>').text(d.userName);
+                var $badge = d.badge ? $('<span class="label label-primary" style="margin-left: 6px; font-size: 10px;"></span>').text(d.badge) : null;
+                var $header = $('<div class="header"></div>').append($name, $badge, $time);
+                var $body = $('<div class="chat-body clearfix"></div>').append($header, $('<p></p>').text(d.content));
+                $li.append($('<span class="chat-img pull-left"></span>').append($img), $body);
+                $('#discussions-list').append($li);
+                $('#discussion-count').text($('#discussions-list .discussion-item').length);
+                $('#discussion-scroll').animate({scrollTop: $('#discussion-scroll').prop('scrollHeight')}, 'slow');
+            }
 
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
+            function lastDiscussionId() {
+                var max = 0;
+                $('#discussions-list .discussion-item').each(function () { max = Math.max(max, parseInt($(this).attr('data-id')) || 0); });
+                return max;
+            }
+
+            function sendDiscussion() {
+                var content = $.trim($('#input-content').val());
+                if (content === '') { return; }
+                var $btn = $('#btn-chat').prop('disabled', true);
+                $.ajaxSetup({headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}});
                 $.ajax({
                     url: '/discussions/pusher/pushNewDiscussion',
                     type: 'post',
-                    data: {
-                        content: $('#input-content').val(),
-                        lectureId: $('#lecture-id').val(),
-                        userId: $('#current-user').val(),
-                    },
+                    dataType: 'json',
+                    data: {content: content, lectureId: $('#lecture-id').val()},
                     success: function (data) {
                         $('#input-content').val('');
-                    }
+                        appendDiscussion(data);
+                    },
+                    error: function (xhr) {
+                        var msg = 'Không gửi được thảo luận, vui lòng thử lại.';
+                        if (xhr.responseJSON) {
+                            msg = xhr.responseJSON.message || msg;
+                            if (xhr.responseJSON.errors && xhr.responseJSON.errors.content) { msg = xhr.responseJSON.errors.content[0]; }
+                        }
+                        alert(msg);
+                    },
+                    complete: function () { $btn.prop('disabled', false); $('#input-content').focus(); }
                 });
-            })
+            }
+
+            $('#btn-chat').on('click', function (event) { event.preventDefault(); sendDiscussion(); });
+            $('#input-content').on('keypress', function (event) {
+                if (event.which === 13) { event.preventDefault(); sendDiscussion(); }
+            });
+
+            // Cập nhật thảo luận của người khác mỗi 5 giây (hoạt động cả khi chưa cấu hình Pusher)
+            setInterval(function () {
+                $.getJSON('/lectures/' + $('#lecture-id').val() + '/discussions', {after: lastDiscussionId()}, function (items) {
+                    $.each(items, function (i, d) { appendDiscussion(d); });
+                });
+            }, 5000);
 
             $('#active-all-lecture').on('click', function () {
                 $(this).removeAttr('style');
@@ -366,32 +413,13 @@
 
             // Bind a function to a Event (the full Laravel class)
             channel.bind('App\\Events\\GetDiscussionFromPusherEvent', function (data) {
-                if ($('#no-discussion').length) {
-                    $('#no-discussion').hide();
-                }
-                var discussionArea = $('#discussions-list');
-                var userImage = data.userAvatar;
-                var newDiscussionHtml = '<li class="left clearfix"><span class="chat-img pull-left"><img style="height: 50px; width: 50px" src="'
-                    + userImage
-                    + '" alt="User Avatar" class="img-circle"/></span><div class="chat-body clearfix"><div class="header"><strong class="primary-font">'
-                    + data.userName
-                    + '</strong><small class="pull-right text-muted diff-time" id="time-'
-                    + data.createdDiscussionId +
-                    '" data-time="' +
-                    new Date().getTime() / 1000 +
-                    '"><span class="glyphicon glyphicon-time"></span></small></div><p>'
-                    + data.content
-                    + '</p></div></li>';
-                discussionArea.append(newDiscussionHtml).ready(function () {
-                    $("#discussion-scroll").animate({scrollTop: $('#discussion-scroll').prop("scrollHeight")}, 'slow');
-                    $('#input-content').focus();
-                    clearInterval(myTimer);
-                    myTimer = setInterval(updateTime, 3000);
+                appendDiscussion({
+                    id: data.createdDiscussionId,
+                    content: data.content,
+                    userName: data.userName,
+                    userAvatar: data.userAvatar,
+                    time: new Date().getTime() / 1000
                 });
-
-                // Discussion count up 1
-                var oldCount = $('#discussion-count').text();
-                $('#discussion-count').text(parseInt(oldCount) + 1);
             });
 
             //test area

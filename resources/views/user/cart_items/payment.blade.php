@@ -113,22 +113,6 @@
         color: #92400e;
         line-height: 1.5;
     }
-    .demo-sandbox-btn {
-        margin-top: 20px;
-        padding: 10px 16px;
-        font-size: 13px;
-        background: #f0fdf4;
-        color: #166534;
-        border: 1px dashed #22c55e;
-        border-radius: 6px;
-        cursor: pointer;
-        width: 100%;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-    .demo-sandbox-btn:hover {
-        background: #dcfce7;
-    }
 </style>
 @endsection
 
@@ -166,10 +150,6 @@
                         Hệ thống sẽ <strong>tự động chuyển trang</strong> ngay sau khi chuyển khoản thành công.
                     </div>
 
-                    <!-- Nút Demo Giả Lập Dành Cho Báo Cáo Đồ Án -->
-                    <button type="button" class="demo-sandbox-btn" id="btn-simulate-payment">
-                        <i class="fa fa-magic"></i> Demo: Giả lập thanh toán thành công (Báo cáo đồ án)
-                    </button>
                 </div>
             </div>
 
@@ -231,13 +211,13 @@
                         <ul class="list-group" style="margin-bottom: 0;">
                             @foreach($bill->billCourses as $billCourse)
                                 @if($billCourse->course)
-                                    <li class="list-group-item" style="display: flex; justify-content: space-between; align-items: center; border-color: #f1f5f9;">
-                                        <span>
+                                    <li class="list-group-item" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 16px; border-color: #f1f5f9;">
+                                        <span style="flex: 1; min-width: 0; line-height: 1.5;">
                                             <i class="fa fa-book text-muted"></i>
                                             <strong>{{ $billCourse->course->title }}</strong>
-                                            <small class="text-muted">({{ $billCourse->course->user->name ?? 'Giảng viên' }})</small>
+                                            <small class="text-muted" style="display: block; margin-top: 2px;"><i class="fa fa-user-circle-o"></i> {{ $billCourse->course->user->name ?? 'Giảng viên' }}</small>
                                         </span>
-                                        <span class="text-danger font-weight-bold">{{ format_price($billCourse->price) }}</span>
+                                        <span class="text-danger font-weight-bold" style="white-space: nowrap; flex-shrink: 0; font-size: 15px;">{{ format_price($billCourse->price) }}</span>
                                     </li>
                                 @endif
                             @endforeach
@@ -293,33 +273,6 @@
                 }
             });
         }, 3000);
-
-        // Simulation Demo button for graduation thesis defense
-        $('#btn-simulate-payment').on('click', function() {
-            var btn = $(this);
-            btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang xử lý giả lập...');
-
-            $.ajax({
-                url: "{{ route('bills.simulate_payment', $bill->id) }}",
-                type: "POST",
-                data: {
-                    _token: "{{ csrf_token() }}"
-                },
-                dataType: "json",
-                success: function(response) {
-                    if (response.success) {
-                        $('#payment-status-text').html('<span style="color: #16a34a;"><i class="fa fa-check-circle"></i> ' + response.message + '</span>');
-                        setTimeout(function() {
-                            window.location.href = response.redirect_url;
-                        }, 1200);
-                    }
-                },
-                error: function() {
-                    alert('Lỗi khi giả lập thanh toán, vui lòng thử lại.');
-                    btn.prop('disabled', false).html('<i class="fa fa-magic"></i> Demo: Giả lập thanh toán thành công (Báo cáo đồ án)');
-                }
-            });
-        });
     });
 </script>
 @endsection

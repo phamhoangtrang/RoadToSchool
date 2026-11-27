@@ -29,13 +29,20 @@ class OpenAiChatService
     {
         // 1. Ưu tiên hàng đầu: Google Gemini API (Miễn phí, cực thông minh, tiếng Việt xuất sắc)
         if (!empty($this->geminiApiKey) && trim($this->geminiApiKey) !== '') {
-            try {
-                $geminiReply = $this->callGeminiApi($userMessage, $recentMessages, $currentUser);
-                if (!empty($geminiReply)) {
-                    return $geminiReply;
+            // Thử model chính, nếu bị treo/lỗi thì thử lại bằng model dự phòng
+            $models = array_values(array_unique([
+                $this->geminiModel ?: 'gemini-3.1-flash-lite',
+                'gemini-flash-lite-latest',
+            ]));
+            foreach ($models as $model) {
+                try {
+                    $geminiReply = $this->callGeminiApi($userMessage, $recentMessages, $currentUser, $model);
+                    if (!empty($geminiReply)) {
+                        return $geminiReply;
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Gemini API Error ({$model}): " . $e->getMessage());
                 }
-            } catch (\Exception $e) {
-                Log::error('Gemini API Error: ' . $e->getMessage());
             }
         }
 
@@ -58,10 +65,10 @@ class OpenAiChatService
     /**
      * Gọi Google Gemini API chính hãng
      */
-    protected function callGeminiApi($userMessage, array $recentMessages, $currentUser)
+    protected function callGeminiApi($userMessage, array $recentMessages, $currentUser, $modelOverride = null)
     {
         $systemInstruction = $this->buildSystemContext($currentUser, $userMessage);
-        $modelName = $this->geminiModel ?: 'gemini-3.1-flash-lite';
+        $modelName = $modelOverride ?: ($this->geminiModel ?: 'gemini-3.1-flash-lite');
         // API key gửi qua header (không đặt trong URL để không bị ghi vào log)
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent";
 
@@ -114,7 +121,7 @@ class OpenAiChatService
             $payload = [
                 'contents' => $contents,
                 'generationConfig' => [
-                    'temperature' => 0.7,
+                    'temperature' => 0.25,
                     'maxOutputTokens' => 1000,
                 ]
             ];
@@ -132,7 +139,7 @@ class OpenAiChatService
                 ],
                 'contents' => $contents,
                 'generationConfig' => [
-                    'temperature' => 0.7,
+                    'temperature' => 0.25,
                     'maxOutputTokens' => 1000,
                 ]
             ];
@@ -144,7 +151,7 @@ class OpenAiChatService
                 'x-goog-api-key' => $this->geminiApiKey,
             ])
             ->connectTimeout(5)
-            ->timeout(12)
+            ->timeout(7)
             ->post($url, $payload);
 
         if ($response->successful()) {
@@ -206,7 +213,7 @@ class OpenAiChatService
         ])->timeout(25)->post('https://api.openai.com/v1/chat/completions', [
             'model' => $this->openAiModel,
             'messages' => $messages,
-            'temperature' => 0.7,
+            'temperature' => 0.25,
             'max_tokens' => 800,
         ]);
 
@@ -265,107 +272,186 @@ class OpenAiChatService
     }
 
     /**
-     * Tạo System Context phong phú, chính xác từ Database thực tế của RoadToSchool
+     * Từ khóa tìm kiếm: bỏ từ dừng, giữ cụm 1-2 từ + từ khóa chủ đề đã nhận diện
+     */
+    protected function searchTerms($message)
+    {
+        $msg = mb_strtolower($message, 'UTF-8');
+        $stop = ['cho', 'mình', 'em', 'tôi', 'hỏi', 'về', 'các', 'những', 'có', 'không', 'nào', 'gì', 'là', 'và', 'của',
+            'một', 'khóa', 'học', 'khoá', 'bao', 'nhiêu', 'giá', 'tiền', 'học phí', 'muốn', 'cần', 'bạn', 'ơi', 'ạ', 'với',
+            'thì', 'được', 'để', 'cái', 'này', 'kia', 'xin', 'chào', 'hãy', 'tư', 'vấn', 'giúp', 'nhé', 'nha', 'đang', 'cần',
+            'rẻ', 'nhất', 'đắt', 'mắc', 'thấp', 'cao', 'nhiều', 'ít', 'hiện', 'tại', 'đây', 'bên', 'mình', 'bao', 'lâu'];
+        $clean = preg_replace('/[^\p{L}\p{N}\+\#\s]/u', ' ', $msg);
+        $words = array_values(array_filter(preg_split('/\s+/u', trim($clean)), function ($w) use ($stop) {
+            return $w !== '' && !in_array($w, $stop, true);
+        }));
+
+        $terms = [];
+        foreach ($words as $i => $w) {
+            if (mb_strlen($w) >= 2 || $w === 'c') {
+                $terms[] = $w;
+            }
+            if (isset($words[$i + 1])) {
+                $terms[] = $w . ' ' . $words[$i + 1];
+            }
+        }
+        return array_values(array_unique(array_merge($terms, $this->extractKeywords($message))));
+    }
+
+    /**
+     * Chấm điểm các khóa học theo ý hỏi: khớp tên (x3), danh mục (x2), mô tả (x1)
+     */
+    protected function retrieveCourses($userMessage, $limit = 8)
+    {
+        $terms = $this->searchTerms($userMessage);
+        $courses = Course::where('is_accepted', 1)->with(['user', 'category'])->get();
+        if (empty($terms)) {
+            return collect();
+        }
+
+        $match = function ($haystack, $term) {
+            return preg_match('/(?<![\p{L}\p{N}])' . preg_quote($term, '/') . '(?![\p{L}\p{N}])/u', $haystack) === 1;
+        };
+
+        $scored = $courses->map(function ($c) use ($terms, $match) {
+            $title = mb_strtolower($c->title, 'UTF-8');
+            $cat = mb_strtolower(($c->category ? $c->category->title . ' ' . $c->category->vi_title : ''), 'UTF-8');
+            $desc = mb_strtolower(strip_tags((string)$c->description), 'UTF-8');
+            $score = 0;
+            foreach ($terms as $t) {
+                $weight = str_contains($t, ' ') ? 2 : 1;
+                if ($match($title, $t)) $score += 3 * $weight;
+                if ($match($cat, $t)) $score += 2 * $weight;
+                if ($match($desc, $t)) $score += 1 * $weight;
+            }
+            $c->match_score = $score;
+            return $c;
+        })->filter(function ($c) {
+            return $c->match_score > 0;
+        })->sortByDesc(function ($c) {
+            return [$c->match_score, $c->seller];
+        });
+
+        return $scored->take($limit)->values();
+    }
+
+    protected function formatCourseLine($c)
+    {
+        $levels = [1 => 'Cơ bản', 2 => 'Trung cấp', 3 => 'Nâng cao'];
+        $price = $c->origin_price == 0 ? 'Miễn phí' : number_format($c->origin_price, 0, ',', '.') . ' VNĐ';
+        if ($c->promotion_price > 0 && $c->promotion_price < $c->origin_price) {
+            $price = number_format($c->promotion_price, 0, ',', '.') . ' VNĐ (giá gốc ' . number_format($c->origin_price, 0, ',', '.') . ' VNĐ)';
+        }
+        $desc = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string)$c->description))));
+        $desc = mb_strlen($desc) > 220 ? mb_substr($desc, 0, 220) . '...' : $desc;
+        $category = $c->category ? ($c->category->vi_title ?: $c->category->title) : 'Tổng hợp';
+        $instructor = $c->user ? $c->user->name : 'Đội ngũ R2S';
+
+        return "- \"{$c->title}\" | Danh mục: {$category} | Giảng viên: {$instructor}"
+            . " | Cấp độ: " . ($levels[$c->level] ?? 'Mọi cấp độ')
+            . " | {$c->lecture_numbers} bài giảng | {$c->duration} phút"
+            . " | {$c->seller} học viên | Đánh giá: {$c->course_rate}/5"
+            . " | Học phí: {$price}"
+            . ($desc !== '' ? " | Mô tả: {$desc}" : '');
+    }
+
+    /**
+     * Tạo System Context từ dữ liệu thật của RoadToSchool (không có giá/khuyến mãi gõ cứng)
      */
     protected function buildSystemContext($currentUser, $userMessage = '')
     {
         $rawName = $currentUser ? $currentUser->name : 'bạn';
         $userName = (in_array($rawName, ['Quản trị viên Hệ thống', 'admin', 'Admin', 'super_admin']) || mb_stripos($rawName, 'Quản trị') !== false) ? 'bạn' : $rawName;
 
-        // 1. Tìm các khóa học phù hợp với câu hỏi của học viên
-        $keywords = $this->extractKeywords($userMessage);
-        $matchedCourses = collect();
+        // 1. Khóa học liên quan trực tiếp tới câu hỏi
+        $matched = $this->retrieveCourses($userMessage, 8);
 
-        if (!empty($keywords)) {
-            $matchedCourses = Course::where('is_accepted', 1)
-                ->with(['user', 'category'])
-                ->where(function ($q) use ($keywords) {
-                    foreach ($keywords as $kw) {
-                        $q->orWhere('title', 'like', "%{$kw}%");
-                    }
-                })
-                ->take(12)
-                ->get();
+        // 2. Khi hỏi chung chung: bổ sung vài khóa tiêu biểu (bán chạy + rẻ nhất)
+        $extra = collect();
+        if ($matched->count() < 4) {
+            $popular = Course::where('is_accepted', 1)->with(['user', 'category'])->orderBy('seller', 'desc')->take(4)->get();
+            $cheapest = Course::where('is_accepted', 1)->with(['user', 'category'])
+                ->whereRaw('IF(promotion_price > 0, promotion_price, origin_price) > 0')
+                ->orderByRaw('IF(promotion_price > 0, promotion_price, origin_price) asc')->take(3)->get();
+            $extra = $popular->merge($cheapest);
+        }
+        // 2b. Hỏi theo mức giá (rẻ nhất / đắt nhất / miễn phí): luôn đưa đúng nhóm đã sắp xếp theo giá
+        $msgLow = mb_strtolower($userMessage, 'UTF-8');
+        $priceExpr = 'IF(promotion_price > 0, promotion_price, origin_price)';
+        $priceSections = '';
+        if (preg_match('/(rẻ|thấp nhất|giá thấp|tiết kiệm|ít tiền|miễn phí|free)/u', $msgLow)) {
+            $cheap = Course::where('is_accepted', 1)->with(['user', 'category'])
+                ->orderByRaw("{$priceExpr} asc")->take(5)->get();
+            $priceSections .= "\nKHÓA HỌC HỌC PHÍ THẤP NHẤT (đã sắp xếp từ thấp đến cao, dòng đầu là rẻ nhất):\n"
+                . $cheap->map(function ($c) { return $this->formatCourseLine($c); })->implode("\n") . "\n";
+        }
+        if (preg_match('/(đắt|mắc|cao nhất|giá cao)/u', $msgLow)) {
+            $pricey = Course::where('is_accepted', 1)->with(['user', 'category'])
+                ->orderByRaw("{$priceExpr} desc")->take(5)->get();
+            $priceSections .= "\nKHÓA HỌC HỌC PHÍ CAO NHẤT (đã sắp xếp từ cao xuống thấp, dòng đầu là đắt nhất):\n"
+                . $pricey->map(function ($c) { return $this->formatCourseLine($c); })->implode("\n") . "\n";
         }
 
-        // 2. Lấy thêm top các khóa học có học phí ưu đãi tốt nhất (rẻ nhất)
-        $cheapestCourses = Course::where('is_accepted', 1)
-            ->with(['user', 'category'])
-            ->where('promotion_price', '>', 0)
-            ->orderBy('promotion_price', 'asc')
-            ->take(6)
-            ->get();
+        $allCourses = $matched->merge($extra)->unique('id');
+        $courseListText = $allCourses->map(function ($c) {
+            return $this->formatCourseLine($c);
+        })->implode("\n");
+        if ($courseListText === '') {
+            $courseListText = '(Không tìm thấy khóa học nào khớp với câu hỏi.)';
+        }
 
-        // 3. Lấy thêm top các khóa học bán chạy / tiêu biểu
-        $popularCourses = Course::where('is_accepted', 1)
-            ->with(['user', 'category'])
-            ->orderBy('seller', 'desc')
-            ->take(6)
-            ->get();
+        // 3. Thống kê hệ thống (từ database)
+        $stats = Course::where('is_accepted', 1)
+            ->selectRaw('COUNT(*) total, MIN(IF(promotion_price > 0, promotion_price, origin_price)) min_price, MAX(IF(promotion_price > 0, promotion_price, origin_price)) max_price')
+            ->first();
+        $categoryNames = \App\Models\Category::where('parent_id', 0)->get()->map(function ($c) {
+            return $c->vi_title ?: $c->title;
+        })->implode(', ');
 
-        // Gộp lại và loại bỏ trùng lặp
-        $allCourses = $matchedCourses->merge($cheapestCourses)->merge($popularCourses)->unique('id');
-
-        $courseListText = "";
-        foreach ($allCourses as $c) {
-            $priceText = $c->origin_price == 0 ? "Miễn phí" : number_format($c->origin_price, 0, ',', '.') . " VNĐ";
-            if ($c->promotion_price > 0 && $c->promotion_price < $c->origin_price) {
-                $priceText = number_format($c->promotion_price, 0, ',', '.') . " VNĐ (Giá gốc: " . number_format($c->origin_price, 0, ',', '.') . " VNĐ)";
+        // 4. Đơn hàng gần đây của chính học viên đang chat
+        $ordersText = 'Học viên chưa đăng nhập hoặc chưa có đơn hàng nào.';
+        if ($currentUser) {
+            $bills = \App\Models\Bill::where('user_id', $currentUser->id)->with('billCourses.course')->latest()->take(5)->get();
+            if ($bills->isNotEmpty()) {
+                $ordersText = $bills->map(function ($b) {
+                    $titles = $b->billCourses->map(function ($bc) {
+                        return $bc->course ? $bc->course->title : '(khóa đã xóa)';
+                    })->implode('; ');
+                    $status = \App\Models\Bill::$status[$b->status] ?? 'Không rõ';
+                    return "- Đơn RTS{$b->id} | Trạng thái: {$status} | Tổng: " . number_format($b->total_amount, 0, ',', '.') . " VNĐ | Khóa học: {$titles}";
+                })->implode("\n");
             }
-            $instructor = $c->user ? $c->user->name : "Đội ngũ R2S";
-            $category = $c->category ? ($c->category->vi_title ?: $c->category->title) : "Tổng hợp";
-            $courseListText .= "- Khóa học [ID: {$c->id}]: \"{$c->title}\" | Danh mục: {$category} | Giảng viên: {$instructor} | Học phí: {$priceText}\n";
         }
 
         $bank = config('services.vietqr.bank_id', 'MB');
         $stk = config('services.vietqr.account_no', '44401287290165');
         $name = config('services.vietqr.account_name', 'PHAM HOANG TRANG');
+        $minPrice = number_format((float)$stats->min_price, 0, ',', '.');
+        $maxPrice = number_format((float)$stats->max_price, 0, ',', '.');
 
         return <<<EOT
-BẠN LÀ TRỢ LÝ AI CHUYÊN NGHIỆP CỦA NỀN TẢNG HỌC LẬP TRÌNH TRỰC TUYẾN ROADTOSCHOOL (R2S).
-Nhiệm vụ của bạn là tư vấn tận tình, chuyên nghiệp, chính xác 100% dựa trên dữ liệu hệ thống thực tế bên dưới.
+BẠN LÀ TRỢ LÝ AI CỦA NỀN TẢNG HỌC TRỰC TUYẾN ROADTOSCHOOL (R2S).
 
-QUY TẮC GIAO TIẾP VỚI HỌC VIÊN:
-1. Luôn xưng hô "Em" và gọi học viên là "bạn" (hoặc tên "{$userName}"). Tuyệt đối không gọi học viên là "Quản trị viên Hệ thống" hay "Admin".
-2. Giọng điệu thân thiện, rõ ràng, mạch lạc, dùng bullet point và in đậm các thông tin quan trọng.
-3. TUYỆT ĐỐI CHỈ SỬ DỤNG THÔNG TIN KHÓA HỌC VÀ HỌC PHÍ THỰC TẾ TRONG DANH SÁCH BÊN DƯỚI. Không tự ý bịa đặt tên khóa học hay học phí giả.
-4. Khi liệt kê khóa học, đánh số thứ tự 1, 2, 3... từ đầu danh sách. TUYỆT ĐỐI không nêu mã ID nội bộ của khóa học trong câu trả lời.
+QUY TẮC BẮT BUỘC:
+1. Xưng "em", gọi học viên là "bạn" (hoặc tên "{$userName}"). Thân thiện, ngắn gọn, rõ ràng, dùng gạch đầu dòng khi liệt kê.
+2. CHỈ dùng thông tin trong các mục DỮ LIỆU bên dưới. KHÔNG tự bịa tên khóa học, giá, khuyến mãi, chính sách hay số liệu. Mọi mức giá phải lấy đúng từ danh sách khóa học.
+3. Nếu dữ liệu bên dưới không có câu trả lời (ví dụ: hoàn tiền, chứng chỉ, khuyến mãi, thông tin ngoài hệ thống), hãy nói thẳng "hiện em chưa có thông tin này" và mời học viên nhắn rõ vấn đề để quản trị viên hỗ trợ trực tiếp. Tuyệt đối không đoán.
+4. Khi liệt kê khóa học, đánh số 1, 2, 3 từ đầu. Không nêu mã ID nội bộ. Nếu có nhiều khóa trùng tên, phân biệt bằng giảng viên và học phí.
+5. Chỉ giới thiệu khóa học khớp với câu hỏi; nếu danh sách bên dưới không có khóa phù hợp, nói rõ là chưa tìm thấy thay vì gợi ý khóa không liên quan.
+6. Câu hỏi về đơn hàng: chỉ dùng mục "ĐƠN HÀNG GẦN ĐÂY CỦA HỌC VIÊN". Không có đơn đó thì nói chưa thấy đơn và nhờ học viên cung cấp mã đơn (RTS...).
 
-CẨM NANG NGHIỆP VỤ 4 CHỦ ĐỀ CHÍNH:
+DỮ LIỆU HỆ THỐNG:
+- Hiện có {$stats->total} khóa học đang mở, học phí từ {$minPrice} đến {$maxPrice} VNĐ.
+- Danh mục chính: {$categoryNames}.
+- Cách thanh toán: chỉ chuyển khoản QR (VietQR), KHÔNG nhận tiền mặt hay COD. Ngân hàng {$bank}, số tài khoản {$stk}, chủ tài khoản {$name}. Nội dung chuyển khoản: RTS + mã đơn (mã QR tự điền sẵn).
+- Quy trình: thêm khóa học vào Giỏ hàng, bấm "Thanh toán", quét mã QR bằng app ngân hàng. Hệ thống SePay tự kích hoạt trong khoảng 1-3 phút; khóa học xuất hiện ở "Khóa học của tôi" (bấm ảnh đại diện góc trên bên phải).
+- Nếu quá 3-5 phút chưa thấy khóa học: học viên nhắn mã đơn RTS hoặc ảnh biên lai trong khung chat này để quản trị viên kiểm tra thủ công.
 
-1. THÔNG TIN ĐƠN HÀNG & KÍCH HOẠT:
-- Định dạng mã đơn hàng: Bắt đầu bằng tiền tố "RTS" kèm ID đơn (Ví dụ: RTS12, RTS45).
-- Tự động kích hoạt: Sau khi học viên hoàn tất chuyển khoản VietQR, hệ thống SePay tự động kiểm tra và kích hoạt đơn hàng trong 1-3 phút.
-- Cách vào học sau khi mua: Bấm vào Avatar tài khoản ở góc trên bên phải -> Chọn "Khóa học của tôi" (hoặc truy cập /courses/{userId}/my_course) để vào học ngay tất cả bài giảng và bài tập.
-- Hỗ trợ khi chuyển khoản xong chưa thấy khóa học: Nếu sau 3-5 phút chưa thấy khóa học trong "Khóa học của tôi", hướng dẫn học viên gửi Mã đơn hàng (RTS...) hoặc ảnh chụp bill chuyển khoản vào khung chat này để Admin kích hoạt thủ công ngay.
-
-2. GIÁ, HỌC PHÍ & CHƯƠNG TRÌNH KHUYẾN MÃI:
-- Khung học phí: Cực kỳ ưu đãi cho sinh viên, chỉ dao động từ 100.000 VNĐ đến 1.890.000 VNĐ.
-- Top các khóa học học phí rẻ nhất:
-  * "Khóa học C nâng cao": 100.000 VNĐ (giá gốc: 150.000 VNĐ, giảng viên ThS. Huỳnh Thanh Mai).
-  * "Trí tuệ Nhân tạo & Machine Learning": 200.000 VNĐ (giá gốc: 300.000 VNĐ).
-  * "HTML5, CSS3 và Responsive Web Design": 249.000 VNĐ (giá gốc: 399.000 VNĐ).
-  * "Git & GitHub - Quản lý mã nguồn": 299.000 VNĐ (giá gốc: 499.000 VNĐ).
-- Khuyến mãi: Hệ thống đang có chương trình giảm giá từ 30% đến 60% khi thanh toán trực tuyến.
-- Học thử: Học viên hoàn toàn có thể xem trước các bài giảng mở miễn phí (Preview) ở mỗi khóa học trước khi quyết định mua.
-
-3. KHÓA HỌC & LỘ TRÌNH ĐÀO TẠO:
-- Khi học viên hỏi về C, C++ hoặc "các khóa nâng cao C":
-  * Hãy liệt kê đầy đủ các khóa học C & Ngôn ngữ lập trình trong danh sách (đặc biệt: "Khóa học C nâng cao" - 100.000đ do ThS. Huỳnh Thanh Mai giảng dạy; "Bí quyết và Kỹ năng Thực hành Ngôn ngữ Lập trình Đỉnh cao" - 470.000đ; "Cẩm nang Toàn diện về Ngôn ngữ Lập trình từ A đến Z" - 600.000đ; "Khóa học Ngôn ngữ Lập trình từ Cơ bản đến Nâng cao" - 1.710.000đ).
-  * Đưa ra lộ trình học C nâng cao rõ ràng: Giai đoạn 1 (Cơ bản & Cú pháp), Giai đoạn 2 (Con trỏ, Quản lý bộ nhớ Heap/Stack, Struct), Giai đoạn 3 (Cấu trúc dữ liệu giải thuật nâng cao & tối ưu hiệu năng).
-- Với các chủ đề khác (Python/AI, Web Fullstack, UI/UX, MySQL...): Giới thiệu các khóa học thực tế kèm theo lộ trình các giai đoạn cụ thể.
-
-4. PHƯƠNG THỨC THANH TOÁN (VIETQR):
-- RoadToSchool KHÔNG hỗ trợ thanh toán bằng TIỀN MẶT hoặc COD (vì đây là nền tảng đào tạo online 100%).
-- Hỗ trợ thanh toán trực tuyến an toàn qua Quét mã VietQR (chuyển khoản 24/7):
-  * Ngân hàng: {$bank} (Ngân hàng Quân Đội)
-  * Số tài khoản: {$stk}
-  * Chủ tài khoản: {$name}
-  * Nội dung chuyển khoản: RTS <Mã đơn hàng> (hoặc quét mã VietQR tự động điền sẵn).
-- Các bước: Thêm khóa học vào Giỏ hàng -> Bấm "Thanh toán" -> Dùng App ngân hàng quét mã QR -> Khóa học được kích hoạt sau 1-3 phút.
-
-DANH SÁCH KHÓA HỌC THỰC TẾ ĐANG CÓ TRÊN HỆ THỐNG ROADTOSCHOOL:
+KHÓA HỌC LIÊN QUAN ĐẾN CÂU HỎI (lấy từ database):
 {$courseListText}
+{$priceSections}
+ĐƠN HÀNG GẦN ĐÂY CỦA HỌC VIÊN:
+{$ordersText}
 EOT;
     }
 
@@ -446,7 +532,7 @@ EOT;
 
         // 5. GẶP ADMIN / HỖ TRỢ KỸ THUẬT / KHIẾU NẠI
         if (preg_match('/(gặp admin|quản trị|người thật|khiếu nại|hoàn tiền|lỗi|sai tiền|hotline|tổng đài)/u', $msg)) {
-            return "Dạ em đã ghi nhận yêu cầu của {$userName}. Hệ thống đã gửi thông báo đến Quản trị viên trực ban. Bạn vui lòng để lại Số điện thoại hoặc mô tả chi tiết vấn đề gặp phải, Admin người thật sẽ tiếp nhận và nhắn tin hỗ trợ trực tiếp với bạn ngay trong khung chat này trong ít phút tới nhé!";
+            return "Dạ em đã ghi nhận nội dung của {$userName}. Cuộc trò chuyện này sẽ được chuyển để Quản trị viên xem và phản hồi trực tiếp trong khung chat. Bạn vui lòng mô tả chi tiết vấn đề (mã đơn RTS, thời gian, ảnh biên lai nếu có) để được hỗ trợ nhanh hơn nhé!";
         }
 
         // 6. TƯ VẤN KHÓA HỌC & LỘ TRÌNH CHI TIẾT

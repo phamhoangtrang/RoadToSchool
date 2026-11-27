@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -16,6 +18,24 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::useNativeSchemaOperationsIfPossible();
         Schema::defaultStringLength(191);
+
+        // Email đặt lại mật khẩu bằng tiếng Việt
+        ResetPassword::toMailUsing(function ($notifiable, $token) {
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
+            $expire = config('auth.passwords.' . config('auth.defaults.passwords') . '.expire');
+
+            return (new MailMessage)
+                ->subject('Đặt lại mật khẩu - Road To School')
+                ->greeting('Xin chào ' . $notifiable->name . '!')
+                ->line('Bạn nhận được email này vì chúng tôi vừa nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.')
+                ->action('Đặt lại mật khẩu', $url)
+                ->line("Liên kết này sẽ hết hạn sau {$expire} phút.")
+                ->line('Nếu bạn không yêu cầu đặt lại mật khẩu, bạn không cần làm gì thêm.')
+                ->salutation('Trân trọng, Road To School');
+        });
 
         \Carbon\Carbon::setLocale('vi');
         \Illuminate\Support\Carbon::setLocale('vi');

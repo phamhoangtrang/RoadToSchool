@@ -81,8 +81,8 @@
                                                 <i class="fa fa-times"></i> Hủy đơn
                                             </button>
                                         @elseif(in_array($bill->status, [\App\Models\Bill::ALREADY_PAID, \App\Models\Bill::ACTIVATED]))
-                                            <button type="button" class="btn btn-sm btn-outline-danger btn-cancel-bill" data-id="{{ $bill->id }}" title="Hoàn tiền và thu hồi quyền học">
-                                                <i class="fa fa-undo"></i> Hoàn tiền / Thu hồi khóa học
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-cancel-bill" data-id="{{ $bill->id }}" data-revoke="1" title="Thu hồi quyền học của học viên">
+                                                <i class="fa fa-user-times"></i> Thu hồi khóa học
                                             </button>
                                         @elseif($bill->status === \App\Models\Bill::CANCELED)
                                             <button type="button" class="btn btn-sm btn-outline-success btn-manual-activate" data-id="{{ $bill->id }}" title="Kích hoạt lại khóa học cho đơn này">
@@ -161,9 +161,7 @@
                                                  src="{{ asset('assets/admin/images/logo/logo.jpg') }}" alt="">
                                         </div>
                                         <div class="col-sm-6 text-right">
-                                            <small><b>Phone:</b> (+84) 965 818 552</small>
-                                            <br>
-                                            <small>hungph.dev.ict@gmail.com</small>
+                                            <small><b>Điện thoại:</b> (+84) 965 818 552</small>
                                         </div>
                                     </div>
                                 </div>
@@ -207,11 +205,14 @@
                 }
             });
 
-            // Hủy đơn hàng / Hoàn tiền
+            // Hủy đơn hàng chờ thanh toán / thu hồi khóa học của đơn đã thanh toán
             $(document).on('click', '.btn-cancel-bill', function (e) {
                 e.preventDefault();
                 var billId = $(this).data('id');
-                if (confirm('Bạn có chắc chắn muốn HỦY đơn hàng #' + billId + '?\nNếu đơn hàng đã kích hoạt, hệ thống sẽ tự động THU HỒI khóa học của học viên.')) {
+                var message = $(this).data('revoke')
+                    ? 'Xác nhận THU HỒI khóa học của đơn hàng #' + billId + '?\nHọc viên sẽ mất quyền truy cập các khóa học trong đơn này.'
+                    : 'Bạn có chắc chắn muốn HỦY đơn hàng #' + billId + '?';
+                if (confirm(message)) {
                     $.ajaxSetup({
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

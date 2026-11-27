@@ -28,103 +28,119 @@
         margin: 0;
     }
 
-    /* Filter Toolbar */
+    /* Filter Toolbar: một thanh gọn, nhóm "khoảng thời gian" và "ngày tùy chọn" rõ ràng */
     .filter-card {
-        background: #f8fafc;
+        background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 18px 20px;
+        border-radius: 14px;
+        padding: 14px 18px;
         margin-top: 18px;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
     }
-
-    .preset-pills-wrap {
+    .filter-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
         align-items: center;
+        justify-content: space-between;
+        gap: 14px;
     }
-    .preset-label {
-        font-size: 13px;
-        font-weight: 700;
-        color: #475569;
-        margin-right: 6px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+    /* Nút chọn nhanh dạng thanh liền nhau */
+    .preset-segment {
+        display: inline-flex;
+        flex-wrap: wrap;
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 4px;
+        gap: 2px;
     }
     .preset-pill {
         display: inline-flex;
         align-items: center;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 12.5px;
+        padding: 7px 12px;
+        border-radius: 9px;
+        font-size: 13px;
         font-weight: 600;
-        color: #475569;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
+        color: #64748b;
+        background: transparent;
+        border: none;
         text-decoration: none !important;
-        transition: all 0.2s ease;
+        transition: all 0.15s ease;
+        white-space: nowrap;
     }
     .preset-pill:hover {
-        background: #e2e8f0;
         color: #0f172a;
+        background: #e2e8f0;
     }
     .preset-pill.active {
         background: #2563eb;
         color: #ffffff !important;
-        border-color: #2563eb;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     }
 
+    /* Khoảng ngày tùy chọn */
     .date-range-form {
-        display: flex;
+        display: inline-flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 12px;
-        margin-top: 14px;
-        padding-top: 14px;
-        border-top: 1px dashed #e2e8f0;
-    }
-    .date-input-group {
-        display: flex;
-        align-items: center;
         gap: 8px;
-    }
-    .date-input-group label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #475569;
         margin: 0;
-        white-space: nowrap;
-    }
-    .date-input-group input[type="date"] {
-        padding: 6px 12px;
-        border-radius: 8px;
-        border: 1px solid #cbd5e1;
-        font-size: 13px;
+        padding: 4px 4px 4px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
         background: #ffffff;
-        color: #0f172a;
-        height: 38px;
     }
-    .date-input-group input[type="date"]:focus {
+    .date-range-form.is-custom {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .date-range-form .range-icon { color: #94a3b8; font-size: 14px; }
+    .date-range-form .range-sep { color: #94a3b8; font-size: 13px; }
+    .date-range-form input[type="date"] {
+        padding: 4px 8px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        font-size: 13px;
+        background: #f8fafc;
+        color: #0f172a;
+        height: 34px;
+        width: 128px;
+    }
+    .date-range-form input[type="date"]:focus {
         border-color: #2563eb;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        background: #ffffff;
     }
-
-    .active-filter-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
-        color: #065f46;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 13px;
+    .date-range-form .btn-apply {
+        height: 34px;
+        border-radius: 9px;
         font-weight: 600;
-        margin-left: auto;
+        font-size: 13px;
+        padding: 0 14px;
+        border: none;
+        background: #2563eb;
+        color: #ffffff;
     }
+    .date-range-form .btn-apply:hover { background: #1d4ed8; }
+
+    /* Dòng trạng thái bộ lọc đang áp dụng */
+    .filter-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: #64748b;
+    }
+    .filter-status i { color: #10b981; }
+    .filter-status strong { color: #0f172a; }
+    .filter-status a {
+        margin-left: auto;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #2563eb;
+        text-decoration: none;
+    }
+    .filter-status a:hover { text-decoration: underline; }
 
     /* Metric Cards */
     .stat-cards-row {
@@ -261,8 +277,8 @@
         background-color: #f8fafc;
     }
     /* Giãn lề trái/phải để bảng không dính sát mép thẻ */
-    .dashboard-table th:first-child, .dashboard-table td:first-child { padding-left: 24px; }
-    .dashboard-table th:last-child, .dashboard-table td:last-child { padding-right: 24px; }
+    .dashboard-table th:first-child, .dashboard-table td:first-child { padding-left: 20px; }
+    .dashboard-table th:last-child, .dashboard-table td:last-child { padding-right: 20px; }
     .dashboard-table td { padding-top: 14px; padding-bottom: 14px; }
     .dashboard-table tbody tr:last-child td { border-bottom: none; }
 
@@ -277,7 +293,6 @@
     .dashboard-table .badge-status-paid,
     .dashboard-table .badge-status-pending,
     .dashboard-table .badge-status-canceled {
-        min-width: 118px;
         justify-content: center;
     }
 
@@ -373,61 +388,40 @@
         <!-- Dashboard Header & Date Filter Toolbar -->
         <div class="dashboard-header">
             <div class="dashboard-title-wrap">
-                <h2><i class="fa fa-dashboard" style="color: #2563eb; margin-right: 8px;"></i> Tổng quan Quản trị (Dashboard)</h2>
-                <p>Theo dõi thời gian thực doanh thu, số lượng khách hàng và khóa học đã bán</p>
+                <h2><i class="fa fa-dashboard" style="color: #2563eb; margin-right: 8px;"></i> Bảng điều khiển</h2>
+                <p>Theo dõi doanh thu, số lượng khách hàng và khóa học đã bán</p>
             </div>
 
             <!-- Filter Card -->
             <div class="filter-card">
-                <!-- Preset Pills -->
-                <div class="preset-pills-wrap">
-                    <span class="preset-label"><i class="fa fa-calendar"></i> Lọc nhanh:</span>
-                    <a href="{{ route('admin.dashboard', ['preset' => 'all']) }}" class="preset-pill {{ $preset === 'all' ? 'active' : '' }}">
-                        Tất cả
-                    </a>
-                    <a href="{{ route('admin.dashboard', ['preset' => 'today']) }}" class="preset-pill {{ $preset === 'today' ? 'active' : '' }}">
-                        Hôm nay
-                    </a>
-                    <a href="{{ route('admin.dashboard', ['preset' => '7_days']) }}" class="preset-pill {{ $preset === '7_days' ? 'active' : '' }}">
-                        1 Tuần qua
-                    </a>
-                    <a href="{{ route('admin.dashboard', ['preset' => '30_days']) }}" class="preset-pill {{ $preset === '30_days' ? 'active' : '' }}">
-                        1 Tháng qua
-                    </a>
-                    <a href="{{ route('admin.dashboard', ['preset' => 'this_month']) }}" class="preset-pill {{ $preset === 'this_month' ? 'active' : '' }}">
-                        Tháng này
-                    </a>
-                    <a href="{{ route('admin.dashboard', ['preset' => 'last_month']) }}" class="preset-pill {{ $preset === 'last_month' ? 'active' : '' }}">
-                        Tháng trước
-                    </a>
-                    <a href="{{ route('admin.dashboard', ['preset' => 'this_year']) }}" class="preset-pill {{ $preset === 'this_year' ? 'active' : '' }}">
-                        Năm nay
-                    </a>
+                <div class="filter-row">
+                    <!-- Chọn nhanh khoảng thời gian -->
+                    <div class="preset-segment" role="group" aria-label="Khoảng thời gian">
+                        <a href="{{ route('admin.dashboard', ['preset' => 'all']) }}" class="preset-pill {{ $preset === 'all' ? 'active' : '' }}">Tất cả</a>
+                        <a href="{{ route('admin.dashboard', ['preset' => 'today']) }}" class="preset-pill {{ $preset === 'today' ? 'active' : '' }}">Hôm nay</a>
+                        <a href="{{ route('admin.dashboard', ['preset' => '7_days']) }}" class="preset-pill {{ $preset === '7_days' ? 'active' : '' }}">1 Tuần qua</a>
+                        <a href="{{ route('admin.dashboard', ['preset' => '30_days']) }}" class="preset-pill {{ $preset === '30_days' ? 'active' : '' }}">1 Tháng qua</a>
+                        <a href="{{ route('admin.dashboard', ['preset' => 'this_month']) }}" class="preset-pill {{ $preset === 'this_month' ? 'active' : '' }}">Tháng này</a>
+                        <a href="{{ route('admin.dashboard', ['preset' => 'last_month']) }}" class="preset-pill {{ $preset === 'last_month' ? 'active' : '' }}">Tháng trước</a>
+                        <a href="{{ route('admin.dashboard', ['preset' => 'this_year']) }}" class="preset-pill {{ $preset === 'this_year' ? 'active' : '' }}">Năm nay</a>
+                    </div>
+
+                    <!-- Chọn khoảng ngày tùy ý -->
+                    <form action="{{ route('admin.dashboard') }}" method="GET" class="date-range-form {{ $preset === 'custom' ? 'is-custom' : '' }}">
+                        <i class="fa fa-calendar range-icon"></i>
+                        <input type="date" name="start_date" value="{{ $startDateInput }}" required aria-label="Từ ngày">
+                        <span class="range-sep">đến</span>
+                        <input type="date" name="end_date" value="{{ $endDateInput }}" required aria-label="Đến ngày">
+                        <button type="submit" class="btn-apply">Áp dụng</button>
+                    </form>
                 </div>
 
-                <!-- Custom Range Picker Form -->
-                <form action="{{ route('admin.dashboard') }}" method="GET" class="date-range-form">
-                    <span class="preset-label"><i class="fa fa-sliders"></i> Tùy chọn ngày:</span>
-                    <div class="date-input-group">
-                        <label>Từ:</label>
-                        <input type="date" name="start_date" value="{{ $startDateInput }}" required>
-                    </div>
-                    <div class="date-input-group">
-                        <label>Đến:</label>
-                        <input type="date" name="end_date" value="{{ $endDateInput }}" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-sm" style="height: 38px; border-radius: 8px; font-weight: 600; padding: 0 16px;">
-                        <i class="fa fa-filter"></i> Áp dụng
-                    </button>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-default btn-sm" style="height: 38px; border-radius: 8px; line-height: 24px; padding: 6px 14px;">
-                        <i class="fa fa-refresh"></i> Đặt lại
-                    </a>
-
-                    <!-- Active Filter Indicator -->
-                    <div class="active-filter-badge">
-                        <i class="fa fa-check-circle"></i> Đang hiển thị: <strong>{{ $filterTitle }}</strong>
-                    </div>
-                </form>
+                <!-- Bộ lọc đang áp dụng -->
+                <div class="filter-status">
+                    <i class="fa fa-check-circle"></i>
+                    <span>Đang hiển thị: <strong>{{ $filterTitle }}</strong></span>
+                    <a href="{{ route('admin.dashboard') }}"><i class="fa fa-refresh" style="color: inherit;"></i> Đặt lại</a>
+                </div>
             </div>
         </div>
 
@@ -478,7 +472,7 @@
                             <i class="fa fa-money"></i>
                         </div>
                         <div class="stat-card-info">
-                            <div class="stat-card-title">Doanh thu (Kỳ lọc)</div>
+                            <div class="stat-card-title">Doanh thu</div>
                             <div class="stat-card-value text-success" style="font-size: 22px;">
                                 {{ format_price($filteredRevenue) }}
                             </div>
@@ -512,7 +506,7 @@
                             <i class="fa fa-users"></i>
                         </div>
                         <div class="stat-card-info">
-                            <div class="stat-card-title">Khách hàng (Học viên)</div>
+                            <div class="stat-card-title">Học viên</div>
                             <div class="stat-card-value" style="color: #7c3aed;">
                                 {{ number_format($totalCustomers) }} <small style="font-size: 14px; font-weight: 500;">người</small>
                             </div>
@@ -666,11 +660,10 @@
                         <table class="table dashboard-table mb-0">
                             <thead>
                                 <tr>
-                                    <th style="width: 10%; white-space: nowrap;">Mã đơn</th>
-                                    <th style="min-width: 120px;">Khách hàng</th>
-                                    <th style="width: 16%; white-space: nowrap;">Ngày đặt</th>
-                                    <th style="width: 18%; white-space: nowrap;">Trạng thái</th>
-                                    <th style="width: 18%; white-space: nowrap; text-align: right;">Tổng tiền</th>
+                                    <th>Đơn hàng</th>
+                                    <th>Khách hàng</th>
+                                    <th>Trạng thái</th>
+                                    <th style="text-align: right;">Tổng tiền</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -680,14 +673,11 @@
                                             <a href="{{ route('admin.bills.show', $bill->id) }}" class="font-weight-bold text-primary font-size-14">
                                                 #{{ $bill->id }}
                                             </a>
+                                            <small class="text-muted d-block" style="font-size: 11px; margin-top: 2px;">{{ $bill->created_at->format('d/m/Y H:i') }}</small>
                                         </td>
                                         <td>
                                             <div class="font-weight-bold text-dark" style="font-size: 13px; line-height: 1.3;">{{ $bill->customer_name }}</div>
                                             <small class="text-muted d-block" style="font-size: 11px; margin-top: 2px;">{{ $bill->customer_phone }}</small>
-                                        </td>
-                                        <td style="white-space: nowrap;">
-                                            <div style="font-size: 12.5px; font-weight: 500; color: #334155;">{{ $bill->created_at->format('d/m/Y') }}</div>
-                                            <small class="text-muted" style="font-size: 11px;">{{ $bill->created_at->format('H:i') }}</small>
                                         </td>
                                         <td style="white-space: nowrap;">
                                             @if($bill->status == \App\Models\Bill::ALREADY_PAID || $bill->status == \App\Models\Bill::ACTIVATED)
@@ -702,7 +692,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted p-v-30">
+                                        <td colspan="4" class="text-center text-muted p-v-30">
                                             <i class="fa fa-inbox fa-2x m-b-10 d-block"></i>
                                             Không có đơn hàng nào trong khoảng thời gian đã chọn
                                         </td>
@@ -727,10 +717,9 @@
                         <table class="table dashboard-table mb-0">
                             <thead>
                                 <tr>
-                                    <th style="min-width: 170px;">Khóa học</th>
-                                    <th style="width: 85px; white-space: nowrap;">Giá bán</th>
-                                    <th style="width: 85px; white-space: nowrap; text-align: center;">Bán trong kỳ</th>
-                                    <th style="width: 75px; white-space: nowrap; text-align: center;">Tổng bán</th>
+                                    <th>Khóa học</th>
+                                    <th style="text-align: center;">Trong kỳ</th>
+                                    <th style="text-align: center;">Tổng bán</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -743,19 +732,15 @@
                                                      style="width: 44px; height: 32px; border-radius: 6px; object-fit: cover; margin-right: 10px; border: 1px solid #e2e8f0; flex-shrink: 0;"
                                                      alt="{{ $course->title }}">
                                                 <div style="min-width: 0; flex: 1;">
-                                                    <a href="{{ route('admin.courses.show', $course->id) }}" class="course-table-title" title="{{ $course->title }}">
+                                                    <a href="{{ route('courses.show', $course->id) }}" class="course-table-title" title="{{ $course->title }}">
                                                         {{ $course->title }}
                                                     </a>
                                                     <small class="text-muted d-block" style="font-size: 11px; margin-top: 2px;">
-                                                        <i class="fa fa-user-circle"></i> {{ $course->user ? $course->user->name : 'N/A' }}
+                                                        {{ $course->user ? $course->user->name : 'N/A' }}
+                                                        &middot; <b style="color: #334155;">{{ format_price($course->promotion_price > 0 && $course->promotion_price < $course->origin_price ? $course->promotion_price : $course->origin_price) }}</b>
                                                     </small>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td style="white-space: nowrap;">
-                                            <b class="text-dark" style="font-size: 13px;">
-                                                {{ format_price($course->promotion_price > 0 && $course->promotion_price < $course->origin_price ? $course->promotion_price : $course->origin_price) }}
-                                            </b>
                                         </td>
                                         <td class="text-center" style="white-space: nowrap;">
                                             <span class="badge badge-info font-weight-bold font-size-12" style="padding: 4px 10px; border-radius: 12px; display: inline-block; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">
@@ -766,7 +751,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted p-v-30">
+                                        <td colspan="3" class="text-center text-muted p-v-30">
                                             Không có dữ liệu khóa học bán ra trong khoảng thời gian đã chọn
                                         </td>
                                     </tr>

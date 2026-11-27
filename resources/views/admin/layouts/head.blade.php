@@ -23,4 +23,5 @@
     <link href="{{ asset('assets/admin/css/themify-icons.css') }}" rel="stylesheet"/>
     <link href="{{ asset('assets/admin/css/animate.min.css') }}" rel="stylesheet"/>
     <link href="{{ asset('assets/admin/css/app.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('assets/admin/css/admin-modern.css') }}?v={{ filemtime(public_path('assets/admin/css/admin-modern.css')) }}" rel="stylesheet"/>
 </head>

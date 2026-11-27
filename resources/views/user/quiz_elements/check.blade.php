@@ -78,6 +78,14 @@
                                 href="{{ route('courses.show', $lecture->course_id) }}#course-{{ $lecture->course_id }}-outline">
                             QUAY LẠI KHÓA HỌC
                         </a>
+                        <form method="POST" action="{{ route('quiz.retake', [$lecture->course_id, $lecture->id]) }}"
+                              style="float: right; margin-right: 10px;"
+                              onsubmit="return confirm('Làm lại sẽ xóa kết quả hiện tại ({{ $quizResult->right_answer_count }}/{{ $quizResult->right_answer_count + $quizResult->wrong_answer_count }}). Bạn có chắc muốn làm lại bài này không?');">
+                            @csrf
+                            <button type="submit" class="btn btn-common" style="background-color: #2563eb;">
+                                <i class="fa fa-refresh"></i> LÀM LẠI BÀI
+                            </button>
+                        </form>
                 </div>
             </div>
         </div>

@@ -39,7 +39,7 @@ class BillController extends Controller
 
     public function index()
     {
-        $billsList = Bill::all();
+        $billsList = Bill::with('billCourses.course')->get();
 
         return view('admin.bills.index', compact('billsList'));
     }

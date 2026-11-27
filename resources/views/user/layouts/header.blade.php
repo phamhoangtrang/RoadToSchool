@@ -60,7 +60,7 @@
                                                 data-id="{{ $cartItem->course->id }}">
                                                 <div class="cart-dropdown-item-inner">
                                                     <img class="cart-dropdown-thumb" src="{{ str_replace('public/', '', asset($cartItem->course->course_avatar)) }}"
-                                                         onerror="this.src='{{ asset('assets/img/default_avatar.png') }}';" alt=""/>
+                                                         onerror="this.onerror=null; this.src='{{ asset('assets/img/dummy.png') }}';" alt=""/>
                                                     <div class="cart-dropdown-info">
                                                         <h6 class="cart-dropdown-item-title">{{ \Illuminate\Support\Str::limit($cartItem->course->title, 28) }}</h6>
                                                         <div class="cart-dropdown-prices">
@@ -135,7 +135,7 @@
                                                                  style="height: 45px; width: 45px" alt=""/>
                                                         @endif
                                                        <span class="item-info">
-                                                          <span> {!! \Illuminate\Support\Str::limit($notification->content, 35) !!} </span>
+                                                          <span> {!! \Illuminate\Support\Str::limit($notification->content, 80) !!} </span>
                                                        <span class="diff-time" id="diff-time-{{ $notification->id }}"
                                                              data-time="{{ strtotime($notification->created_at) }}">
                                                              @php
@@ -157,7 +157,7 @@
                                                                  style="height: 45px; width: 45px"
                                                                  alt=""/>
                                                         <span class="item-info">
-                                                           <span> {!! \Illuminate\Support\Str::limit($notification->content, 35) !!} </span>
+                                                           <span> {!! \Illuminate\Support\Str::limit($notification->content, 80) !!} </span>
                                                         <span class="diff-time" id="diff-time-{{ $notification->id }}"
                                                               data-time="{{ strtotime($notification->created_at) }}">
                                                               @php
@@ -186,8 +186,8 @@
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre
                                style="display: inline-flex; align-items: center; gap: 8px;">
                                 <img class="header-user-avatar"
-                                     src="{{ \Auth::user()->avatar ? str_replace('public/', '', asset(\Auth::user()->avatar)) : asset('assets/img/default_avatar.png') }}"
-                                     onerror="this.src='{{ asset('assets/img/default_avatar.png') }}';"
+                                     src="{{ \Auth::user()->avatar_url }}"
+                                     onerror="this.onerror=null; this.src='{{ asset('assets/img/avatar_users/default_avatar.png') }}';"
                                      alt="{{ \Auth::user()->name }}">
                                 <span class="header-user-name">{{ Auth::user()->name }}</span>
                                 <span class="caret"></span>

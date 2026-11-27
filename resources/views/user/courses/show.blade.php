@@ -784,6 +784,9 @@
                                                            data-tagged="{{ $comment->user->id }}"><i
                                                                     class="fa fa-reply-all"></i> Trả lời</a>
                                                         @endauth
+                                                        @if(Auth::check() && (Auth::id() === $comment->user_id || Auth::user()->is_admin))
+                                                            <a class="delete-comment-link" data-id="{{ $comment->id }}" data-type="comment" title="Xóa bình luận này"><i class="fa fa-trash-o"></i> Xóa</a>
+                                                        @endif
                                                     </div>
                                                     {!!  $comment->content !!}
                                                 </div>
@@ -840,6 +843,9 @@
                                                                        data-child="{{ $child_comment->id }}"><i
                                                                                 class="fa fa-reply-all"></i> Trả lời </a>
                                                                     @endauth
+                                                                    @if(Auth::check() && (Auth::id() === $child_comment->user_id || Auth::user()->is_admin))
+                                                                        <a class="delete-comment-link" data-id="{{ $child_comment->id }}" data-type="reply" title="Xóa phản hồi này"><i class="fa fa-trash-o"></i> Xóa</a>
+                                                                    @endif
                                                                 </div>
                                                                 <p>{!! $child_comment->content !!} </p>
                                                             </div>
@@ -1291,6 +1297,41 @@
             });
         });
 
+        var isAdminUser = {{ (Auth::check() && Auth::user()->is_admin) ? 'true' : 'false' }};
+
+        // --- XÓA BÌNH LUẬN / PHẢN HỒI ---
+        $(document).on('click', '.delete-comment-link', function (e) {
+            e.preventDefault();
+            var $link = $(this);
+            var id = $link.data('id');
+            var type = $link.data('type');
+            var message = type === 'comment'
+                ? 'Bạn có chắc chắn muốn xóa bình luận này? Các phản hồi của bình luận cũng sẽ bị xóa.'
+                : 'Bạn có chắc chắn muốn xóa phản hồi này?';
+            if (!confirm(message)) { return; }
+
+            $link.css('pointer-events', 'none').css('opacity', 0.5);
+            $.ajax({
+                url: '/comments/' + id,
+                type: 'DELETE',
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                dataType: 'json',
+                success: function (res) {
+                    var $li = $(type === 'comment' ? '#li-comment-' + id : '#li-reply-' + id);
+                    $li.next('br').remove();
+                    $li.fadeOut(200, function () {
+                        $(this).remove();
+                        $('#comment-count-title').text('Bình luận (' + $('#comment-list > li').length + ')');
+                    });
+                },
+                error: function (xhr) {
+                    var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Không xóa được bình luận, vui lòng thử lại.';
+                    alert(msg);
+                    $link.css('pointer-events', '').css('opacity', 1);
+                }
+            });
+        });
+
         // --- HÀM THÊM BÌNH LUẬN TRỰC TIẾP VÀO GIAO DIỆN KHÔNG CẦN F5 ---
         function appendNewComment(comment, user, createdAt) {
             if ($('#li-comment-' + comment.id).length > 0) return;
@@ -1312,6 +1353,7 @@
                                 '<h4 class="name">' + user.name + '</h4> | ' +
                                 '<span class="comment-date">' + createdAt + '</span> ' +
                                 '<a class="reply-link" data-id="' + comment.id + '" data-tagged="' + user.id + '" style="cursor: pointer;"><i class="fa fa-reply-all"></i> Trả lời</a>' +
+                                ((String(user.id) === currentUserId || isAdminUser) ? ' <a class="delete-comment-link" data-id="' + comment.id + '" data-type="comment" title="Xóa bình luận này"><i class="fa fa-trash-o"></i> Xóa</a>' : '') +
                             '</div>' +
                             '<p>' + comment.content + '</p>' +
                         '</div>' +
@@ -1362,6 +1404,7 @@
                                 '<h4 class="name">' + user.name + '</h4> | ' +
                                 '<span class="comment-date">' + createdAt + '</span> ' +
                                 '<a class="reply-link" data-id="' + parentCommentId + '" data-child="' + comment.id + '" data-tagged="' + user.id + '" style="cursor: pointer;"><i class="fa fa-reply-all"></i> Trả lời</a>' +
+                                ((String(user.id) === currentUserId || isAdminUser) ? ' <a class="delete-comment-link" data-id="' + comment.id + '" data-type="reply" title="Xóa phản hồi này"><i class="fa fa-trash-o"></i> Xóa</a>' : '') +
                             '</div>' +
                             '<p>' + comment.content + '</p>' +
                         '</div>' +

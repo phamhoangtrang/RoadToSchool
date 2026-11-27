@@ -50,7 +50,7 @@ class Notification extends Model
                 $result =
                     Notification::create([
                         'type' => self::COMMENT,
-                        'content' => '<b>' . $comment->user->name . '</b> đã bình luận trong khóa học <b>' . Course::findOrFail($courseOrLectureId)->first()->title . '</b>: ' . $comment->content,
+                        'content' => '<b>' . $comment->user->name . '</b> đã bình luận trong khóa học <b>' . Course::findOrFail($courseOrLectureId)->title . '</b>: ' . $comment->content,
                         'status' => self::NOT_SEEN,
                         'course_id' => $courseOrLectureId,
                         'comment_id' => $comment->id,

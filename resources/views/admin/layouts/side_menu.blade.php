@@ -184,6 +184,20 @@
                         </li>
                     </ul>
                 </li>
+
+                @php $qaUnanswered = \App\Http\Controllers\Instructor\QaController::unansweredCount(\Auth::user()); @endphp
+                <li class="nav-item dropdown {{ setOpen('instructor/qa') }}">
+                    <a class="dropdown-toggle" href="{{ route('instructor.qa.index') }}">
+                        <span class="icon-holder">
+                            <i class="mdi mdi-comment-question-outline"></i>
+                        </span>
+                        <span class="title">Hỏi đáp
+                            @if($qaUnanswered > 0)
+                                <span class="badge badge-pill badge-danger" style="margin-left: 6px;">{{ $qaUnanswered }}</span>
+                            @endif
+                        </span>
+                    </a>
+                </li>
             @endcan
             {{--<li class="nav-item dropdown">--}}
             {{--<a class="dropdown-toggle" href="javascript:void(0);">--}}

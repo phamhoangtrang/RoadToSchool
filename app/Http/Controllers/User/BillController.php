@@ -158,18 +158,6 @@ class BillController extends Controller
         return view('user.cart_items.checkout_success', compact('bill'));
     }
 
-    public function simulatePayment($id)
-    {
-        $bill = Bill::findOrFail($id);
-        $bill->activateBill();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Thanh toán giả lập thành công! Khóa học đã được kích hoạt.',
-            'redirect_url' => route('bills.success', $bill->id),
-        ]);
-    }
-
     public function handleSepayWebhook(Request $request)
     {
         if ($request->isMethod('get')) {

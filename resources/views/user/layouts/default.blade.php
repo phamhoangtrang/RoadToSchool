@@ -54,12 +54,9 @@
                     @php
                         $isCurrentUser = ($message->from_id == \Auth::user()->id);
                         $sender = \App\Models\User::find($message->from_id);
-                        $senderName = $isCurrentUser ? 'Bạn' : ($sender ? $sender->name : 'Trợ lý R2S');
-                        if (!$isCurrentUser && ($sender && ($sender->is_admin == 1 || $sender->role == 1))) {
-                            $senderName = 'Trợ lý AI RoadToSchool';
-                        }
+                        $senderName = $isCurrentUser ? 'Bạn' : \App\Http\Controllers\User\ConversationController::senderLabel($sender);
                     @endphp
-                    <div class="direct-chat-msg doted-border {{ $isCurrentUser ? 'text-right' : '' }}" style="margin-bottom: 14px;">
+                    <div class="direct-chat-msg doted-border {{ $isCurrentUser ? 'text-right' : '' }}" data-message-id="{{ $message->id }}" style="margin-bottom: 14px;">
                         <div class="direct-chat-info clearfix">
                             <span class="direct-chat-name {{ $isCurrentUser ? 'pull-right' : 'pull-left' }}" style="font-weight: 600; color: {{ $isCurrentUser ? '#34495e' : '#e67e22' }};">
                                 @if(!$isCurrentUser) <i class="fa fa-android"></i> @endif
@@ -90,6 +87,7 @@
     <div class="popup-messages-footer">
         <textarea id="status_message" placeholder="Hỏi về khóa học, học phí, thanh toán... (Nhấn Enter để gửi)" rows="2" cols="40" name="message" style="border-radius: 8px; font-size: 13px;"></textarea>
         <input type="hidden" value="{{ \Auth::user()->id }}" id="sender-id">
+        <input type="hidden" value="{{ $messageList->max('id') ?? 0 }}" id="last-message-id">
     </div>
 </div>
 @endif

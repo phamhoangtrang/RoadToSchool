@@ -49,7 +49,9 @@ class HomeController extends Controller
             $endDate = Carbon::now()->endOfDay();
             $filterTitle = '1 tuần qua (' . $startDate->format('d/m/Y') . ' - ' . $endDate->format('d/m/Y') . ')';
         } elseif ($preset === '30_days') {
-            $startDate = Carbon::now()->subDays(29)->startOfDay();
+            // 1 tháng qua = từ cùng ngày của tháng trước đến hôm nay (vd 16/10 - 16/11).
+            // Dùng subMonthNoOverflow để ngày 31 không bị nhảy sang tháng sau (31/03 -> 28/02).
+            $startDate = Carbon::now()->subMonthNoOverflow()->startOfDay();
             $endDate = Carbon::now()->endOfDay();
             $filterTitle = '1 tháng qua (' . $startDate->format('d/m/Y') . ' - ' . $endDate->format('d/m/Y') . ')';
         } elseif ($preset === 'this_month') {

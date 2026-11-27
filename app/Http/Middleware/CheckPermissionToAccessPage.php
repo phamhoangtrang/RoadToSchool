@@ -23,8 +23,8 @@ class CheckPermissionToAccessPage
             return redirect()->route('login');
         }
 
-        // Super admin has all access
-        if ($user->is_admin == 1) {
+        // Chỉ super admin được toàn quyền; các admin khác bị kiểm tra theo quyền được cấp
+        if ($user->isSuperAdmin()) {
             return $next($request);
         }
 

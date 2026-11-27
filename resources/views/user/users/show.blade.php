@@ -358,6 +358,7 @@
                                         {{ Form::model($selectedUser, ['route' => ['users.update', $selectedUser->id], 'enctype' => 'multipart/form-data']) }}
                                         {{ Form::hidden('role', $selectedUser->role) }}
                                         <input name="_method" type="hidden" value="PUT">
+                                        <input type="hidden" name="delete_avatar" id="delete-avatar" value="0">
                                         <div class="form-group">
                                             {{ Form::label('name', __('titles.name') . ' *', ['class' => 'control-label']) }}
                                             <div @if ($errors->has('name')) class="error-input" @endif>
@@ -388,8 +389,8 @@
                                                             <span class="avatar-box-title">Ảnh hiện tại</span>
                                                             <div class="avatar-circle-frame">
                                                                 <img id="current-img"
-                                                                     src="{{ str_replace('public', '', asset($selectedUser->avatar)) }}"
-                                                                     onerror="this.src='{{ asset('assets/img/default_avatar.png') }}';"
+                                                                     src="{{ $selectedUser->avatar_url }}"
+                                                                     onerror="this.onerror=null; this.src='{{ asset('assets/img/avatar_users/default_avatar.png') }}';"
                                                                      alt="Avatar hiện tại"/>
                                                             </div>
                                                         </div>
@@ -421,8 +422,13 @@
                                                             </button>
                                                         </div>
                                                         <p class="avatar-tip-text">
-                                                            <i class="fa fa-info-circle"></i> Định dạng: JPG, PNG, GIF. Kích thước tối đa 2MB.
+                                                            <i class="fa fa-info-circle"></i> Chọn ảnh JPG, PNG hoặc GIF bất kỳ, hệ thống sẽ tự thu nhỏ và cắt vuông cho phù hợp.
                                                         </p>
+                                                        @if ($errors->has('avatar'))
+                                                            <p class="error-input-p" style="color: #dc2626; font-weight: 600;">
+                                                                <i class="fa fa-exclamation-circle"></i> {{ $errors->first('avatar') }}
+                                                            </p>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -453,7 +459,7 @@
                                             {{ Form::select('grade', \App\Models\User::$grades, null, ['class' => 'form-control fix-select', 'id' => 'select-grade', 'placeholder' => __('titles.choose_grade'), 'style' => 'margin-top: 10px;']) }}
                                             <p class="error-input-p"> {{ $errors->first('grade')}} </p>
                                         </div>
-                                        <button type="submit" class="btn-submit-profile" name="update_info">
+                                        <button type="submit" class="btn-submit-profile" name="update_info" value="1">
                                             <i class="fa fa-check"></i> {{ __('titles.update') }}
                                         </button>
                                         {{ Form::close() }}
@@ -498,33 +504,6 @@
             $('#personal-page').addClass('active');
         });
 
-        function readURL(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    $('#current-avatar').attr('src', e.target.result);
-                    $('#cancel').fadeIn(1000);
-                };
-                reader.readAsDataURL(input.files[0]);
-                $('#cancel-value').attr('disabled', '');
-                $('#delete-value').attr('disabled', '');
-            }
-        }
-
-        function backAvatar() {
-            $('#current-avatar').attr('src', '{{ str_replace("public/", "", asset($selectedUser->avatar)) }}');
-            $('#cancel-value').removeAttr('disabled');
-            $('#delete-value').attr('disabled', '');
-            $('#cancel').fadeOut(1000);
-        }
-
-        function deleteAvatar() {
-            $('#current-avatar').attr('src', '{{ str_replace('public/', '', asset('assets/img/basic_avatar.png')) }}');
-            $('#cancel').fadeIn(1000);
-            $('#cancel-value').attr('disabled', '');
-            $('#delete-value').removeAttr('disabled');
-        }
-
         $('select#province').change(function () {
             var provinceId = $(this).val();
             $('#district').children().fadeOut();
@@ -567,7 +546,8 @@
             var province = $('#province option:selected').text();
             var district = $('#district option:selected').text();
             var commune = $('#commune option:selected').text();
-            var address = province + ' province, ' + district + ' district, ' + commune + ' commune.';
+            // Địa chỉ viết theo thứ tự Việt Nam: Xã/Phường, Quận/Huyện, Tỉnh/Thành phố
+            var address = commune + ', ' + district + ', ' + province;
             $('#address').val(address);
         });
         $('select#select-grade').change(function () {
@@ -591,40 +571,98 @@
             }
         });
 
-        $('#button-redo-avatar').on('click', function (e) {
-            e.preventDefault();
+        // ===== Ảnh đại diện =====
+        var DEFAULT_AVATAR = '{{ asset('assets/img/avatar_users/default_avatar.png') }}';
+
+        function resetNewAvatar() {
+            $('#avatar-client-msg').remove();
+            $('#delete-avatar').val('0');
+            $('#imgInp').val('');
+            $('.avatar-filename-display').val('');
             $('#img-upload').attr('src', '').hide();
             $('#new-avatar-placeholder').show();
-            $('.avatar-filename-display').val('');
-            $('#imgInp').val('');
-            $('#button-redo-avatar').fadeOut(300);
-            $('#button-delete-avatar').fadeIn(300);
-        });
+            $('#button-redo-avatar').fadeOut(200);
+        }
 
-        $('#button-delete-avatar').on('click', function (e) {
-            e.preventDefault();
-            $('#img-upload').attr('src', '{{ asset("images/default_avatar/default_avatar.jpg") }}').show();
-            $('#new-avatar-placeholder').hide();
-            $('#button-delete-avatar').fadeOut(300);
-            $('#button-redo-avatar').fadeIn(300);
-        });
-
-        function readURL(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    $('#img-upload').attr('src', e.target.result).show();
-                    $('#new-avatar-placeholder').hide();
-                }
-
-                reader.readAsDataURL(input.files[0]);
-                $('#button-redo-avatar').fadeIn(300);
+        function showAvatarMessage(msg) {
+            $('#avatar-client-msg').remove();
+            if (msg) {
+                $('.avatar-tip-text').after('<p id="avatar-client-msg" style="color:#dc2626;font-weight:600;margin:6px 0 0;"><i class="fa fa-exclamation-circle"></i> ' + msg + '</p>');
             }
         }
 
-        $("#imgInp").change(function () {
-            readURL(this);
+        // Tự thu nhỏ + cắt vuông ảnh (tối đa 400x400) trước khi tải lên, nên ảnh lớn vẫn dùng được
+        $('#imgInp').on('change', function () {
+            var input = this;
+            var file = input.files && input.files[0];
+            showAvatarMessage('');
+            if (!file) { return; }
+            if (!/^image\//.test(file.type)) {
+                showAvatarMessage('Tệp được chọn không phải là ảnh.');
+                resetNewAvatar();
+                return;
+            }
+
+            var img = new Image();
+            var objectUrl = URL.createObjectURL(file);
+            img.onload = function () {
+                var size = 400;
+                var side = Math.min(img.width, img.height);
+                var sx = (img.width - side) / 2, sy = (img.height - side) / 2;
+                var canvas = document.createElement('canvas');
+                canvas.width = canvas.height = Math.min(size, side);
+                var ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, sx, sy, side, side, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(objectUrl);
+
+                canvas.toBlob(function (blob) {
+                    if (!blob) { showAvatarMessage('Không xử lý được ảnh này, vui lòng chọn ảnh khác.'); resetNewAvatar(); return; }
+                    var newName = 'avatar.jpg';
+                    try {
+                        var resized = new File([blob], newName, {type: 'image/jpeg'});
+                        var dt = new DataTransfer();
+                        dt.items.add(resized);
+                        input.files = dt.files;
+                    } catch (err) {
+                        // Trình duyệt cũ không hỗ trợ: chỉ chấp nhận ảnh nhỏ gốc
+                        if (file.size > 2 * 1024 * 1024) {
+                            showAvatarMessage('Ảnh vượt quá 2MB, vui lòng chọn ảnh nhỏ hơn.');
+                            resetNewAvatar();
+                            return;
+                        }
+                    }
+                    $('#img-upload').attr('src', canvas.toDataURL('image/jpeg', 0.9)).show();
+                    $('#new-avatar-placeholder').hide();
+                    $('#delete-avatar').val('0');
+                    $('.avatar-filename-display').val(file.name);
+                    $('#button-redo-avatar').fadeIn(200);
+                }, 'image/jpeg', 0.85);
+            };
+            img.onerror = function () {
+                URL.revokeObjectURL(objectUrl);
+                showAvatarMessage('Không đọc được ảnh này (định dạng không được hỗ trợ), vui lòng chọn ảnh JPG hoặc PNG.');
+                resetNewAvatar();
+            };
+            img.src = objectUrl;
+        });
+
+        // Xóa ảnh: đánh dấu xóa, xem trước ảnh mặc định, lưu khi bấm nút Lưu
+        $('#button-delete-avatar').on('click', function (e) {
+            e.preventDefault();
+            $('#imgInp').val('');
+            $('.avatar-filename-display').val('');
+            $('#delete-avatar').val('1');
+            $('#img-upload').attr('src', DEFAULT_AVATAR).show();
+            $('#new-avatar-placeholder').hide();
+            $('#button-redo-avatar').fadeIn(200);
+        });
+
+        // Khôi phục: bỏ thay đổi, giữ ảnh hiện tại
+        $('#button-redo-avatar').on('click', function (e) {
+            e.preventDefault();
+            resetNewAvatar();
         });
     </script>
 @endsection

@@ -23,6 +23,68 @@ class ConversationController extends Controller
         $this->aiChatService = $aiChatService;
     }
 
+    /**
+     * Tài khoản đại diện gửi câu trả lời của Trợ lý AI.
+     */
+    public static function aiSenderId()
+    {
+        $adminUser = User::where('is_admin', 1)->orWhere('role', 1)->first();
+
+        return $adminUser ? $adminUser->id : 1;
+    }
+
+    /**
+     * Tên hiển thị của người gửi tin nhắn (không phải học viên) trong khung chat.
+     */
+    public static function senderLabel($sender)
+    {
+        if (!$sender) {
+            return 'Trợ lý R2S';
+        }
+        if ($sender->id == self::aiSenderId()) {
+            return 'Trợ lý AI RoadToSchool';
+        }
+        if ($sender->is_admin == 1 || $sender->role == 1) {
+            return 'Quản trị viên R2S';
+        }
+
+        return $sender->name;
+    }
+
+    /**
+     * Trả về các tin nhắn mới (id > after) gửi cho học viên, để khung chat tự cập nhật
+     * mà không cần tải lại trang.
+     */
+    public function messages(Request $request)
+    {
+        $user = \Auth::user();
+        $conversation = $this->modelConversation->where('user_sender_id', $user->id)->first();
+        if (!$conversation) {
+            return response()->json(['messages' => []]);
+        }
+
+        $messages = $this->modelConversationMessage
+            ->where('conversation_id', $conversation->id)
+            ->where('id', '>', (int)$request->query('after', 0))
+            ->where('from_id', '!=', $user->id)
+            ->orderBy('id')
+            ->limit(50)
+            ->get();
+
+        $senders = User::whereIn('id', $messages->pluck('from_id')->unique())->get()->keyBy('id');
+
+        return response()->json([
+            'messages' => $messages->map(function ($m) use ($senders) {
+                return [
+                    'id' => $m->id,
+                    'content' => $m->content,
+                    'sender_name' => self::senderLabel($senders->get($m->from_id)),
+                    'created_time' => $m->created_at ? $m->created_at->toTimeString() : '',
+                ];
+            })->values(),
+        ]);
+    }
+
     public function store(Request $request)
     {
         $data = $request->all();
@@ -80,8 +142,7 @@ class ConversationController extends Controller
         $aiReplyMessage = null;
         try {
             // Lấy ID tài khoản Admin đại diện để trả lời
-            $adminUser = User::where('is_admin', 1)->orWhere('role', 1)->first();
-            $adminSenderId = $adminUser ? $adminUser->id : 1;
+            $adminSenderId = self::aiSenderId();
 
             // Lấy 6 tin nhắn gần nhất làm ngữ cảnh
             $recentMessages = $this->modelConversationMessage

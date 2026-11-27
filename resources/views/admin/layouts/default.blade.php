@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 @include('admin.layouts.head')
 <body>
 <div class="app header-info-gradient side-nav-dark">
@@ -15,10 +15,10 @@
             <footer class="content-footer">
                 <div class="footer">
                     <div class="copyright">
-                        <span>Copyright © 2026 <b class="text-dark">PhamHoangTrang</b>. All rights reserved.</span>
+                        <span>Copyright © 2026 <b class="text-dark">PhamHoangTrang</b>. Bảo lưu mọi quyền.</span>
                         <span class="go-right">
-                                <a href="#" class="text-gray m-r-15">Term &amp; Conditions</a>
-                                <a href="#" class="text-gray">Privacy &amp; Policy</a>
+                                <a href="#" class="text-gray m-r-15">Điều khoản sử dụng</a>
+                                <a href="#" class="text-gray">Chính sách bảo mật</a>
                             </span>
                     </div>
                 </div>

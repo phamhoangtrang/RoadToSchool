@@ -41,7 +41,8 @@ class CheckUserToLecture
         if($request->route()->getName() != 'quiz.result' && $this->modelLecture->findOrFail($routeParams['lectureId'])->is_quiz) {
             $check = $this->modelQuizResult->where('lecture_id', $routeParams['lectureId'])->where('user_id',$request->user()->id)->first();
             if($check) {
-                return abort(404, "You did this quiz !!!");
+                // Đã làm rồi: chuyển tới trang kết quả (ở đó có nút "Làm lại bài")
+                return redirect()->route('quiz.result', [$courseId, $routeParams['lectureId']]);
             }
         }
 

@@ -28,6 +28,7 @@ class UpdateUserRequest extends FormRequest
                 'name' => 'required|min:3',
                 'address' => 'required',
                 'grade' => 'required',
+                'avatar' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             ];
         }
 

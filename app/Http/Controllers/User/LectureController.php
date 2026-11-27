@@ -148,12 +148,17 @@ class LectureController extends Controller
     public function postCommentToPusher(Request $request, $lectureId)
     {
         $data = $request->all();
-        $data['user_id'] = $data['userId'];
+        $data['user_id'] = \Auth::id();
         $data['lecture_id'] = $lectureId;
 
         $createdLectureComment = $this->modelLectureComment->storeNewLectureComment($data);
         if ($createdLectureComment) {
             $lectureCommentedUserList = $this->modelLectureComment->where('lecture_id', $lectureId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
+            // Giảng viên của khóa học cũng nhận thông báo khi có bình luận mới trong bài giảng
+            $lectureOwnerId = optional(optional(Lecture::find($lectureId))->course)->user_id;
+            if ($lectureOwnerId && $lectureOwnerId != $data['user_id']) {
+                $lectureCommentedUserList = collect($lectureCommentedUserList)->push($lectureOwnerId)->unique()->values();
+            }
             // Create Notification
             $this->modelNotification->createCommentNotification($lectureId, $lectureCommentedUserList, $createdLectureComment, Notification::LECTURE_COMMENT);
             $lecture = Lecture::find($lectureId);
@@ -186,7 +191,7 @@ class LectureController extends Controller
     public function postReplyLectureCommentToPusher(Request $request, $lectureId, $parentCommentId)
     {
         $data = $request->all();
-        $data['user_id'] = $data['userId'];
+        $data['user_id'] = \Auth::id();
         $data['lecture_id'] = $lectureId;
         $data['parent_comment'] = $parentCommentId;
 
@@ -225,6 +230,9 @@ class LectureController extends Controller
             ->where('user_id', \Auth::user()->id)
             ->get()
             ->last();
+        if (!$quizResult) {
+            return redirect()->route('courses.lectures.show', [$courseId, $lectureId]);
+        }
         foreach ($allQuestion as $question) {
             // TODO xu ly cau hoi nhieu dap an va 1 dap an, pick dap an dung cho phu hop
             $answer = $this->modelQuizElement->where('lecture_id', $lectureId)->where('question_parent_id', $question->id)->get();

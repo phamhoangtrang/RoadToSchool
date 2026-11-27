@@ -196,15 +196,42 @@ class CourseController extends Controller
         return $replacedString;
     }
 
+    /**
+     * Xóa bình luận (kèm các phản hồi của nó). Chỉ chủ bình luận hoặc admin mới được xóa.
+     */
+    public function destroyComment(Request $request, $id)
+    {
+        $comment = $this->modelComment->find($id);
+        if (!$comment) {
+            return response()->json(['success' => false, 'message' => 'Bình luận không tồn tại hoặc đã bị xóa.'], 404);
+        }
+
+        $user = \Auth::user();
+        if ($user->id !== $comment->user_id && !$user->is_admin) {
+            return response()->json(['success' => false, 'message' => 'Bạn không có quyền xóa bình luận này.'], 403);
+        }
+
+        $deletedIds = $this->modelComment->where('parent_comment', $comment->id)->pluck('id')->push($comment->id)->all();
+        $this->modelNotification->whereIn('comment_id', $deletedIds)->delete();
+        $this->modelComment->whereIn('id', $deletedIds)->delete();
+
+        return response()->json(['success' => true, 'deleted_ids' => $deletedIds]);
+    }
+
     public function postCommentToPusher(Request $request, $courseId)
     {
         $data = $request->all();
-        $data['user_id'] = $data['userId'];
+        $data['user_id'] = \Auth::id();
         $data['course_id'] = $courseId;
 
         $createdComment = $this->modelComment->storeNewComment($data);
         if ($createdComment) {
             $commentedUserList = $this->modelComment->where('course_id', $courseId)->whereNull('parent_comment')->where('user_id', '!=', $data['user_id'])->groupBy('user_id')->pluck('user_id');
+            // Giảng viên của khóa học cũng nhận thông báo khi có bình luận mới
+            $courseOwnerId = optional(Course::find($courseId))->user_id;
+            if ($courseOwnerId && $courseOwnerId != $data['user_id']) {
+                $commentedUserList = collect($commentedUserList)->push($courseOwnerId)->unique()->values();
+            }
             // Create Notification
             $this->modelNotification->createCommentNotification($courseId, $commentedUserList, $createdComment, Notification::COMMENT);
             $course = Course::find($courseId);
@@ -237,7 +264,7 @@ class CourseController extends Controller
     public function postReplyCommentToPusher(Request $request, $courseId, $parentCommentId)
     {
         $data = $request->all();
-        $data['user_id'] = $data['userId'];
+        $data['user_id'] = \Auth::id();
         $data['course_id'] = $courseId;
         $data['parent_comment'] = $parentCommentId;
 

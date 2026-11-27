@@ -16,6 +16,9 @@
                 <h1 class="auth-title">Chào mừng trở lại</h1>
                 <p class="auth-subtitle">Đăng nhập để tiếp tục học tập cùng Road To School</p>
 
+                @if (session('status'))
+                    <div class="auth-alert success">{{ session('status') }}</div>
+                @endif
                 @if (session('warning'))
                     <div class="auth-alert warning">{{ session('warning') }}</div>
                 @endif
@@ -43,7 +46,7 @@
                     </div>
                 </div>
                 <div class="auth-row-end">
-                    <a href="">{{ __('titles.forgot_password') }}</a>
+                    <a href="{{ route('password.request') }}">{{ __('titles.forgot_password') }}</a>
                 </div>
                 {{ Form::submit(__('titles.login'), ['class' => 'auth-submit']) }}
                 {{ Form::close() }}
